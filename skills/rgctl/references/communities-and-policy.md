@@ -105,12 +105,12 @@ Returns hits pooled by community rather than individual functions.
 
 ### Interpreting Communities
 
-| Pattern | Interpretation |
-|---------|----------------|
-| Large community with clear label | Well-defined functional domain |
-| Unexpectedly large community | Tight coupling between what should be separate |
-| Many small singleton communities | Low cohesion, scattered dependencies |
-| Cross-package communities | Logical grouping transcends directory structure |
+| Pattern                          | Interpretation                                  |
+|----------------------------------|-------------------------------------------------|
+| Large community with clear label | Well-defined functional domain                  |
+| Unexpectedly large community     | Tight coupling between what should be separate  |
+| Many small singleton communities | Low cohesion, scattered dependencies            |
+| Cross-package communities        | Logical grouping transcends directory structure |
 
 ### Common Questions
 
@@ -173,14 +173,14 @@ Example `policy.json`:
 
 **Rules:**
 
-| Field | Type | Meaning |
-|-------|------|---------|
-| `max_impact_nodes` | number | Max allowed blast-radius impact zone size |
-| `centrality_alert_threshold` | number (0-1) | Centrality score above which to alert |
-| `forbidden_crossings` | array | Disallowed call patterns between modules |
-| `forbidden_crossings[].from_pattern` | regex | Caller pattern |
-| `forbidden_crossings[].to_pattern` | regex | Callee pattern |
-| `forbidden_crossings[].reason` | string | Human explanation |
+| Field                                | Type         | Meaning                                   |
+|--------------------------------------|--------------|-------------------------------------------|
+| `max_impact_nodes`                   | number       | Max allowed blast-radius impact zone size |
+| `centrality_alert_threshold`         | number (0-1) | Centrality score above which to alert     |
+| `forbidden_crossings`                | array        | Disallowed call patterns between modules  |
+| `forbidden_crossings[].from_pattern` | regex        | Caller pattern                            |
+| `forbidden_crossings[].to_pattern`   | regex        | Callee pattern                            |
+| `forbidden_crossings[].reason`       | string       | Human explanation                         |
 
 **See:** Policy Format Guide (product docs; not bundled in this skill pack) for full schema
 
@@ -294,11 +294,11 @@ The `gatekeeping` field in blast-radius response shows per-symbol policy status:
 
 ### Common Violations
 
-| Violation | Cause | Fix |
-|-----------|-------|-----|
-| Impact zone too large | Utility function called everywhere | Extract interface, inject dependency |
-| High centrality | Central hub in call graph | Split into smaller functions, reduce coupling |
-| Forbidden crossing | Controller → Database direct call | Introduce service layer |
+| Violation             | Cause                              | Fix                                           |
+|-----------------------|------------------------------------|-----------------------------------------------|
+| Impact zone too large | Utility function called everywhere | Extract interface, inject dependency          |
+| High centrality       | Central hub in call graph          | Split into smaller functions, reduce coupling |
+| Forbidden crossing    | Controller → Database direct call  | Introduce service layer                       |
 
 ---
 
@@ -423,20 +423,20 @@ rgctl -f json communities list | jq -r '.communities[] | "\(.id): \(.label)"' | 
 
 ### Communities
 
-| Issue | Fix |
-|-------|-----|
-| No communities detected | Run `discover` (detection happens during analysis) |
-| Labels are stale/missing | Run `communities label --write` |
+| Issue                         | Fix                                                                          |
+|-------------------------------|------------------------------------------------------------------------------|
+| No communities detected       | Run `discover` (detection happens during analysis)                           |
+| Labels are stale/missing      | Run `communities label --write`                                              |
 | `--scope community` returns 0 | Large repos produce granular clusters; use `communities list` + grep instead |
-| Community ID unknown | Run `communities list` first; ID only exists if analysis ran |
+| Community ID unknown          | Run `communities list` first; ID only exists if analysis ran                 |
 
 ### Policy Checks
 
-| Issue | Fix |
-|-------|-----|
-| `check` exits 1 | Expected on violations; parse JSON for details |
-| Policy file not found | Use absolute path or relative to repo root |
-| All functions violate threshold | Threshold too strict; use `metrics --pagerank` to calibrate |
+| Issue                             | Fix                                                                                    |
+|-----------------------------------|----------------------------------------------------------------------------------------|
+| `check` exits 1                   | Expected on violations; parse JSON for details                                         |
+| Policy file not found             | Use absolute path or relative to repo root                                             |
+| All functions violate threshold   | Threshold too strict; use `metrics --pagerank` to calibrate                            |
 | Forbidden crossing not triggering | Test regex with `find` / `callers` first; ensure pattern matches actual function names |
 
 ---

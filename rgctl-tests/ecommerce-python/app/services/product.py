@@ -1,12 +1,11 @@
 import uuid
 
-from sqlalchemy.orm import Session
-
 from app.exceptions import ConflictError, NotFoundError
 from app.models.product import Product
 from app.repositories.category import CategoryRepository
 from app.repositories.product import ProductRepository
 from app.schemas.product import CreateProductRequest, ProductResponse
+from sqlalchemy.orm import Session
 
 
 class ProductService:

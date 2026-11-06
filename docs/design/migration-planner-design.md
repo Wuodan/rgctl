@@ -8,12 +8,12 @@ This document describes the **Software Migration & Blast Radius Planner** as imp
 
 The migration planner helps teams produce a **step-by-step extraction roadmap** for breaking apart a monolith (or large codebase) into migratable units. It combines:
 
-| Input | Role |
-|-------|------|
-| **PageRank** | Architectural importance / centrality |
-| **Harmonic centrality** | Reachability / “closeness” in the call graph (**requires `discover --with-harmonic`**; otherwise harmonic terms are zero) |
-| **Blast radius** | Downstream impact risk if a node changes |
-| **Call-graph dependencies** | Ordering constraints (callees before callers) |
+| Input                       | Role                                                                                                                      |
+|-----------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| **PageRank**                | Architectural importance / centrality                                                                                     |
+| **Harmonic centrality**     | Reachability / “closeness” in the call graph (**requires `discover --with-harmonic`**; otherwise harmonic terms are zero) |
+| **Blast radius**            | Downstream impact risk if a node changes                                                                                  |
+| **Call-graph dependencies** | Ordering constraints (callees before callers)                                                                             |
 
 Users can tune a **multi-objective score** with presets or custom α/β/γ weights, compare **dependency-aware schedule** vs **pure priority rank**, and explore results interactively in the dashboard or export JSON for CI.
 
@@ -85,12 +85,12 @@ Exported as `migration_graph.json` with `"mode": "package_macro"`.
 
 Implemented in `crates/rgctl-analysis/src/migration.rs` as `package_label(file_path)` (same rules as `crates/rgctl-dashboard/src/metagraph.rs`):
 
-| Path pattern | Example | Label |
-|--------------|---------|-------|
-| Contains `/java/` | `src/main/java/com/foo/Bar.java` | `com.foo` |
-| Contains `/src/` | `src/graph/detection/mod.rs` | `src.graph.detection` |
-| Fallback | `lib/util/helper.c` | parent dir with `/` → `.` |
-| No path | — | `root` |
+| Path pattern      | Example                          | Label                     |
+|-------------------|----------------------------------|---------------------------|
+| Contains `/java/` | `src/main/java/com/foo/Bar.java` | `com.foo`                 |
+| Contains `/src/`  | `src/graph/detection/mod.rs`     | `src.graph.detection`     |
+| Fallback          | `lib/util/helper.c`              | parent dir with `/` → `.` |
+| No path           | —                                | `root`                    |
 
 **Language notes:**
 
@@ -158,12 +158,12 @@ Default weights (`MigrationWeights::hybrid_default`): α=0.33, β=0.33, γ=0.34.
 
 ### 4.2 Presets
 
-| Preset id | Label | α | β | γ | Intent |
-|-----------|-------|---|---|---|--------|
-| `hybrid_default` | Hybrid Default | 0.33 | 0.33 | 0.34 | Balanced |
-| `foundational_first` | Foundational First | 0.60 | 0.30 | 0.10 | Favor high centrality |
-| `dense_cluster` | Dense Cluster Extraction | 0.20 | 0.50 | 0.30 | Favor harmonic / reachability |
-| `risk_mitigation` | Risk Mitigation | 0.10 | 0.20 | 0.70 | Penalize blast radius heavily |
+| Preset id            | Label                    | α    | β    | γ    | Intent                        |
+|----------------------|--------------------------|------|------|------|-------------------------------|
+| `hybrid_default`     | Hybrid Default           | 0.33 | 0.33 | 0.34 | Balanced                      |
+| `foundational_first` | Foundational First       | 0.60 | 0.30 | 0.10 | Favor high centrality         |
+| `dense_cluster`      | Dense Cluster Extraction | 0.20 | 0.50 | 0.30 | Favor harmonic / reachability |
+| `risk_mitigation`    | Risk Mitigation          | 0.10 | 0.20 | 0.70 | Penalize blast radius heavily |
 
 Custom slider values set preset to **`custom`** when no preset matches (tolerance 0.001 per weight).
 
@@ -195,10 +195,10 @@ Rust uses a `BinaryHeap` for the ready queue; TypeScript sorts the ready array e
 
 ### 5.3 Order modes
 
-| Mode | `steps` array sort | `#` column |
-|------|-------------------|------------|
+| Mode                  | `steps` array sort | `#` column           |
+|-----------------------|--------------------|----------------------|
 | `scheduled` (default) | by `schedule_step` | dependency-aware row |
-| `priority` | by `priority_rank` | score-only row |
+| `priority`            | by `priority_rank` | score-only row       |
 
 CLI: `--migration-order scheduled|priority`  
 Dashboard: **Roadmap sort** dropdown in Metrics & tuning.
@@ -283,14 +283,14 @@ Migration uses pre-aggregated package metrics in `migration_graph.json`.
 
 ## 7. Rust implementation map
 
-| Component | Path |
-|-----------|------|
-| Graph build + plan compute | `crates/rgctl-analysis/src/migration.rs` |
-| Public exports | `crates/rgctl-analysis/src/lib.rs` |
-| Dashboard bundle write | `crates/rgctl-dashboard/src/migration_export.rs` |
-| Discover integration | `crates/rgctl-dashboard/src/lib.rs` → `export_dashboard_bundle` |
-| CLI flags | `src/cli/mod.rs`, `src/cli/discover.rs`, `src/cli/discover_impl.rs` |
-| Manifest fields | `crates/rgctl-dashboard/src/manifest.rs` (`migration_available`, paths) |
+| Component                  | Path                                                                    |
+|----------------------------|-------------------------------------------------------------------------|
+| Graph build + plan compute | `crates/rgctl-analysis/src/migration.rs`                                |
+| Public exports             | `crates/rgctl-analysis/src/lib.rs`                                      |
+| Dashboard bundle write     | `crates/rgctl-dashboard/src/migration_export.rs`                        |
+| Discover integration       | `crates/rgctl-dashboard/src/lib.rs` → `export_dashboard_bundle`         |
+| CLI flags                  | `src/cli/mod.rs`, `src/cli/discover.rs`, `src/cli/discover_impl.rs`     |
+| Manifest fields            | `crates/rgctl-dashboard/src/manifest.rs` (`migration_available`, paths) |
 
 Key functions:
 
@@ -333,15 +333,15 @@ Top → bottom:
 
 ### 8.3 TypeScript engine (mirror of Rust)
 
-| Module | Responsibility |
-|--------|----------------|
-| `dashboard/src/migration/scoring.ts` | normalize + priority score |
-| `dashboard/src/migration/topologicalSort.ts` | Kahn schedule |
-| `dashboard/src/migration/priorityRank.ts` | score-only ordering |
-| `dashboard/src/migration/engine.ts` | `computeMigrationPlan` orchestration |
-| `dashboard/src/migration/presets.ts` | preset definitions + `matchPreset` |
-| `dashboard/src/migration/types.ts` | JSON TypeScript types |
-| `dashboard/src/migration/layoutWeights.ts` | graph layout edge weights |
+| Module                                       | Responsibility                       |
+|----------------------------------------------|--------------------------------------|
+| `dashboard/src/migration/scoring.ts`         | normalize + priority score           |
+| `dashboard/src/migration/topologicalSort.ts` | Kahn schedule                        |
+| `dashboard/src/migration/priorityRank.ts`    | score-only ordering                  |
+| `dashboard/src/migration/engine.ts`          | `computeMigrationPlan` orchestration |
+| `dashboard/src/migration/presets.ts`         | preset definitions + `matchPreset`   |
+| `dashboard/src/migration/types.ts`           | JSON TypeScript types                |
+| `dashboard/src/migration/layoutWeights.ts`   | graph layout edge weights            |
 
 ### 8.4 Graph visualization
 
@@ -386,27 +386,27 @@ rgctl serve -r /path/to/repo --open
 
 Flags:
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--with-harmonic` | off | Compute harmonic centrality (needed for migration β / dense_cluster) |
-| `--with-universe` | off | Write `.rgctl/dashboard/` universe (v2) bundle |
-| `--export-migration-hints` | off | Write plan JSON (alias: `--export-migration-hints`) |
-| `--migration-preset` | `hybrid_default` | Strategy preset |
-| `--migration-order` | `scheduled` | `scheduled` or `priority` |
-| `-o` | `.rgctl/migration_plan.json` | Output path (`--export-migration-hints`) |
+| Flag                       | Default                      | Description                                                          |
+|----------------------------|------------------------------|----------------------------------------------------------------------|
+| `--with-harmonic`          | off                          | Compute harmonic centrality (needed for migration β / dense_cluster) |
+| `--with-universe`          | off                          | Write `.rgctl/dashboard/` universe (v2) bundle                       |
+| `--export-migration-hints` | off                          | Write plan JSON (alias: `--export-migration-hints`)                  |
+| `--migration-preset`       | `hybrid_default`             | Strategy preset                                                      |
+| `--migration-order`        | `scheduled`                  | `scheduled` or `priority`                                            |
+| `-o`                       | `.rgctl/migration_plan.json` | Output path (`--export-migration-hints`)                             |
 
 ---
 
 ## 10. Testing
 
-| Layer | Location | What it checks |
-|-------|----------|----------------|
-| Rust unit | `crates/rgctl-analysis/src/migration.rs` (`mod tests`) | package labels, aggregation, Kahn order, dual rank, tie-break, presets |
-| Vitest | `dashboard/src/migration/engine.test.ts` | scoring, schedule vs priority, preset matching |
-| CLI integration | `tests/migration_plan_cli.rs` | export file, stdout JSON, presets, `--migration-order` |
-| Dashboard harness | `tests/dashboard_harness.rs` | `migration_graph.json` + plan schema v2 fields on discover |
-| Playwright | `dashboard/scripts/test-migration.mjs`, `test-migration-gbuilder.mjs` | unified UI, graph canvas, preset reactivity, pagination |
-| Doc screenshots | `capture-design-screenshots.mjs` + `capture-migration-screenshots.mjs` | PNGs under `docs/images/design/migration-planner/` |
+| Layer             | Location                                                               | What it checks                                                         |
+|-------------------|------------------------------------------------------------------------|------------------------------------------------------------------------|
+| Rust unit         | `crates/rgctl-analysis/src/migration.rs` (`mod tests`)                 | package labels, aggregation, Kahn order, dual rank, tie-break, presets |
+| Vitest            | `dashboard/src/migration/engine.test.ts`                               | scoring, schedule vs priority, preset matching                         |
+| CLI integration   | `tests/migration_plan_cli.rs`                                          | export file, stdout JSON, presets, `--migration-order`                 |
+| Dashboard harness | `tests/dashboard_harness.rs`                                           | `migration_graph.json` + plan schema v2 fields on discover             |
+| Playwright        | `dashboard/scripts/test-migration.mjs`, `test-migration-gbuilder.mjs`  | unified UI, graph canvas, preset reactivity, pagination                |
+| Doc screenshots   | `capture-design-screenshots.mjs` + `capture-migration-screenshots.mjs` | PNGs under `docs/images/design/migration-planner/`                     |
 
 Run locally:
 
@@ -474,14 +474,14 @@ Add paired unit tests with the same fixture expectations.
 
 ## 12. Known limitations
 
-| Topic | Current behavior |
-|-------|------------------|
-| Betweenness | Exported, not in score |
-| Intra-package calls | Not shown as macro edges |
-| C/Rust “package” | Directory/module path, not build-system unit |
-| Cycles in call graph | Scheduled via fallback (not true SCC-aware planner) |
-| Plan on disk | Default export only; dashboard always recalculates from graph + UI state |
-| Very large repos | Capped at 256 macro nodes + `(other)` bucket |
+| Topic                | Current behavior                                                         |
+|----------------------|--------------------------------------------------------------------------|
+| Betweenness          | Exported, not in score                                                   |
+| Intra-package calls  | Not shown as macro edges                                                 |
+| C/Rust “package”     | Directory/module path, not build-system unit                             |
+| Cycles in call graph | Scheduled via fallback (not true SCC-aware planner)                      |
+| Plan on disk         | Default export only; dashboard always recalculates from graph + UI state |
+| Very large repos     | Capped at 256 macro nodes + `(other)` bucket                             |
 
 ---
 

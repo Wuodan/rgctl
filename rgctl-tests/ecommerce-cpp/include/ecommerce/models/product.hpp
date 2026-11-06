@@ -3,7 +3,7 @@
 namespace ecommerce::models {
 class ProductHelper {
 public:
-    static void init(Product* obj);
-    static bool validate(const Product* obj);
+  static void init(Product *obj);
+  static bool validate(const Product *obj);
 };
-}  // namespace ecommerce::models
+} // namespace ecommerce::models

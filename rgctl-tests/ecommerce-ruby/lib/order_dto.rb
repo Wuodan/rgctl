@@ -10,6 +10,6 @@ class OrderDTO
   end
 
   def mark_processed
-    @status = 'PROCESSED'
+    @status = "PROCESSED"
   end
 end

@@ -39,5 +39,5 @@ int cfgIfInit(int n) {
 
 int cfgTernary(int x) { return x > 0 ? x : -x; }
 
-}  // namespace correctness
-}  // namespace ecommerce
+} // namespace correctness
+} // namespace ecommerce

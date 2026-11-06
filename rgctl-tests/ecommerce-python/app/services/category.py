@@ -1,11 +1,10 @@
 import uuid
 
-from sqlalchemy.orm import Session
-
 from app.exceptions import ConflictError, NotFoundError
 from app.models.category import Category
 from app.repositories.category import CategoryRepository
 from app.schemas.category import CategoryResponse, CreateCategoryRequest
+from sqlalchemy.orm import Session
 
 
 class CategoryService:

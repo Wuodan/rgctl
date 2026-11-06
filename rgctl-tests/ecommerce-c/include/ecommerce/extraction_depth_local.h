@@ -2,7 +2,7 @@
 #define EXTRACTION_DEPTH_LOCAL_H
 
 typedef struct Cart {
-    int id;
+  int id;
 } Cart;
 
 #endif

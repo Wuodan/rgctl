@@ -8,9 +8,7 @@
         "type": "name_pattern",
         "pattern": "(?i)(auth|login|verify|token)"
       },
-      "actions": [
-        { "type": "add_label", "label": "security:critical" }
-      ]
+      "actions": [{ "type": "add_label", "label": "security:critical" }]
     },
     {
       "name": "high_complexity",
@@ -18,9 +16,7 @@
         "type": "complexity_gt",
         "value": 15
       },
-      "actions": [
-        { "type": "add_label", "label": "complexity:high" }
-      ]
+      "actions": [{ "type": "add_label", "label": "complexity:high" }]
     },
     {
       "name": "deprecated_api",
@@ -28,9 +24,7 @@
         "type": "name_pattern",
         "pattern": "(?i)legacy"
       },
-      "actions": [
-        { "type": "add_label", "label": "api:deprecated" }
-      ]
+      "actions": [{ "type": "add_label", "label": "api:deprecated" }]
     }
   ]
 }

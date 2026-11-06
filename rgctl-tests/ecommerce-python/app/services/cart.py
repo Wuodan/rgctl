@@ -1,10 +1,9 @@
-from sqlalchemy.orm import Session
-
 from app.exceptions import BadRequestError, NotFoundError
 from app.models.cart import CartItem
 from app.repositories.cart import CartRepository
 from app.repositories.product import ProductRepository
 from app.schemas.cart import AddCartItemRequest, CartItemResponse
+from sqlalchemy.orm import Session
 
 
 class CartService:
@@ -32,7 +31,9 @@ class CartService:
             assert item is not None
             return CartItemResponse.model_validate(item)
 
-        item = CartItem(user_id=user_id, product_id=req.product_id, quantity=req.quantity)
+        item = CartItem(
+            user_id=user_id, product_id=req.product_id, quantity=req.quantity
+        )
         self.cart.add(item)
         loaded = self.cart.get_item(user_id, req.product_id)
         assert loaded is not None

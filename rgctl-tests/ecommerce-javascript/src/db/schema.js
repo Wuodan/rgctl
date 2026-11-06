@@ -61,6 +61,6 @@ CREATE TABLE IF NOT EXISTS reviews (
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_product ON reviews(product_id);
-`;
+`
 
-module.exports = { SCHEMA_SQL };
+module.exports = { SCHEMA_SQL }

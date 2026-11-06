@@ -1,4 +1,4 @@
-require_relative '../../lib/order_dto'
+require_relative "../../lib/order_dto"
 
 class OrderService
   def process(order)

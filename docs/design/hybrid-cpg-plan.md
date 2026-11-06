@@ -28,13 +28,13 @@ L_query  = virtual CPG API joins L_repo ⟷ L_proc by function UUID (+ call site
 
 ## 1. Why this shape
 
-| Concern | Choice |
-|---------|--------|
-| Scale (linux-class repos) | Keep topology digest stable; deep facts stay opt-in sidecars |
-| Agent UX | One **CPG view** API, not “remember three CLIs” |
-| Mutation queries | Need **typed field writes**, not only name-based PDG locals |
-| Incremental | L_proc rebuilds with CFG archive; L_repo unchanged by CPG façade |
-| Interop | Optional export phase later; not blocking hybrid query |
+| Concern                   | Choice                                                           |
+|---------------------------|------------------------------------------------------------------|
+| Scale (linux-class repos) | Keep topology digest stable; deep facts stay opt-in sidecars     |
+| Agent UX                  | One **CPG view** API, not “remember three CLIs”                  |
+| Mutation queries          | Need **typed field writes**, not only name-based PDG locals      |
+| Incremental               | L_proc rebuilds with CFG archive; L_repo unchanged by CPG façade |
+| Interop                   | Optional export phase later; not blocking hybrid query           |
 
 ```mermaid
 flowchart TB
@@ -60,17 +60,17 @@ flowchart TB
 
 ## 2. Phased delivery
 
-| Phase | Outcome | User-visible |
-|-------|---------|--------------|
-| **P0** | CPG façade over existing CFG/PDG + CALL | `rgctl cpg …` / HTTP; docs for agents |
-| **P1** | Field-write IR + type-linked mutation index | OrderDTO Turn-2 query works on fixtures |
-| **P1 status** | **Shipped:** `field_write.index.bin`, `cpg mutations --type … --exclude-ctors` | |
-| **P2** | Unified slice / flows in CPG API | OrderDTO Turn-5 without separate mental model |
-| **P2 status** | **Shipped:** `cpg flows` + shared `ForwardSlicer` | |
-| **P3** | DFG fidelity tiers (loop / must–may opt-in) | Fewer false negatives on hard dataflow |
-| **P3 status** | **Shipped:** `--with-dfg-loops`, `cpg flows --with-alias` | |
-| **P4** | Optional AST skeleton + CPG export | Syntax queries + Joern/Neo4j interop |
-| **P4 status** | **Shipped:** `--with-ast-skeleton`, `cpg ast`, `cpg export` | |
+| Phase         | Outcome                                                                        | User-visible                                  |
+|---------------|--------------------------------------------------------------------------------|-----------------------------------------------|
+| **P0**        | CPG façade over existing CFG/PDG + CALL                                        | `rgctl cpg …` / HTTP; docs for agents         |
+| **P1**        | Field-write IR + type-linked mutation index                                    | OrderDTO Turn-2 query works on fixtures       |
+| **P1 status** | **Shipped:** `field_write.index.bin`, `cpg mutations --type … --exclude-ctors` |                                               |
+| **P2**        | Unified slice / flows in CPG API                                               | OrderDTO Turn-5 without separate mental model |
+| **P2 status** | **Shipped:** `cpg flows` + shared `ForwardSlicer`                              |                                               |
+| **P3**        | DFG fidelity tiers (loop / must–may opt-in)                                    | Fewer false negatives on hard dataflow        |
+| **P3 status** | **Shipped:** `--with-dfg-loops`, `cpg flows --with-alias`                      |                                               |
+| **P4**        | Optional AST skeleton + CPG export                                             | Syntax queries + Joern/Neo4j interop          |
+| **P4 status** | **Shipped:** `--with-ast-skeleton`, `cpg ast`, `cpg export`                    |                                               |
 
 Ship **P0→P2** before P3/P4. P1 is the gate for the record-refactor agent story.
 
@@ -131,15 +131,15 @@ Today:
 
 **Field write fact** (stored in L_proc record and/or compact index):
 
-| Field | Meaning |
-|-------|---------|
-| `function_id` | Enclosing method UUID (L_repo) |
-| `is_constructor` | true for `<init>` / language ctor |
-| `receiver_local` | e.g. `order` (optional) |
-| `receiver_type` | Resolved type name / FQN when known |
-| `member` | Field name e.g. `status` |
-| `file`, `line`, `code_snippet` | For agent observation |
-| `kind` | `DirectField` \| `ThisField` \| … |
+| Field                          | Meaning                             |
+|--------------------------------|-------------------------------------|
+| `function_id`                  | Enclosing method UUID (L_repo)      |
+| `is_constructor`               | true for `<init>` / language ctor   |
+| `receiver_local`               | e.g. `order` (optional)             |
+| `receiver_type`                | Resolved type name / FQN when known |
+| `member`                       | Field name e.g. `status`            |
+| `file`, `line`, `code_snippet` | For agent observation               |
+| `kind`                         | `DirectField` \| `ThisField` \| …   |
 
 **Resolution v1 (soundness-bounded):**
 
@@ -188,11 +188,11 @@ Agents switch to `slice` / Joern `reachableByFlows` mentally; hybrid CPG should 
 
 Map:
 
-| CPG concept | rgctl |
-|-------------|----------|
-| `reachableByFlows` (forward) | Forward PDG slice / data-dep BFS |
-| Backward slice | Existing `slice` default |
-| Interproc (best-effort) | Existing interprocedural slicer when archive + call graph allow |
+| CPG concept                  | rgctl                                                           |
+|------------------------------|-----------------------------------------------------------------|
+| `reachableByFlows` (forward) | Forward PDG slice / data-dep BFS                                |
+| Backward slice               | Existing `slice` default                                        |
+| Interproc (best-effort)      | Existing interprocedural slicer when archive + call graph allow |
 
 ### Steps
 
@@ -215,11 +215,11 @@ Map:
 
 Tighten L_proc data edges without changing L_repo.
 
-| Tier | Flag (illustrative) | Adds |
-|------|---------------------|------|
-| T0 | (default with `--with-cfg` / lazy append) | Flow/Anti/Output with lexical `(name, scope_id)` reaching defs |
-| T1 | `--with-dfg-loops` | Loop-carried dependence classification |
-| T2 | `--with-dfg-alias` / on-demand | Must/May alias for selected functions |
+| Tier | Flag (illustrative)                       | Adds                                                           |
+|------|-------------------------------------------|----------------------------------------------------------------|
+| T0   | (default with `--with-cfg` / lazy append) | Flow/Anti/Output with lexical `(name, scope_id)` reaching defs |
+| T1   | `--with-dfg-loops`                        | Loop-carried dependence classification                         |
+| T2   | `--with-dfg-alias` / on-demand            | Must/May alias for selected functions                          |
 
 ### Steps
 
@@ -294,12 +294,12 @@ Keep topology pure; expose derived facts via `cpg` / structured verbs rather tha
 
 ## 10. Schema / storage
 
-| Artifact | Role | When written |
-|----------|------|--------------|
-| `graph.snapshot.bin` | L_repo | Always (unchanged role) |
-| `analysis/cfg_pdg.archive.bin` | L_proc CFG/PDG v3 TOC (+ optional embedded field writes) | `--with-cfg` (full) or lazy `ensure_cfg_pdg_for_source` (single fn) |
-| `analysis/field_write.index.bin` | Inverted mutation index | `--with-cfg` (P1) |
-| (future) `analysis/ast_skeleton…` | Coarse AST | P4 opt-in |
+| Artifact                          | Role                                                     | When written                                                        |
+|-----------------------------------|----------------------------------------------------------|---------------------------------------------------------------------|
+| `graph.snapshot.bin`              | L_repo                                                   | Always (unchanged role)                                             |
+| `analysis/cfg_pdg.archive.bin`    | L_proc CFG/PDG v3 TOC (+ optional embedded field writes) | `--with-cfg` (full) or lazy `ensure_cfg_pdg_for_source` (single fn) |
+| `analysis/field_write.index.bin`  | Inverted mutation index                                  | `--with-cfg` (P1)                                                   |
+| (future) `analysis/ast_skeleton…` | Coarse AST                                               | P4 opt-in                                                           |
 
 Bump archive / index **version** fields; reject stale with clear CLI errors. Invalidate on graph digest change like other sidecars.
 
@@ -307,24 +307,24 @@ Bump archive / index **version** fields; reject stale with clear CLI errors. Inv
 
 ## 11. Testing strategy
 
-| Layer | Focus |
-|-------|--------|
-| Unit | `def_use` field-access write; type resolve; mutation filter ctors |
-| Integration | OrderDTO fixture script (§8) |
-| Perf | `--with-cfg` + field index vs baseline on ecommerce-java; RSS/wall in CI job or manual profile log |
-| JSON schema | `json-api.md` + golden `-f json` |
+| Layer       | Focus                                                                                              |
+|-------------|----------------------------------------------------------------------------------------------------|
+| Unit        | `def_use` field-access write; type resolve; mutation filter ctors                                  |
+| Integration | OrderDTO fixture script (§8)                                                                       |
+| Perf        | `--with-cfg` + field index vs baseline on ecommerce-java; RSS/wall in CI job or manual profile log |
+| JSON schema | `json-api.md` + golden `-f json`                                                                   |
 
 ---
 
 ## 12. Docs & agent surface
 
-| Doc | Update |
-|-----|--------|
-| AGENTS.md | Hybrid CPG commands table |
-| agent-recipes.md | DTO→record ReAct recipe |
-| user-guide.md | `cpg` section; lazy flows/slice vs `--with-cfg` for mutations |
-| HTTP Server and Dashboard | `/api/cpg` (if exposed) |
-| This plan → later | Split into `hybrid-cpg-design.md` after P2 ships (screenshots if UI) |
+| Doc                       | Update                                                               |
+|---------------------------|----------------------------------------------------------------------|
+| AGENTS.md                 | Hybrid CPG commands table                                            |
+| agent-recipes.md          | DTO→record ReAct recipe                                              |
+| user-guide.md             | `cpg` section; lazy flows/slice vs `--with-cfg` for mutations        |
+| HTTP Server and Dashboard | `/api/cpg` (if exposed)                                              |
+| This plan → later         | Split into `hybrid-cpg-design.md` after P2 ships (screenshots if UI) |
 
 Dashboard: **not required** for P0–P2 (CLI/HTTP agent-first). Optional later: mutations panel.
 
@@ -332,12 +332,12 @@ Dashboard: **not required** for P0–P2 (CLI/HTTP agent-first). Optional later: 
 
 ## 13. Risk register
 
-| Risk | Mitigation |
-|------|------------|
+| Risk                                  | Mitigation                                                                          |
+|---------------------------------------|-------------------------------------------------------------------------------------|
 | Type recovery too weak → false “safe” | Require `--exclude-unresolved` default off for “proof” mode; print unresolved count |
-| Index doubles archive I/O | Standalone mmap index; lazy per-type |
-| Agents expect Joern-style query DSL | Document mapping table; do not pretend Scala DSL |
-| Scope creep into unified store | Explicit non-goal; review any PR touching snapshot digest for CPG |
+| Index doubles archive I/O             | Standalone mmap index; lazy per-type                                                |
+| Agents expect Joern-style query DSL   | Document mapping table; do not pretend Scala DSL                                    |
+| Scope creep into unified store        | Explicit non-goal; review any PR touching snapshot digest for CPG                   |
 
 ---
 
@@ -358,8 +358,8 @@ Dashboard: **not required** for P0–P2 (CLI/HTTP agent-first). Optional later: 
 
 Hybrid CPG quality is gated by language plugins. **Layer F is required for every Tier 1 language** (Java sets the bar). Full checklist: [tier-1-language-support.md § Layer F](../tier-1-language-support.md).
 
-| Status | Languages |
-|--------|-----------|
+| Status             | Languages                                                                                                                                                            |
+|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Parity shipped** | Java, C#, Go, C, C++, TypeScript, JavaScript, Python, Rust, PHP, Ruby — fields/ctors/typed params + `field_write` golden mutation tests + `field_write_locals` merge |
 
 Do **not** put full type checkers in plugins. Bound resolution: decl / param / field / import. Dynamic languages (JS/Python without annotations) may still return more `Unresolved` receivers — that is expected, not a pass to skip F1–F6 shapes.

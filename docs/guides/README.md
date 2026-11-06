@@ -2,7 +2,7 @@
 
 User-facing feature guides live in the **[rgctl-website](https://github.com/rgctl/rgctl-website)** repository under `docs/guides/` and are published at:
 
-**https://rgctl.io/docs/guides/**
+**<https://rgctl.io/docs/guides/>**
 
 Legacy `https://rgctl.io/…` URLs redirect to `https://rgctl.io/…`.
 

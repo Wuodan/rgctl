@@ -20,11 +20,10 @@ import argparse
 import html
 import json
 import os
-import re
 import shutil
 import subprocess
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -32,6 +31,7 @@ from typing import Any
 # ---------------------------------------------------------------------------
 # Project configuration (Tier 1 e-commerce apps)
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class ProjectConfig:
@@ -168,6 +168,7 @@ STATUS_ICON = {
 # rgctl runner
 # ---------------------------------------------------------------------------
 
+
 def resolve_rgctl(explicit: str | None) -> Path:
     if explicit:
         path = Path(explicit).expanduser().resolve()
@@ -199,9 +200,7 @@ def resolve_rgctl(explicit: str | None) -> Path:
         if c.is_file():
             return c.resolve()
 
-    sys.exit(
-        "Could not find rgctl. Set RGCTL=/path/to/rgctl or pass --rgctl."
-    )
+    sys.exit("Could not find rgctl. Set RGCTL=/path/to/rgctl or pass --rgctl.")
 
 
 def run_cmd(
@@ -242,7 +241,9 @@ def parse_json_out(stdout: str) -> Any | None:
 
 
 def gql_count(rgctl: Path, cwd: Path, label: str) -> int | None:
-    code, out, _ = run_cmd(rgctl, ["-f", "json", "gql", f"MATCH (n:{label}) RETURN n"], cwd)
+    code, out, _ = run_cmd(
+        rgctl, ["-f", "json", "gql", f"MATCH (n:{label}) RETURN n"], cwd
+    )
     if code != 0:
         code, out, _ = run_cmd(rgctl, ["gql", f"MATCH (n:{label}) RETURN n"], cwd)
         if code != 0:
@@ -350,7 +351,9 @@ def run_project(
             "project": project.id,
             "language": project.language,
             "path": project.dir_name,
-            "features": {"discover": {"status": "fail", "error": f"missing directory {cwd}"}},
+            "features": {
+                "discover": {"status": "fail", "error": f"missing directory {cwd}"}
+            },
             "cache_mb": 0,
         }
 
@@ -401,7 +404,9 @@ def run_project(
         ["gql", "MATCH (a:Function)-[:CALLS]->(b:Function) RETURN a,b LIMIT 500"],
         cwd,
     )
-    calls_sample = len([ln for ln in calls_out.splitlines() if ln.strip() and "Error" not in ln])
+    calls_sample = len(
+        [ln for ln in calls_out.splitlines() if ln.strip() and "Error" not in ln]
+    )
     result["features"]["gql"] = {
         "status": "ok",
         "functions": gql_count(rgctl, cwd, "Function"),
@@ -447,7 +452,11 @@ def run_project(
         "score": bm.get("score"),
         "impact_zone_size": bm.get("impact_zone_size"),
         "direct_callers": bm.get("direct_callers_count"),
-        "target_file": (blast.get("target") or {}).get("file_path") if isinstance(blast, dict) else None,
+        "target_file": (
+            (blast.get("target") or {}).get("file_path")
+            if isinstance(blast, dict)
+            else None
+        ),
         "error": err.strip()[-300:] if code != 0 else None,
     }
     (out_dir / f"{project.id}-blast.json").write_text(out)
@@ -487,7 +496,9 @@ def run_project(
         cwd,
     )
     result["features"]["export"] = {
-        "status": "ok" if export_path.is_file() and export_path.stat().st_size > 0 else "fail",
+        "status": (
+            "ok" if export_path.is_file() and export_path.stat().st_size > 0 else "fail"
+        ),
         "bytes": export_path.stat().st_size if export_path.is_file() else 0,
         "query": "MATCH (n:Function) RETURN n LIMIT 100",
         "error": err.strip()[-200:] if code != 0 else None,
@@ -511,7 +522,12 @@ def run_project(
     slice_path = project.slice_file
     if slice_path and not (cwd / slice_path).is_file():
         alt = next(
-            (p.relative_to(cwd) for p in cwd.rglob("*order*") if p.suffix in {".rs", ".py", ".go", ".java", ".ts", ".js"} and p.is_file()),
+            (
+                p.relative_to(cwd)
+                for p in cwd.rglob("*order*")
+                if p.suffix in {".rs", ".py", ".go", ".java", ".ts", ".js"}
+                and p.is_file()
+            ),
             None,
         )
         if alt:
@@ -550,14 +566,26 @@ def run_project(
             "error": err.strip()[-250:] if code != 0 else None,
         }
     else:
-        result["features"]["slice"] = {"status": "unsupported", "note": "slice source file not found"}
-        result["features"]["taint"] = {"status": "unsupported", "note": "slice source file not found"}
+        result["features"]["slice"] = {
+            "status": "unsupported",
+            "note": "slice source file not found",
+        }
+        result["features"]["taint"] = {
+            "status": "unsupported",
+            "note": "slice source file not found",
+        }
 
     inspect_sym = project.blast_symbol.split("::")[-1]
-    for mode, key in [("cfg", "inspect_cfg"), ("pdg", "inspect_pdg"), ("dom", "inspect_dom")]:
+    for mode, key in [
+        ("cfg", "inspect_cfg"),
+        ("pdg", "inspect_pdg"),
+        ("dom", "inspect_dom"),
+    ]:
         code, out, err = run_cmd(rgctl, ["inspect", inspect_sym, mode], cwd)
         if code != 0:
-            code, out, err = run_cmd(rgctl, ["inspect", project.blast_symbol, mode], cwd)
+            code, out, err = run_cmd(
+                rgctl, ["inspect", project.blast_symbol, mode], cwd
+            )
         st = classify_deep(err, code, out)
         preview = out.strip().splitlines()[0][:160] if out.strip() else None
         result["features"][key] = {
@@ -580,6 +608,7 @@ def run_project(
 # ---------------------------------------------------------------------------
 # Report generation
 # ---------------------------------------------------------------------------
+
 
 def icon(status: str | None) -> str:
     return STATUS_ICON.get(status or "", status or "—")
@@ -637,9 +666,7 @@ def html_table(
 
 def status_html(status: str | None) -> str:
     st = status or "na"
-    return (
-        f'<span class="st st-{html_esc(st)}">{html_esc(icon(status))}</span>'
-    )
+    return f'<span class="st st-{html_esc(st)}">{html_esc(icon(status))}</span>'
 
 
 def feature_detail(key: str, feat: dict[str, Any]) -> str:
@@ -685,7 +712,9 @@ def language_executive_summary(project: ProjectConfig, result: dict[str, Any]) -
             f"({d.get('nodes_generated')} nodes, **{d.get('edges_generated')}** edges, "
             f"{d.get('duration_ms')} ms)."
         )
-        if d.get("files_discovered") and d.get("files_indexed", 0) < d.get("files_discovered", 0):
+        if d.get("files_discovered") and d.get("files_indexed", 0) < d.get(
+            "files_discovered", 0
+        ):
             parts.append(
                 f"Partial coverage: **{d['files_indexed']}/{d['files_discovered']}** files indexed."
             )
@@ -694,7 +723,9 @@ def language_executive_summary(project: ProjectConfig, result: dict[str, Any]) -
 
     m = result.get("features", {}).get("metrics", {})
     if isinstance(m.get("modularity"), (int, float)) and m["modularity"] > 0:
-        parts.append(f"Graph modularity **{m['modularity']:.3f}** ({m.get('communities')} communities).")
+        parts.append(
+            f"Graph modularity **{m['modularity']:.3f}** ({m.get('communities')} communities)."
+        )
 
     bt = result.get("blast_top_scores", {})
     if bt.get("count_score_gt_zero", 0) > 0:
@@ -732,7 +763,8 @@ def executive_summary(results: dict[str, Any]) -> str:
     projects = active_projects(results)
     lines = []
     ok = sum(
-        1 for p in projects
+        1
+        for p in projects
         if results[p.id].get("features", {}).get("discover", {}).get("status") == "ok"
     )
     if ok == len(projects):
@@ -752,9 +784,13 @@ def executive_summary(results: dict[str, Any]) -> str:
             f"**{best_edges[1]}** produced the largest call graph in this run (**{best_edges[0]}** edges)."
         )
 
-    java_m = results.get("java", {}).get("features", {}).get("metrics", {}).get("modularity")
+    java_m = (
+        results.get("java", {}).get("features", {}).get("metrics", {}).get("modularity")
+    )
     if java_m:
-        lines.append(f"**Java** modularity **{java_m:.3f}** — clearest community structure in this suite.")
+        lines.append(
+            f"**Java** modularity **{java_m:.3f}** — clearest community structure in this suite."
+        )
 
     go_d = results.get("go", {}).get("features", {}).get("discover", {})
     if go_d.get("files_discovered") and go_d.get("files_indexed"):
@@ -880,7 +916,7 @@ def render_language_markdown(
         "",
         f"**App:** `{project.dir_name}` · **Run date:** {run_date}  ",
         f"**rgctl:** `{rgctl_path}`  ",
-        f"**Summary report:** [REPORT.md](../REPORT.md) · [HTML](../REPORT.html)",
+        "**Summary report:** [REPORT.md](../REPORT.md) · [HTML](../REPORT.html)",
         "",
         "## Overview",
         "",
@@ -895,7 +931,9 @@ def render_language_markdown(
     ]
     for label, key in FEATURE_ROWS:
         feat = f.get(key, {})
-        lines.append(f"| {label} | {icon(feat.get('status'))} | {feature_detail(key, feat)} |")
+        lines.append(
+            f"| {label} | {icon(feat.get('status'))} | {feature_detail(key, feat)} |"
+        )
 
     lines += [
         "",
@@ -983,7 +1021,7 @@ def render_language_markdown(
     c = f.get("check", {})
     lines += [
         f"- Status: {icon(c.get('status'))} · passed={c.get('passed', '—')}",
-        f"- Policy: [`../../rgctl-policy.json`](../../rgctl-policy.json)",
+        "- Policy: [`../../rgctl-policy.json`](../../rgctl-policy.json)",
         "",
         "## Deep analysis",
         "",
@@ -992,8 +1030,8 @@ def render_language_markdown(
     ]
     sl = f.get("slice", {})
     lines += [
-        f"| Field | Value |",
-        f"|-------|-------|",
+        "| Field | Value |",
+        "|-------|-------|",
         f"| Status | {icon(sl.get('status'))} |",
         f"| File | `{sl.get('file', '—')}` |",
         f"| Line | {sl.get('line', '—')} |",
@@ -1038,8 +1076,8 @@ def render_language_markdown(
         "",
         "## Raw artifacts",
         "",
-        f"| File | Description |",
-        f"|------|-------------|",
+        "| File | Description |",
+        "|------|-------------|",
         f"| [`../{project.id}-summary.json`](../{project.id}-summary.json) | Feature matrix |",
         f"| [`../{project.id}-metrics.json`](../{project.id}-metrics.json) | Raw metrics |",
         f"| [`../{project.id}-blast.json`](../{project.id}-blast.json) | Checkout blast-radius |",
@@ -1078,7 +1116,11 @@ def render_language_html(
     top = bt.get("top") or []
 
     feature_rows = [
-        [html_esc(label), status_html(f.get(key, {}).get("status")), html_esc(feature_detail(key, f.get(key, {})))]
+        [
+            html_esc(label),
+            status_html(f.get(key, {}).get("status")),
+            html_esc(feature_detail(key, f.get(key, {}))),
+        ]
         for label, key in FEATURE_ROWS
     ]
 
@@ -1169,11 +1211,31 @@ def render_language_html(
         html_table(
             ["Analysis", "Status", "Details"],
             [
-                ["Slice", status_html(f.get("slice", {}).get("status")), html_esc(feature_detail("slice", f.get("slice", {})))],
-                ["Taint", status_html(f.get("taint", {}).get("status")), html_esc(feature_detail("taint", f.get("taint", {})))],
-                ["Inspect CFG", status_html(f.get("inspect_cfg", {}).get("status")), html_esc(feature_detail("inspect_cfg", f.get("inspect_cfg", {})))],
-                ["Inspect PDG", status_html(f.get("inspect_pdg", {}).get("status")), html_esc(feature_detail("inspect_pdg", f.get("inspect_pdg", {})))],
-                ["Inspect dominators", status_html(f.get("inspect_dom", {}).get("status")), html_esc(feature_detail("inspect_dom", f.get("inspect_dom", {})))],
+                [
+                    "Slice",
+                    status_html(f.get("slice", {}).get("status")),
+                    html_esc(feature_detail("slice", f.get("slice", {}))),
+                ],
+                [
+                    "Taint",
+                    status_html(f.get("taint", {}).get("status")),
+                    html_esc(feature_detail("taint", f.get("taint", {}))),
+                ],
+                [
+                    "Inspect CFG",
+                    status_html(f.get("inspect_cfg", {}).get("status")),
+                    html_esc(feature_detail("inspect_cfg", f.get("inspect_cfg", {}))),
+                ],
+                [
+                    "Inspect PDG",
+                    status_html(f.get("inspect_pdg", {}).get("status")),
+                    html_esc(feature_detail("inspect_pdg", f.get("inspect_pdg", {}))),
+                ],
+                [
+                    "Inspect dominators",
+                    status_html(f.get("inspect_dom", {}).get("status")),
+                    html_esc(feature_detail("inspect_dom", f.get("inspect_dom", {}))),
+                ],
             ],
         ),
         "<h2>Reproduce</h2>",
@@ -1365,14 +1427,16 @@ def render_summary_html(
         d = results[p.id]["features"]["discover"]
         bt = results[p.id].get("blast_top_scores", {})
         max_b = f"{(bt.get('max_score') or 0):.2f}" if not bt.get("skipped") else "—"
-        lang_rows.append([
-            html_esc(p.language),
-            f"<code>{html_esc(p.dir_name)}</code>",
-            html_esc(d.get("files_indexed")),
-            html_esc(d.get("edges_generated")),
-            html_esc(max_b),
-            f'<a href="languages/{html_esc(p.id)}.html">{html_esc(p.id)}</a>',
-        ])
+        lang_rows.append(
+            [
+                html_esc(p.language),
+                f"<code>{html_esc(p.dir_name)}</code>",
+                html_esc(d.get("files_indexed")),
+                html_esc(d.get("edges_generated")),
+                html_esc(max_b),
+                f'<a href="languages/{html_esc(p.id)}.html">{html_esc(p.id)}</a>',
+            ]
+        )
 
     index_rows = []
     for p in projects:
@@ -1380,26 +1444,30 @@ def render_summary_html(
         if d.get("status") != "ok":
             index_rows.append([html_esc(p.language), "—", "—", "—", "—", "—"])
         else:
-            index_rows.append([
-                html_esc(p.language),
-                html_esc(d.get("files_indexed")),
-                html_esc(d.get("nodes_generated")),
-                html_esc(d.get("edges_generated")),
-                html_esc(f"{d.get('duration_ms')} ms"),
-                html_esc(f"{results[p.id]['cache_mb']} MB"),
-            ])
+            index_rows.append(
+                [
+                    html_esc(p.language),
+                    html_esc(d.get("files_indexed")),
+                    html_esc(d.get("nodes_generated")),
+                    html_esc(d.get("edges_generated")),
+                    html_esc(f"{d.get('duration_ms')} ms"),
+                    html_esc(f"{results[p.id]['cache_mb']} MB"),
+                ]
+            )
 
     blast_rows = []
     for p in projects:
         bt = results[p.id].get("blast_top_scores", {})
-        blast_rows.append([
-            html_esc(p.language),
-            html_esc(bt.get("functions_scanned", "—")),
-            html_esc(bt.get("count_score_gt_zero", 0)),
-            html_esc(f"{(bt.get('max_score') or 0):.2f}"),
-            f"<code>{html_esc(bt.get('max_symbol') or '—')}</code>",
-            f'<a href="languages/{html_esc(p.id)}.html">report</a>',
-        ])
+        blast_rows.append(
+            [
+                html_esc(p.language),
+                html_esc(bt.get("functions_scanned", "—")),
+                html_esc(bt.get("count_score_gt_zero", 0)),
+                html_esc(f"{(bt.get('max_score') or 0):.2f}"),
+                f"<code>{html_esc(bt.get('max_symbol') or '—')}</code>",
+                f'<a href="languages/{html_esc(p.id)}.html">report</a>',
+            ]
+        )
 
     body_parts = [
         "<!DOCTYPE html>",
@@ -1413,8 +1481,8 @@ def render_summary_html(
         "<h1>rgctl Summary Report — Tier 1 E-commerce Test Apps</h1>",
         f'<p class="meta"><strong>Run date:</strong> {html_esc(run_date)}<br>',
         f"<strong>rgctl:</strong> <code>{html_esc(rgctl_path)}</code><br>",
-        f'<a href="REPORT.md">Markdown</a> · <a href="all-results.json">JSON</a> · '
-        f'<a href="languages/">Language reports</a></p>',
+        '<a href="REPORT.md">Markdown</a> · <a href="all-results.json">JSON</a> · '
+        '<a href="languages/">Language reports</a></p>',
         f"<p>{html_esc(executive_summary(results))}</p>",
         "<h2>Language reports</h2>",
         html_table(
@@ -1435,7 +1503,14 @@ def render_summary_html(
         ),
         "<h2>Blast-radius scan</h2>",
         html_table(
-            ["Project", "Scanned", "Score &gt; 0", "Max score", "Top symbol", "Details"],
+            [
+                "Project",
+                "Scanned",
+                "Score &gt; 0",
+                "Max score",
+                "Top symbol",
+                "Details",
+            ],
             blast_rows,
             numeric_cols={1, 2, 3},
         ),
@@ -1577,7 +1652,9 @@ def update_parent_readme(repo_root: Path, results: dict[str, Any], run_at: str) 
     readme.write_text(text + "\n".join(block))
 
 
-def update_project_readmes(repo_root: Path, results: dict[str, Any], run_at: str) -> None:
+def update_project_readmes(
+    repo_root: Path, results: dict[str, Any], run_at: str
+) -> None:
     for p in active_projects(results):
         readme = repo_root / p.dir_name / "README.md"
         if not readme.is_file():
@@ -1643,6 +1720,7 @@ Raw: [`../rgctl-reports/{p.id}-summary.json`](../rgctl-reports/{p.id}-summary.js
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -1738,7 +1816,7 @@ def main() -> int:
         st = result["features"].get("discover", {}).get("status")
         if st != "ok":
             failures += 1
-            print(f"  discover: FAIL", flush=True)
+            print("  discover: FAIL", flush=True)
         else:
             d = result["features"]["discover"]
             print(

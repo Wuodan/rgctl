@@ -4,5 +4,5 @@ module.exports = {
   productService: require('./productService'),
   cartService: require('./cartService'),
   orderService: require('./orderService'),
-  reviewService: require('./reviewService'),
-};
+  reviewService: require('./reviewService')
+}

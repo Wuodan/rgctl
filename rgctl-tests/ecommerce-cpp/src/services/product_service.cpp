@@ -3,8 +3,8 @@
 
 namespace ecommerce::services {
 
-int get_product(sqlite3* db, int id, void* out) {
-    return repositories::product_find_by_id(db, id, out);
+int get_product(sqlite3 *db, int id, void *out) {
+  return repositories::product_find_by_id(db, id, out);
 }
 
-}  // namespace ecommerce::services
+} // namespace ecommerce::services

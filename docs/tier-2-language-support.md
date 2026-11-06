@@ -12,14 +12,14 @@ This document explains how **Tier 2** languages (`handler = "queries"`) work in 
 
 rgctl supports **~69 language plugins** across two primary tree-sitter tiers (plus structural mainframe extractors) configured in [`languages.toml`](../languages.toml):
 
-| Capability | Tier 1 (`handler = "custom"`) | Tier 2 (`handler = "queries"`) |
-|------------|-------------------------------|--------------------------------|
-| **Plugin implementation** | Custom Rust [`LanguagePlugin`](../crates/rgctl-plugin-api/src/lib.rs) per crate (`src/plugin.rs`) | Shared [`QueryLanguagePlugin`](../crates/rgctl-lang-runtime/src/query_plugin.rs) driven by `queries/tags.scm` + [`LanguageConfig`](../crates/rgctl-lang-runtime/src/config.rs) |
-| **Grammar verification** | `{id}-ast-coverage.json` manifest mapping every named AST node kind | `rgctl_ast_coverage::check_tags_scm` capture vocabulary gate + grammar compilation test |
-| **Symbols extracted** | Functions, methods, classes, interfaces, structs, enums, modules, fields, constructors, imports | Functions, methods, classes, interfaces, modules, namespaces, types, enums, macros, fields, constants, imports |
-| **Container qualification** | AST scope stack (`ScopeStack`) + package/module FQN | Line-span containment (`Container::member`) via binary search (`partition_point`) |
-| **Relations (`Calls`, `References`, `Implements`)** | Custom AST walkers + receiver/type hints + MRO (`Overrides`) + framework DI | `@reference.call` → `Calls` (attributed to innermost enclosing function/method), `@reference.class` → `References`, `@reference.implementation` → `Implements`, `@import.path` → `Import` |
-| **CFG / PDG / taint / Layer F** | **Required** (`--with-cfg`, `--with-taint`, `cpg mutations`) | Not enabled (structural graph, call graph, blast radius, communities, and search work out of the box) |
+| Capability                                          | Tier 1 (`handler = "custom"`)                                                                     | Tier 2 (`handler = "queries"`)                                                                                                                                                            |
+|-----------------------------------------------------|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Plugin implementation**                           | Custom Rust [`LanguagePlugin`](../crates/rgctl-plugin-api/src/lib.rs) per crate (`src/plugin.rs`) | Shared [`QueryLanguagePlugin`](../crates/rgctl-lang-runtime/src/query_plugin.rs) driven by `queries/tags.scm` + [`LanguageConfig`](../crates/rgctl-lang-runtime/src/config.rs)            |
+| **Grammar verification**                            | `{id}-ast-coverage.json` manifest mapping every named AST node kind                               | `rgctl_ast_coverage::check_tags_scm` capture vocabulary gate + grammar compilation test                                                                                                   |
+| **Symbols extracted**                               | Functions, methods, classes, interfaces, structs, enums, modules, fields, constructors, imports   | Functions, methods, classes, interfaces, modules, namespaces, types, enums, macros, fields, constants, imports                                                                            |
+| **Container qualification**                         | AST scope stack (`ScopeStack`) + package/module FQN                                               | Line-span containment (`Container::member`) via binary search (`partition_point`)                                                                                                         |
+| **Relations (`Calls`, `References`, `Implements`)** | Custom AST walkers + receiver/type hints + MRO (`Overrides`) + framework DI                       | `@reference.call` → `Calls` (attributed to innermost enclosing function/method), `@reference.class` → `References`, `@reference.implementation` → `Implements`, `@import.path` → `Import` |
+| **CFG / PDG / taint / Layer F**                     | **Required** (`--with-cfg`, `--with-taint`, `cpg mutations`)                                      | Not enabled (structural graph, call graph, blast radius, communities, and search work out of the box)                                                                                     |
 
 ---
 
@@ -40,28 +40,28 @@ Every Tier 2 crate (`crates/rgctl-lang-{id}/`) embeds its `queries/tags.scm` at 
 
 All `queries/tags.scm` files are gated by `ALLOWED_TAG_CAPTURES` in [`crates/rgctl-lang-runtime/src/queries.rs`](../crates/rgctl-lang-runtime/src/queries.rs) and `check_tags_scm` in `rgctl-ast-coverage`:
 
-| Capture name | Role | Emitted graph artifact |
-|--------------|------|------------------------|
-| `@name` | Symbol / callee identifier | Node text becomes `Symbol.name` or target of `Relation` |
-| `@doc` | Documentation comment | Stripped comment text stored in `Symbol.documentation` |
-| `@definition.function` | Function / subroutine / procedure | `SymbolType::Function` (counts as caller scope + container) |
-| `@definition.method` | Method / message handler | `SymbolType::Method` (counts as caller scope + container) |
-| `@definition.class` | Class / struct / derived type / contract / model | `SymbolType::Class` (counts as container) |
-| `@definition.interface` | Interface / protocol / trait / typeclass | `SymbolType::Interface` (counts as container) |
-| `@definition.module` | Module / package / library unit | `SymbolType::Module` (counts as container) |
-| `@definition.namespace` | Namespace / table | `SymbolType::Namespace` (counts as container) |
-| `@definition.type` | Type alias / data type / newtype | `SymbolType::Type` (counts as container) |
-| `@definition.enum` | Enum definition | `SymbolType::Enum` (counts as container) |
-| `@definition.macro` | Macro / rule definition | `SymbolType::Macro` |
-| `@definition.field` | Struct/class field or property | `SymbolType::Field` |
-| `@definition.enummember` | Enum variant / constructor | `SymbolType::EnumVariant` |
-| `@definition.constant` | Constant binding | `SymbolType::Constant` |
-| `@definition.import` | Import declaration node | `SymbolType::Import` |
-| `@import.path` | Imported module/path literal or identifier | `SymbolType::Import` (with normalized path & `metadata.import_path`) |
-| `@reference.call` | Function / method / subroutine call site | `RelationType::Calls` (`from` = enclosing function or `<module>`, `to` = `@name`) |
-| `@reference.class` | Type / class reference | `RelationType::References` |
-| `@reference.implementation` | Trait / interface / behaviour implementation | `RelationType::Implements` |
-| `@local.scope`, `@local.definition`, `@local.reference` | Lexical scope helpers | Ignored for graph emission; allowed for upstream `tags.scm` compatibility |
+| Capture name                                            | Role                                             | Emitted graph artifact                                                            |
+|---------------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------------------------------|
+| `@name`                                                 | Symbol / callee identifier                       | Node text becomes `Symbol.name` or target of `Relation`                           |
+| `@doc`                                                  | Documentation comment                            | Stripped comment text stored in `Symbol.documentation`                            |
+| `@definition.function`                                  | Function / subroutine / procedure                | `SymbolType::Function` (counts as caller scope + container)                       |
+| `@definition.method`                                    | Method / message handler                         | `SymbolType::Method` (counts as caller scope + container)                         |
+| `@definition.class`                                     | Class / struct / derived type / contract / model | `SymbolType::Class` (counts as container)                                         |
+| `@definition.interface`                                 | Interface / protocol / trait / typeclass         | `SymbolType::Interface` (counts as container)                                     |
+| `@definition.module`                                    | Module / package / library unit                  | `SymbolType::Module` (counts as container)                                        |
+| `@definition.namespace`                                 | Namespace / table                                | `SymbolType::Namespace` (counts as container)                                     |
+| `@definition.type`                                      | Type alias / data type / newtype                 | `SymbolType::Type` (counts as container)                                          |
+| `@definition.enum`                                      | Enum definition                                  | `SymbolType::Enum` (counts as container)                                          |
+| `@definition.macro`                                     | Macro / rule definition                          | `SymbolType::Macro`                                                               |
+| `@definition.field`                                     | Struct/class field or property                   | `SymbolType::Field`                                                               |
+| `@definition.enummember`                                | Enum variant / constructor                       | `SymbolType::EnumVariant`                                                         |
+| `@definition.constant`                                  | Constant binding                                 | `SymbolType::Constant`                                                            |
+| `@definition.import`                                    | Import declaration node                          | `SymbolType::Import`                                                              |
+| `@import.path`                                          | Imported module/path literal or identifier       | `SymbolType::Import` (with normalized path & `metadata.import_path`)              |
+| `@reference.call`                                       | Function / method / subroutine call site         | `RelationType::Calls` (`from` = enclosing function or `<module>`, `to` = `@name`) |
+| `@reference.class`                                      | Type / class reference                           | `RelationType::References`                                                        |
+| `@reference.implementation`                             | Trait / interface / behaviour implementation     | `RelationType::Implements`                                                        |
+| `@local.scope`, `@local.definition`, `@local.reference` | Lexical scope helpers                            | Ignored for graph emission; allowed for upstream `tags.scm` compatibility         |
 
 ### 2.2 Header-to-body span promotion (`definition_span_node`)
 
@@ -101,50 +101,50 @@ After collecting all definitions and sorting them by `(start_line, end_line, nam
 
 All Tier 2 languages registered in [`languages.toml`](../languages.toml) with `handler = "queries"` (37 prior + Apex, Pascal/Delphi, Perl, Ada, MATLAB):
 
-| Language | ID | Crate | Grammar crate | Extensions | `function_kinds` | `class_kinds` |
-|----------|----|-------|---------------|------------|------------------|---------------|
-| **Ada** | `ada` | `rgctl-lang-ada` | `tree-sitter-ada` | `.adb`, `.ads`, `.ada` | `subprogram_declaration`, `subprogram_body` | `full_type_declaration`, `task_type_declaration` |
-| **Apex (Salesforce)** | `apex` | `rgctl-lang-apex` | `tree-sitter-sfapex` | `.cls`, `.trigger`, `.apex` | `method_declaration`, `constructor_declaration` | `class_declaration`, `interface_declaration`, `trigger_declaration` |
-| **Clojure** | `clojure` | `rgctl-lang-clojure` | `tree-sitter-clojure` | `.clj`, `.cljs`, `.cljc` | `list_lit` | — |
-| **CMake** | `cmake` | `rgctl-lang-cmake` | `tree-sitter-cmake` | `.cmake` | `function_def` | — |
-| **CSS** | `css` | `rgctl-lang-css` | `tree-sitter-css` | `.css` | `keyframes_statement` | `rule_set` |
-| **CUDA** | `cuda` | `rgctl-lang-cuda` | `tree-sitter-cuda` | `.cu`, `.cuh` | `function_definition` | `struct_specifier`, `class_specifier` |
-| **D** | `d` | `rgctl-lang-d` | `tree-sitter-d` | `.d` | `function_declaration` | `class_declaration`, `struct_declaration` |
-| **Emacs Lisp** | `elisp` | `rgctl-lang-elisp` | `tree-sitter-elisp` | `.el` | `function_definition` | — |
-| **Elm** | `elm` | `rgctl-lang-elm` | `tree-sitter-elm` | `.elm` | `value_declaration` | `type_declaration` |
-| **Erlang** | `erlang` | `rgctl-lang-erlang` | `tree-sitter-erlang` | `.erl`, `.hrl` | `fun_decl`, `function_clause` | `record_decl` |
-| **Fortran** | `fortran` | `rgctl-lang-fortran` | `tree-sitter-fortran` | `.f90`, `.f95`, `.f03`, `.f08`, `.F90` | `function`, `subroutine` | `derived_type_definition` |
-| **F#** | `fsharp` | `rgctl-lang-fsharp` | `tree-sitter-fsharp` | `.fs`, `.fsi`, `.fsx` | `function_or_value_defn` | `type_definition` |
-| **GDScript** | `gdscript` | `rgctl-lang-gdscript` | `tree-sitter-gdscript` | `.gd` | `function_definition` | `class_definition` |
-| **Gleam** | `gleam` | `rgctl-lang-gleam` | `tree-sitter-gleam` | `.gleam` | `function` | `type_definition` |
-| **GLSL** | `glsl` | `rgctl-lang-glsl` | `tree-sitter-glsl` | `.glsl`, `.vert`, `.frag`, `.comp` | `function_definition` | `struct_specifier` |
-| **GraphQL** | `graphql` | `rgctl-lang-graphql` | `tree-sitter-graphql` | `.graphql`, `.gql` | `operation_definition`, `fragment_definition` | `object_type_definition` |
-| **Haskell** | `haskell` | `rgctl-lang-haskell` | `tree-sitter-haskell` | `.hs` | `function` | `class`, `data_type`, `newtype` |
-| **HTML** | `html` | `rgctl-lang-html` | `tree-sitter-html` | `.html`, `.htm` | `script_element` | `element` |
-| **JSON** | `json` | `rgctl-lang-json` | `tree-sitter-json` | `.json` | — | `object` |
-| **Julia** | `julia` | `rgctl-lang-julia` | `tree-sitter-julia` | `.jl` | `function_definition` | `struct_definition` |
-| **Makefile** | `make` | `rgctl-lang-make` | `tree-sitter-make` | `.mk`, `.mak` | `rule` | — |
-| **MATLAB** | `matlab` | `rgctl-lang-matlab` | `tree-sitter-matlab` | `.matlab`, `.m` | `function_definition` | `class_definition` |
-| **Nix** | `nix` | `rgctl-lang-nix` | `tree-sitter-nix` | `.nix` | `function_expression` | — |
-| **Objective-C** | `objc` | `rgctl-lang-objc` | `tree-sitter-objc` | `.m`, `.mm` | `function_definition`, `method_definition` | `class_interface`, `class_implementation` |
-| **Pascal / Delphi** | `pascal` | `rgctl-lang-pascal` | `tree-sitter-pascal` | `.pas`, `.dpr`, `.dpk`, `.pp`, `.lpr` | `defProc`, `declProc` | `declClass`, `declIntf` |
-| **Perl** | `perl` | `rgctl-lang-perl` | `ts-parser-perl` | `.pl`, `.pm`, `.t` | `subroutine_declaration_statement` | — |
-| **OCaml** | `ocaml` | `rgctl-lang-ocaml` | `tree-sitter-ocaml` | `.ml`, `.mli` | `value_definition` | `class_definition` |
-| **Odin** | `odin` | `rgctl-lang-odin` | `tree-sitter-odin` | `.odin` | `procedure_declaration` | `struct_declaration` |
-| **PowerShell** | `powershell` | `rgctl-lang-powershell` | `tree-sitter-powershell` | `.ps1`, `.psm1` | `function_statement` | `class_statement` |
-| **Prisma** | `prisma` | `rgctl-lang-prisma` | `tree-sitter-prisma` | `.prisma` | — | `model_declaration`, `enum_declaration` |
-| **Protocol Buffers** | `proto` | `rgctl-lang-proto` | `tree-sitter-proto` | `.proto` | `rpc` | `message` |
-| **R** | `r` | `rgctl-lang-r` | `tree-sitter-r` | `.r`, `.R` | `function_definition` | — |
-| **Racket** | `racket` | `rgctl-lang-racket` | `tree-sitter-racket` | `.rkt` | `list` | — |
-| **Scheme** | `scheme` | `rgctl-lang-scheme` | `tree-sitter-scheme` | `.scm`, `.ss` | `list` | — |
-| **Solidity** | `solidity` | `rgctl-lang-solidity` | `tree-sitter-solidity` | `.sol` | `function_definition` | `contract_declaration` |
-| **Starlark** | `starlark` | `rgctl-lang-starlark` | `tree-sitter-starlark` | `.star`, `.bzl` | `function_definition` | — |
-| **Svelte** | `svelte` | `rgctl-lang-svelte` | `tree-sitter-svelte-ng` | `.svelte` | `script_element` | `element` |
-| **TOML** | `toml` | `rgctl-lang-toml` | `tree-sitter-toml-ng` | `.toml` | — | `table` |
-| **Verilog / SystemVerilog** | `verilog` | `rgctl-lang-verilog` | `tree-sitter-verilog` | `.v`, `.sv`, `.svh` | `function_declaration`, `task_declaration` | `class_declaration`, `module_declaration` |
-| **VHDL** | `vhdl` | `rgctl-lang-vhdl` | `tree-sitter-vhdl` | `.vhd`, `.vhdl` | `subprogram_definition` | `component_declaration` |
-| **YAML** | `yaml` | `rgctl-lang-yaml` | `tree-sitter-yaml` | `.yaml`, `.yml` | — | — |
-| **Zig** | `zig` | `rgctl-lang-zig` | `tree-sitter-zig` | `.zig`, `.zon` | `function_declaration` | `struct_declaration` |
+| Language                    | ID           | Crate                   | Grammar crate            | Extensions                             | `function_kinds`                                | `class_kinds`                                                       |
+|-----------------------------|--------------|-------------------------|--------------------------|----------------------------------------|-------------------------------------------------|---------------------------------------------------------------------|
+| **Ada**                     | `ada`        | `rgctl-lang-ada`        | `tree-sitter-ada`        | `.adb`, `.ads`, `.ada`                 | `subprogram_declaration`, `subprogram_body`     | `full_type_declaration`, `task_type_declaration`                    |
+| **Apex (Salesforce)**       | `apex`       | `rgctl-lang-apex`       | `tree-sitter-sfapex`     | `.cls`, `.trigger`, `.apex`            | `method_declaration`, `constructor_declaration` | `class_declaration`, `interface_declaration`, `trigger_declaration` |
+| **Clojure**                 | `clojure`    | `rgctl-lang-clojure`    | `tree-sitter-clojure`    | `.clj`, `.cljs`, `.cljc`               | `list_lit`                                      | —                                                                   |
+| **CMake**                   | `cmake`      | `rgctl-lang-cmake`      | `tree-sitter-cmake`      | `.cmake`                               | `function_def`                                  | —                                                                   |
+| **CSS**                     | `css`        | `rgctl-lang-css`        | `tree-sitter-css`        | `.css`                                 | `keyframes_statement`                           | `rule_set`                                                          |
+| **CUDA**                    | `cuda`       | `rgctl-lang-cuda`       | `tree-sitter-cuda`       | `.cu`, `.cuh`                          | `function_definition`                           | `struct_specifier`, `class_specifier`                               |
+| **D**                       | `d`          | `rgctl-lang-d`          | `tree-sitter-d`          | `.d`                                   | `function_declaration`                          | `class_declaration`, `struct_declaration`                           |
+| **Emacs Lisp**              | `elisp`      | `rgctl-lang-elisp`      | `tree-sitter-elisp`      | `.el`                                  | `function_definition`                           | —                                                                   |
+| **Elm**                     | `elm`        | `rgctl-lang-elm`        | `tree-sitter-elm`        | `.elm`                                 | `value_declaration`                             | `type_declaration`                                                  |
+| **Erlang**                  | `erlang`     | `rgctl-lang-erlang`     | `tree-sitter-erlang`     | `.erl`, `.hrl`                         | `fun_decl`, `function_clause`                   | `record_decl`                                                       |
+| **Fortran**                 | `fortran`    | `rgctl-lang-fortran`    | `tree-sitter-fortran`    | `.f90`, `.f95`, `.f03`, `.f08`, `.F90` | `function`, `subroutine`                        | `derived_type_definition`                                           |
+| **F#**                      | `fsharp`     | `rgctl-lang-fsharp`     | `tree-sitter-fsharp`     | `.fs`, `.fsi`, `.fsx`                  | `function_or_value_defn`                        | `type_definition`                                                   |
+| **GDScript**                | `gdscript`   | `rgctl-lang-gdscript`   | `tree-sitter-gdscript`   | `.gd`                                  | `function_definition`                           | `class_definition`                                                  |
+| **Gleam**                   | `gleam`      | `rgctl-lang-gleam`      | `tree-sitter-gleam`      | `.gleam`                               | `function`                                      | `type_definition`                                                   |
+| **GLSL**                    | `glsl`       | `rgctl-lang-glsl`       | `tree-sitter-glsl`       | `.glsl`, `.vert`, `.frag`, `.comp`     | `function_definition`                           | `struct_specifier`                                                  |
+| **GraphQL**                 | `graphql`    | `rgctl-lang-graphql`    | `tree-sitter-graphql`    | `.graphql`, `.gql`                     | `operation_definition`, `fragment_definition`   | `object_type_definition`                                            |
+| **Haskell**                 | `haskell`    | `rgctl-lang-haskell`    | `tree-sitter-haskell`    | `.hs`                                  | `function`                                      | `class`, `data_type`, `newtype`                                     |
+| **HTML**                    | `html`       | `rgctl-lang-html`       | `tree-sitter-html`       | `.html`, `.htm`                        | `script_element`                                | `element`                                                           |
+| **JSON**                    | `json`       | `rgctl-lang-json`       | `tree-sitter-json`       | `.json`                                | —                                               | `object`                                                            |
+| **Julia**                   | `julia`      | `rgctl-lang-julia`      | `tree-sitter-julia`      | `.jl`                                  | `function_definition`                           | `struct_definition`                                                 |
+| **Makefile**                | `make`       | `rgctl-lang-make`       | `tree-sitter-make`       | `.mk`, `.mak`                          | `rule`                                          | —                                                                   |
+| **MATLAB**                  | `matlab`     | `rgctl-lang-matlab`     | `tree-sitter-matlab`     | `.matlab`, `.m`                        | `function_definition`                           | `class_definition`                                                  |
+| **Nix**                     | `nix`        | `rgctl-lang-nix`        | `tree-sitter-nix`        | `.nix`                                 | `function_expression`                           | —                                                                   |
+| **Objective-C**             | `objc`       | `rgctl-lang-objc`       | `tree-sitter-objc`       | `.m`, `.mm`                            | `function_definition`, `method_definition`      | `class_interface`, `class_implementation`                           |
+| **Pascal / Delphi**         | `pascal`     | `rgctl-lang-pascal`     | `tree-sitter-pascal`     | `.pas`, `.dpr`, `.dpk`, `.pp`, `.lpr`  | `defProc`, `declProc`                           | `declClass`, `declIntf`                                             |
+| **Perl**                    | `perl`       | `rgctl-lang-perl`       | `ts-parser-perl`         | `.pl`, `.pm`, `.t`                     | `subroutine_declaration_statement`              | —                                                                   |
+| **OCaml**                   | `ocaml`      | `rgctl-lang-ocaml`      | `tree-sitter-ocaml`      | `.ml`, `.mli`                          | `value_definition`                              | `class_definition`                                                  |
+| **Odin**                    | `odin`       | `rgctl-lang-odin`       | `tree-sitter-odin`       | `.odin`                                | `procedure_declaration`                         | `struct_declaration`                                                |
+| **PowerShell**              | `powershell` | `rgctl-lang-powershell` | `tree-sitter-powershell` | `.ps1`, `.psm1`                        | `function_statement`                            | `class_statement`                                                   |
+| **Prisma**                  | `prisma`     | `rgctl-lang-prisma`     | `tree-sitter-prisma`     | `.prisma`                              | —                                               | `model_declaration`, `enum_declaration`                             |
+| **Protocol Buffers**        | `proto`      | `rgctl-lang-proto`      | `tree-sitter-proto`      | `.proto`                               | `rpc`                                           | `message`                                                           |
+| **R**                       | `r`          | `rgctl-lang-r`          | `tree-sitter-r`          | `.r`, `.R`                             | `function_definition`                           | —                                                                   |
+| **Racket**                  | `racket`     | `rgctl-lang-racket`     | `tree-sitter-racket`     | `.rkt`                                 | `list`                                          | —                                                                   |
+| **Scheme**                  | `scheme`     | `rgctl-lang-scheme`     | `tree-sitter-scheme`     | `.scm`, `.ss`                          | `list`                                          | —                                                                   |
+| **Solidity**                | `solidity`   | `rgctl-lang-solidity`   | `tree-sitter-solidity`   | `.sol`                                 | `function_definition`                           | `contract_declaration`                                              |
+| **Starlark**                | `starlark`   | `rgctl-lang-starlark`   | `tree-sitter-starlark`   | `.star`, `.bzl`                        | `function_definition`                           | —                                                                   |
+| **Svelte**                  | `svelte`     | `rgctl-lang-svelte`     | `tree-sitter-svelte-ng`  | `.svelte`                              | `script_element`                                | `element`                                                           |
+| **TOML**                    | `toml`       | `rgctl-lang-toml`       | `tree-sitter-toml-ng`    | `.toml`                                | —                                               | `table`                                                             |
+| **Verilog / SystemVerilog** | `verilog`    | `rgctl-lang-verilog`    | `tree-sitter-verilog`    | `.v`, `.sv`, `.svh`                    | `function_declaration`, `task_declaration`      | `class_declaration`, `module_declaration`                           |
+| **VHDL**                    | `vhdl`       | `rgctl-lang-vhdl`       | `tree-sitter-vhdl`       | `.vhd`, `.vhdl`                        | `subprogram_definition`                         | `component_declaration`                                             |
+| **YAML**                    | `yaml`       | `rgctl-lang-yaml`       | `tree-sitter-yaml`       | `.yaml`, `.yml`                        | —                                               | —                                                                   |
+| **Zig**                     | `zig`        | `rgctl-lang-zig`        | `tree-sitter-zig`        | `.zig`, `.zon`                         | `function_declaration`                          | `struct_declaration`                                                |
 
 **`.m` disambiguation:** both Objective-C and MATLAB use `.m`. Discovery/extract peeks the first 4 KiB (`rgctl_registry::sniff_objc_vs_matlab`): MATLAB `function` / `classdef` / `%` headers route to `matlab`; `#import` / `@interface` / `@implementation` route to `objc` (default). Explicit `-l matlab` / `-l objc` still force the named plugin.
 

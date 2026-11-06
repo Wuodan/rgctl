@@ -10,13 +10,13 @@
 
 ## Mode matrix
 
-| Mode | Signal | Status |
-|------|--------|--------|
-| `exact` | Equal non-empty `code_hash` on Function nodes | **Shipped (M1)** |
-| `bloom` | Token bloom Jaccard (LSH band candidates) | **Shipped (M2)** — labeled `candidates: true` |
-| `fragment` | Stage 1 bitwise Bloom + Stage 2 SESE hammock + 2-iter 1-WL | **Shipped (M3)** — schema_version: 2 |
-| `semantic` | Embedding NN above threshold | Reserved (needs semantic index) |
-| `structural` | Extra PDG confirmation on candidates | Reserved (opt-in; never O(n²) on linux) |
+| Mode         | Signal                                                     | Status                                        |
+|--------------|------------------------------------------------------------|-----------------------------------------------|
+| `exact`      | Equal non-empty `code_hash` on Function nodes              | **Shipped (M1)**                              |
+| `bloom`      | Token bloom Jaccard (LSH band candidates)                  | **Shipped (M2)** — labeled `candidates: true` |
+| `fragment`   | Stage 1 bitwise Bloom + Stage 2 SESE hammock + 2-iter 1-WL | **Shipped (M3)** — schema_version: 2          |
+| `semantic`   | Embedding NN above threshold                               | Reserved (needs semantic index)               |
+| `structural` | Extra PDG confirmation on candidates                       | Reserved (opt-in; never O(n²) on linux)       |
 
 Exact = identical hashed body bytes under current extract prep (BLAKE3), **not** AST-normalized Type-2.
 Fragment = sub-function single-entry single-exit (SESE) hammocks ($3 \le |S| \le 15$) hashed with **2 iterations** of Weisfeiler-Lehman (**1-WL**) canonical color refinement.
@@ -150,8 +150,8 @@ M3 `fragment` is **candidate-only** (Stage 1 Bloom → Stage 2 SESE/1-WL on surv
 
 ## vs semantic search
 
-| | `clones` | `semantic query` |
-|--|----------|------------------|
-| Question | Implementations like **each other** | Functions like **this query** |
-| Unit | Groups / pairs | Ranked hits |
-| Exact mode | `code_hash` equality | N/A |
+|            | `clones`                            | `semantic query`              |
+|------------|-------------------------------------|-------------------------------|
+| Question   | Implementations like **each other** | Functions like **this query** |
+| Unit       | Groups / pairs                      | Ranked hits                   |
+| Exact mode | `code_hash` equality                | N/A                           |

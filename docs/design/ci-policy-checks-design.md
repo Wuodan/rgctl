@@ -10,12 +10,12 @@
 
 ## 1. Goals
 
-| Goal | How |
-|------|-----|
-| Block risky merges | Exit code `1` when violations found |
-| Scope to changes | `git diff` changed functions (fallback: all functions) |
-| Reuse blast engine | Same `BlastRadiusEngine` + centrality as `blast-radius` |
-| Declarative rules | JSON policy file — see [policy-format.md](../policy-format.md) |
+| Goal               | How                                                            |
+|--------------------|----------------------------------------------------------------|
+| Block risky merges | Exit code `1` when violations found                            |
+| Scope to changes   | `git diff` changed functions (fallback: all functions)         |
+| Reuse blast engine | Same `BlastRadiusEngine` + centrality as `blast-radius`        |
+| Declarative rules  | JSON policy file — see [policy-format.md](../policy-format.md) |
 
 ---
 
@@ -55,12 +55,12 @@ flowchart TB
 
 ## 3. Policy rule types
 
-| Rule | Trigger |
-|------|---------|
-| `max_blast_score` | Target impact score exceeds cap |
-| `max_impact_zone_size` | Transitive caller count too large |
+| Rule                         | Trigger                                  |
+|------------------------------|------------------------------------------|
+| `max_blast_score`            | Target impact score exceeds cap          |
+| `max_impact_zone_size`       | Transitive caller count too large        |
 | `centrality_alert_threshold` | Upstream node betweenness in impact zone |
-| Custom registry entries | `PolicyFile` → `PolicyRegistry` |
+| Custom registry entries      | `PolicyFile` → `PolicyRegistry`          |
 
 Example files: [policy-permissive.json](../examples/policy-permissive.json), [policy-strict.json](../examples/policy-strict.json).
 
@@ -68,13 +68,13 @@ Example files: [policy-permissive.json](../examples/policy-permissive.json), [po
 
 ## 4. Rust implementation map
 
-| Component | Path |
-|-----------|------|
-| `check` command | `src/cli/check.rs` |
-| JSON output | `src/cli/check_output.rs` |
-| Policy load | `src/cli/policy_file.rs` |
-| Engine | `crates/rgctl-analysis/src/blast_radius_scc.rs` |
-| Centrality | `crates/rgctl-analysis/src/centrality.rs` |
+| Component        | Path                                            |
+|------------------|-------------------------------------------------|
+| `check` command  | `src/cli/check.rs`                              |
+| JSON output      | `src/cli/check_output.rs`                       |
+| Policy load      | `src/cli/policy_file.rs`                        |
+| Engine           | `crates/rgctl-analysis/src/blast_radius_scc.rs` |
+| Centrality       | `crates/rgctl-analysis/src/centrality.rs`       |
 | Git diff symbols | `src/cli/check.rs` (`changed_function_symbols`) |
 
 ---
@@ -157,12 +157,12 @@ flowchart TB
   CAL --> OUT
 ```
 
-| Class | Meaning | Fails when `scope.new_violations_only` |
-|-------|---------|----------------------------------------|
-| `new` | Violation appears only on head | Yes |
-| `existing` | Violation on both snapshots | No (unless calendar SLA / post-grace) |
-| `resolved` | Violation cleared on head | No (debt paid down) |
-| `regression` | Reintroduced after ledger resolution | When `scope.fail_on_regression` |
+| Class        | Meaning                              | Fails when `scope.new_violations_only` |
+|--------------|--------------------------------------|----------------------------------------|
+| `new`        | Violation appears only on head       | Yes                                    |
+| `existing`   | Violation on both snapshots          | No (unless calendar SLA / post-grace)  |
+| `resolved`   | Violation cleared on head            | No (debt paid down)                    |
+| `regression` | Reintroduced after ledger resolution | When `scope.fail_on_regression`        |
 
 Calendar fields (`temporal.*`) apply after temporal classification: grace windows emit `severity: warn` (exit 0 unless `--strict-calendar`); `violation_sla_days` + ledger `first_seen` can fail stale `existing` violations.
 
@@ -172,14 +172,14 @@ Artifact layout: base via `--base-artifact`, `$RGCTL_BASE_ARTIFACT`, or `{repo}/
 
 ## 7. Testing
 
-| Layer | Location |
-|-------|----------|
-| Subprocess contract | `tests/cli_output/all_commands_sanity.rs` (`check` pass/fail, strict scope) |
-| Temporal policy unit | `crates/rgctl-analysis/src/policy_diff.rs` |
-| PR gate integration | `tests/pr_check_integration.rs` |
-| PR gate golden | `tests/cli_output/subprocess_golden_path.rs` (`pr_check_json_*`) |
-| Policy parsing | `src/cli/policy_file.rs` tests |
-| Blast gatekeeping | `all_commands_sanity` blast-radius + policy exit 1 |
+| Layer                | Location                                                                    |
+|----------------------|-----------------------------------------------------------------------------|
+| Subprocess contract  | `tests/cli_output/all_commands_sanity.rs` (`check` pass/fail, strict scope) |
+| Temporal policy unit | `crates/rgctl-analysis/src/policy_diff.rs`                                  |
+| PR gate integration  | `tests/pr_check_integration.rs`                                             |
+| PR gate golden       | `tests/cli_output/subprocess_golden_path.rs` (`pr_check_json_*`)            |
+| Policy parsing       | `src/cli/policy_file.rs` tests                                              |
+| Blast gatekeeping    | `all_commands_sanity` blast-radius + policy exit 1                          |
 
 Screenshots: `capture-design-screenshots.mjs` → `docs/images/design/ci-policy-checks/`.
 

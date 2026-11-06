@@ -3,7 +3,6 @@ from typing import Any
 
 import bcrypt
 import jwt
-
 from app.config import settings
 
 

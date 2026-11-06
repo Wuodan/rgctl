@@ -13,24 +13,27 @@ namespace ecommerce::coolstore {
 
 class ShoppingCartService {
 public:
-    ShoppingCartService(CoolstoreProductService& productService, PromoService& promoService,
-                        ShippingService& shippingService, CoolstoreOrderService& orderService);
+  ShoppingCartService(CoolstoreProductService &productService,
+                      PromoService &promoService,
+                      ShippingService &shippingService,
+                      CoolstoreOrderService &orderService);
 
-    ShoppingCart& getShoppingCart(const std::string& cartId);
-    CatalogProduct* getProduct(const std::string& itemId);
-    ShoppingCart& checkOutShoppingCart(const std::string& cartId);
-    /** Mutates ShoppingCart totals — primary CPG field-write site. */
-    void priceShoppingCart(ShoppingCart* sc);
-    std::vector<ShoppingCartItem> dedupeCartItems(const std::vector<ShoppingCartItem>& cartItems);
+  ShoppingCart &getShoppingCart(const std::string &cartId);
+  CatalogProduct *getProduct(const std::string &itemId);
+  ShoppingCart &checkOutShoppingCart(const std::string &cartId);
+  /** Mutates ShoppingCart totals — primary CPG field-write site. */
+  void priceShoppingCart(ShoppingCart *sc);
+  std::vector<ShoppingCartItem>
+  dedupeCartItems(const std::vector<ShoppingCartItem> &cartItems);
 
 private:
-    void initShoppingCartForPricing(ShoppingCart& sc);
+  void initShoppingCartForPricing(ShoppingCart &sc);
 
-    CoolstoreProductService& productService_;
-    PromoService& promoService_;
-    ShippingService& shippingService_;
-    CoolstoreOrderService& orderService_;
-    std::unordered_map<std::string, ShoppingCart> carts_;
+  CoolstoreProductService &productService_;
+  PromoService &promoService_;
+  ShippingService &shippingService_;
+  CoolstoreOrderService &orderService_;
+  std::unordered_map<std::string, ShoppingCart> carts_;
 };
 
-}  // namespace ecommerce::coolstore
+} // namespace ecommerce::coolstore

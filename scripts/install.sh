@@ -19,8 +19,8 @@ case "${os}" in
     ;;
 esac
 case "${arch}" in
-  x86_64|amd64) arch_tag="x86_64" ;;
-  arm64|aarch64) arch_tag="aarch64" ;;
+  x86_64 | amd64) arch_tag="x86_64" ;;
+  arm64 | aarch64) arch_tag="aarch64" ;;
   *)
     echo "error: unsupported arch '${arch}' (need x86_64 or arm64)" >&2
     exit 1
@@ -41,7 +41,7 @@ need_cmd grep
 
 libc_tag=""
 if [ "${os_tag}" = "Linux" ]; then
-  if [ -f /etc/alpine-release ] || \
+  if [ -f /etc/alpine-release ] ||
     { command -v ldd >/dev/null 2>&1 && ldd --version 2>&1 | grep -qi musl; }; then
     libc_tag="musl"
   else

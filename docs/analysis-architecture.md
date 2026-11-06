@@ -11,14 +11,14 @@ Nodes represent symbols (functions, types, modules). Edges carry `EdgeType` sema
 
 ## Tier 2: Projected views (repository-level analysis)
 
-| Type | Module | Purpose |
-|------|--------|---------|
-| `PetGraphView` | `graph_utils` | Façade over typed bidirectional CSR (`StructuralTopology`); UUID maps |
+| Type                                  | Module                                     | Purpose                                                                   |
+|---------------------------------------|--------------------------------------------|---------------------------------------------------------------------------|
+| `PetGraphView`                        | `graph_utils`                              | Façade over typed bidirectional CSR (`StructuralTopology`); UUID maps     |
 | `StructuralTopology` / `CodeGraphCsr` | `structural_topology` / `rgctl-graph::csr` | Hot edge residency (~5 B/edge/dir); community/centrality/blast/dependency |
-| `ColdMetadataDb` | `cold_metadata` | Mmap-backed node payloads after early snapshot write |
-| `CallGraph` | `callgraph` | u32-indexed call-only adjacency for fast traversal |
-| `FlatGraphIndex` | `centrality` | Contiguous `usize` edge list for numeric algorithms |
-| `MroIndex` | `mro` | Cross-language MRO → `EdgeType::Overrides`; polymorphic call retarget |
+| `ColdMetadataDb`                      | `cold_metadata`                            | Mmap-backed node payloads after early snapshot write                      |
+| `CallGraph`                           | `callgraph`                                | u32-indexed call-only adjacency for fast traversal                        |
+| `FlatGraphIndex`                      | `centrality`                               | Contiguous `usize` edge list for numeric algorithms                       |
+| `MroIndex`                            | `mro`                                      | Cross-language MRO → `EdgeType::Overrides`; polymorphic call retarget     |
 
 **Convention:** Discover ingest uses **segmented disk spill**
 (`GraphBuilder::with_spill` → `write_columnar_from_spill`): nodes/edges are
@@ -60,28 +60,28 @@ a new snapshot header to “preserve” those caches.
 
 ### Repository-level analyses
 
-| Analysis | Primary graph | Algorithm |
-|----------|---------------|-----------|
-| Centrality | `PetGraphView` → `FlatGraphIndex` | Pull-based CSR **`FastPageRank`** (dual-track `Calls` vs `STRUCTURAL_EDGE_TYPES`); **`NodeRole`** filter (`Production` / `Test` / `Generated` / `ExternalStub` / `Entrypoint` — non-production excluded from default hotspots; `--include-tests` to include); **`SampledBetweenness`** ($K=256$ degree-stratified Brandes pivots); **`HyperBallHarmonic`** (`discover --with-harmonic`) |
-| Community | `PetGraphView` (undirected filter) | **Fast-Leiden** (local moving queue + BFS connected-subgraph refinement + coarsening) with $\mu+4\sigma$ **`HubStripPolicy`** → `"Shared / Infrastructure"` (`infrastructure_community_id`). Migration macro nodes emit `community_id` (schema v3; v2 `louvain_community_id` still accepted on read) |
-| Blast radius (engine) | CSR Calls filter + kosaraju | Kosaraju SCC → on-demand reachability (flat graphs) or bitset rows |
-| Blast radius (analyzer) | `PetGraphView` Calls filter | Reverse BFS |
-| Dependencies | `PetGraphView` directed | Kosaraju SCC, reverse BFS impact |
-| Complexity | Backend node properties | Aggregation |
-| Migration | Community graph | Weighted topological sort |
-| MRO / Overrides | Inheritance / mixin edges | `MroIndex` C3 (Python), Ruby prepend/include, Rust inherent-first, Java/C#/TS/Kotlin, C++ virtual bases, Go promotion → `Overrides` |
-| SCIP overlay | Ambiguous `Calls` | `apply_scip_overlay` (`discover --scip`) upgrades resolution |
-| Git churn | File co-change | `compute_and_apply_git_churn` → `git_hotspot_score` + `CoChangesWith` (`discover --with-git`, `metrics --churn`) |
-| Clones | Function bodies / CFG | `exact` / `bloom` / **`fragment`** (SESE hammock + 2-iter 1-WL; `--seed`) |
+| Analysis                | Primary graph                      | Algorithm                                                                                                                                                                                                                                                                                                                                                                               |
+|-------------------------|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Centrality              | `PetGraphView` → `FlatGraphIndex`  | Pull-based CSR **`FastPageRank`** (dual-track `Calls` vs `STRUCTURAL_EDGE_TYPES`); **`NodeRole`** filter (`Production` / `Test` / `Generated` / `ExternalStub` / `Entrypoint` — non-production excluded from default hotspots; `--include-tests` to include); **`SampledBetweenness`** ($K=256$ degree-stratified Brandes pivots); **`HyperBallHarmonic`** (`discover --with-harmonic`) |
+| Community               | `PetGraphView` (undirected filter) | **Fast-Leiden** (local moving queue + BFS connected-subgraph refinement + coarsening) with $\mu+4\sigma$ **`HubStripPolicy`** → `"Shared / Infrastructure"` (`infrastructure_community_id`). Migration macro nodes emit `community_id` (schema v3; v2 `louvain_community_id` still accepted on read)                                                                                    |
+| Blast radius (engine)   | CSR Calls filter + kosaraju        | Kosaraju SCC → on-demand reachability (flat graphs) or bitset rows                                                                                                                                                                                                                                                                                                                      |
+| Blast radius (analyzer) | `PetGraphView` Calls filter        | Reverse BFS                                                                                                                                                                                                                                                                                                                                                                             |
+| Dependencies            | `PetGraphView` directed            | Kosaraju SCC, reverse BFS impact                                                                                                                                                                                                                                                                                                                                                        |
+| Complexity              | Backend node properties            | Aggregation                                                                                                                                                                                                                                                                                                                                                                             |
+| Migration               | Community graph                    | Weighted topological sort                                                                                                                                                                                                                                                                                                                                                               |
+| MRO / Overrides         | Inheritance / mixin edges          | `MroIndex` C3 (Python), Ruby prepend/include, Rust inherent-first, Java/C#/TS/Kotlin, C++ virtual bases, Go promotion → `Overrides`                                                                                                                                                                                                                                                     |
+| SCIP overlay            | Ambiguous `Calls`                  | `apply_scip_overlay` (`discover --scip`) upgrades resolution                                                                                                                                                                                                                                                                                                                            |
+| Git churn               | File co-change                     | `compute_and_apply_git_churn` → `git_hotspot_score` + `CoChangesWith` (`discover --with-git`, `metrics --churn`)                                                                                                                                                                                                                                                                        |
+| Clones                  | Function bodies / CFG              | `exact` / `bloom` / **`fragment`** (SESE hammock + 2-iter 1-WL; `--seed`)                                                                                                                                                                                                                                                                                                               |
 
 ## Tier 3: Intra-procedural graphs
 
-| Type | Module | Purpose |
-|------|--------|---------|
-| `ControlFlowGraph` | `cfg`, `cfg_builder` | Per-function CFG via tree-sitter |
-| `ProgramDependenceGraph` | `pdg` | Data + control dependencies |
-| `DominatorTree` | `dominance` | Immediate dominators and frontiers |
-| `CfgPdgArchiveMmap` | `cfg_pdg_archive` | v3 indexed archive (`TocEntry` + `memmap2`); `ensure_cfg_pdg_for_source` lazy single-function append |
+| Type                     | Module               | Purpose                                                                                              |
+|--------------------------|----------------------|------------------------------------------------------------------------------------------------------|
+| `ControlFlowGraph`       | `cfg`, `cfg_builder` | Per-function CFG via tree-sitter                                                                     |
+| `ProgramDependenceGraph` | `pdg`                | Data + control dependencies                                                                          |
+| `DominatorTree`          | `dominance`          | Immediate dominators and frontiers                                                                   |
+| `CfgPdgArchiveMmap`      | `cfg_pdg_archive`    | v3 indexed archive (`TocEntry` + `memmap2`); `ensure_cfg_pdg_for_source` lazy single-function append |
 
 ### Pipeline
 
@@ -113,11 +113,11 @@ See [Columnar content digest and cache invalidation](#columnar-content-digest-an
 
 Discover uses **`CentralityAnalyzer::analyze_columnar`**: flat scores from `FlatGraphIndex` are written directly into `AnalysisResults` without intermediate `HashMap<Uuid, _>` handoffs.
 
-| Graph size | PageRank (`FastPageRank`) | Betweenness (`SampledBetweenness`) | Harmonic (`HyperBallHarmonic`) |
-|------------|---------------------------|------------------------------------|--------------------------------|
-| V ≤ 500 | Exact (20 iter, ε=1e-6) | Exact Brandes | Exact BFS |
-| 500 < V ≤ 500,000 | Exact (20 iter) | Sampled Brandes ($K=256$) | HyperBall (h=16, parallel HLL) |
-| V > 500,000 | Gated (8 iter, ε=1e-4) | Sampled Brandes ($K=256$) | HyperBall (h=8, parallel HLL) |
+| Graph size        | PageRank (`FastPageRank`) | Betweenness (`SampledBetweenness`) | Harmonic (`HyperBallHarmonic`) |
+|-------------------|---------------------------|------------------------------------|--------------------------------|
+| V ≤ 500           | Exact (20 iter, ε=1e-6)   | Exact Brandes                      | Exact BFS                      |
+| 500 < V ≤ 500,000 | Exact (20 iter)           | Sampled Brandes ($K=256$)          | HyperBall (h=16, parallel HLL) |
+| V > 500,000       | Gated (8 iter, ε=1e-4)    | Sampled Brandes ($K=256$)          | HyperBall (h=8, parallel HLL)  |
 
 Constants: `LARGE_GRAPH_PAGERANK_*`, `LARGE_GRAPH_HYPERBALL_*` in `centrality.rs` / `centrality_approx.rs`.
 

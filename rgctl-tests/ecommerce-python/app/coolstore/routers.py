@@ -1,6 +1,3 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, ConfigDict
-
 from app.coolstore import services as svc
 from app.coolstore.models import (
     CatalogProduct,
@@ -8,6 +5,8 @@ from app.coolstore.models import (
     ShoppingCart,
     ShoppingCartItem,
 )
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, ConfigDict
 
 
 class CatalogProductOut(BaseModel):

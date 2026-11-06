@@ -159,7 +159,9 @@ class ShoppingCartService:
 
             sc.shippingTotal = self._shipping_service.calculate_shipping(sc)
             if sc.cartItemTotal >= 25:
-                sc.shippingTotal += self._shipping_service.calculate_shipping_insurance(sc)
+                sc.shippingTotal += self._shipping_service.calculate_shipping_insurance(
+                    sc
+                )
 
         self._promo_service.apply_shipping_promotions(sc)
         sc.cartTotal = sc.cartItemTotal + sc.shippingTotal
@@ -179,7 +181,9 @@ class ShoppingCartService:
                     sci.price = p.price
             sci.promoSavings = 0
 
-    def dedupe_cart_items(self, cart_items: list[ShoppingCartItem]) -> list[ShoppingCartItem]:
+    def dedupe_cart_items(
+        self, cart_items: list[ShoppingCartItem]
+    ) -> list[ShoppingCartItem]:
         quantity_map: dict[str, int] = {}
         for sci in cart_items:
             if sci.product is None:

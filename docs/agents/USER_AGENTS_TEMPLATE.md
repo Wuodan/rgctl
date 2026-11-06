@@ -58,39 +58,39 @@ Upgrading from an old daemon install: copy `~/.rgctl/cache/{name}/.rgctl/` into 
 
 ## High-value commands (low token cost)
 
-| Intent | Command |
-|--------|---------|
-| Full session (graph + CFG + dashboard + semantic) | `rgctl discover PATH --full` (queryable after stage 1; status in `.rgctl/pipeline_status.json`) |
-| HTTP session | `rgctl discover . --with-universe` then `rgctl serve` — `GET /api/status` |
-| Schema / counts (zeros included) | `rgctl -f json inventory --by type` or `--by edge` |
-| Import census | `rgctl -f json inventory --by import-prefix [--prefix javax.] [--limit 50]` |
-| Inventory / count functions | `rgctl -f json find --type function --count-only` |
-| Find symbol by pattern | `rgctl -f json find "*Service*" --type function --limit 20` |
-| Find by package scope | `rgctl -f json find --type class --scope com.example` / `find --package <coords>` |
-| Annotated fields / attrs | `rgctl -f json find --annotation "@PersistenceContext,@ConfigProperty" --show-attributes` |
-| Callers / callees | `rgctl -f json callers <Symbol> --depth 2` / `callees <Symbol>` |
-| Typed edges (seedless OK) | `rgctl -f json relations --edge annotatedwith --from-type function --to-type annotation` |
-| List communities | `rgctl -f json communities list` |
-| Natural-language function search | `rgctl semantic index` then `rgctl -f json semantic query "checkout flow" --limit 10` |
-| Community semantic search | `rgctl -f json semantic query "checkout" --scope community --limit 10` |
-| Impact before editing | `rgctl -f json blast-radius <Symbol> [--depth N] [--summary]` |
-| Kantra findings (optional) | `rgctl discover . --with-kantra` then `rules findings --target quarkus` / `rules targets` |
-| Architectural hotspots | `rgctl -f json metrics --pagerank` |
-| Doc headings / cross-links | `discover` indexes `.md` / `.mdx` by default; use `find` / `relations` on Module/REFERENCES — see [markdown-context.md](../markdown-context.md) |
-| Obsidian vault from docs | `rgctl -r "$REPO" discover -l markdown` then `export --export-format obsidian --export-output "$REPO/vault" --query all` — see [markdown-context.md](../markdown-context.md#obsidian-vault-export) |
-| Doc section semantic search | `rgctl semantic index --scope docs --embedder hash` then `rgctl -f json semantic query "checkout flow" --scope docs --limit 10` (query scope does not filter — index must be doc-scoped) |
-| Hybrid CPG status / CALL / PDG / slice | `rgctl -f json cpg status` then `cpg function\|calls\|pdg\|slice` (needs `discover --with-cfg` for PDG/slice) |
-| Field mutations (cart / DTO safety) | `rgctl -f json cpg mutations --type ShoppingCart --exclude-ctors` (needs `--with-cfg`) |
-| Data flows / slice (CPG) | `rgctl -f json cpg flows FILE --line N --variable V --function F [--direction forward\|backward] [--with-alias]` |
-| Loop-carried DFG tags | `rgctl discover . --with-cfg --with-dfg-loops` |
-| AST skeleton | `rgctl discover --with-ast-skeleton` then `rgctl -f json cpg ast <Symbol>` |
-| CPG export | `rgctl cpg export --format graphson --output cpg.json [--path-contains src/]` |
-| Migration plan | `rgctl -f json discover . --with-cfg --with-security --with-taint --with-universe --with-harmonic --export-migration-hints` (stdout = migration plan JSON; also writes `.rgctl/migration_plan.json`) |
-| CI gate on changes | `rgctl -f json check --policy-file policy.json` (exit 1 = violations) |
-| Temporal PR gate | `rgctl -f json pr-check --policy-file rgctl-pr-policy.json --base-artifact .rgctl-base --base-ref origin/main --head-ref HEAD --strict` |
-| Check temporal bridge | `rgctl -f json check --temporal --policy-file policy.json --base-ref origin/main --head-ref HEAD` |
-| Incremental file index | `rgctl update` or `rgctl update --files src/foo.rs` (requires existing `.rgctl/`; alias: `discover --files`) |
-| Live refresh while serving | `rgctl serve --watch` |
+| Intent                                            | Command                                                                                                                                                                                              |
+|---------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Full session (graph + CFG + dashboard + semantic) | `rgctl discover PATH --full` (queryable after stage 1; status in `.rgctl/pipeline_status.json`)                                                                                                      |
+| HTTP session                                      | `rgctl discover . --with-universe` then `rgctl serve` — `GET /api/status`                                                                                                                            |
+| Schema / counts (zeros included)                  | `rgctl -f json inventory --by type` or `--by edge`                                                                                                                                                   |
+| Import census                                     | `rgctl -f json inventory --by import-prefix [--prefix javax.] [--limit 50]`                                                                                                                          |
+| Inventory / count functions                       | `rgctl -f json find --type function --count-only`                                                                                                                                                    |
+| Find symbol by pattern                            | `rgctl -f json find "*Service*" --type function --limit 20`                                                                                                                                          |
+| Find by package scope                             | `rgctl -f json find --type class --scope com.example` / `find --package <coords>`                                                                                                                    |
+| Annotated fields / attrs                          | `rgctl -f json find --annotation "@PersistenceContext,@ConfigProperty" --show-attributes`                                                                                                            |
+| Callers / callees                                 | `rgctl -f json callers <Symbol> --depth 2` / `callees <Symbol>`                                                                                                                                      |
+| Typed edges (seedless OK)                         | `rgctl -f json relations --edge annotatedwith --from-type function --to-type annotation`                                                                                                             |
+| List communities                                  | `rgctl -f json communities list`                                                                                                                                                                     |
+| Natural-language function search                  | `rgctl semantic index` then `rgctl -f json semantic query "checkout flow" --limit 10`                                                                                                                |
+| Community semantic search                         | `rgctl -f json semantic query "checkout" --scope community --limit 10`                                                                                                                               |
+| Impact before editing                             | `rgctl -f json blast-radius <Symbol> [--depth N] [--summary]`                                                                                                                                        |
+| Kantra findings (optional)                        | `rgctl discover . --with-kantra` then `rules findings --target quarkus` / `rules targets`                                                                                                            |
+| Architectural hotspots                            | `rgctl -f json metrics --pagerank`                                                                                                                                                                   |
+| Doc headings / cross-links                        | `discover` indexes `.md` / `.mdx` by default; use `find` / `relations` on Module/REFERENCES — see [markdown-context.md](../markdown-context.md)                                                      |
+| Obsidian vault from docs                          | `rgctl -r "$REPO" discover -l markdown` then `export --export-format obsidian --export-output "$REPO/vault" --query all` — see [markdown-context.md](../markdown-context.md#obsidian-vault-export)   |
+| Doc section semantic search                       | `rgctl semantic index --scope docs --embedder hash` then `rgctl -f json semantic query "checkout flow" --scope docs --limit 10` (query scope does not filter — index must be doc-scoped)             |
+| Hybrid CPG status / CALL / PDG / slice            | `rgctl -f json cpg status` then `cpg function\|calls\|pdg\|slice` (needs `discover --with-cfg` for PDG/slice)                                                                                        |
+| Field mutations (cart / DTO safety)               | `rgctl -f json cpg mutations --type ShoppingCart --exclude-ctors` (needs `--with-cfg`)                                                                                                               |
+| Data flows / slice (CPG)                          | `rgctl -f json cpg flows FILE --line N --variable V --function F [--direction forward\|backward] [--with-alias]`                                                                                     |
+| Loop-carried DFG tags                             | `rgctl discover . --with-cfg --with-dfg-loops`                                                                                                                                                       |
+| AST skeleton                                      | `rgctl discover --with-ast-skeleton` then `rgctl -f json cpg ast <Symbol>`                                                                                                                           |
+| CPG export                                        | `rgctl cpg export --format graphson --output cpg.json [--path-contains src/]`                                                                                                                        |
+| Migration plan                                    | `rgctl -f json discover . --with-cfg --with-security --with-taint --with-universe --with-harmonic --export-migration-hints` (stdout = migration plan JSON; also writes `.rgctl/migration_plan.json`) |
+| CI gate on changes                                | `rgctl -f json check --policy-file policy.json` (exit 1 = violations)                                                                                                                                |
+| Temporal PR gate                                  | `rgctl -f json pr-check --policy-file rgctl-pr-policy.json --base-artifact .rgctl-base --base-ref origin/main --head-ref HEAD --strict`                                                              |
+| Check temporal bridge                             | `rgctl -f json check --temporal --policy-file policy.json --base-ref origin/main --head-ref HEAD`                                                                                                    |
+| Incremental file index                            | `rgctl update` or `rgctl update --files src/foo.rs` (requires existing `.rgctl/`; alias: `discover --files`)                                                                                         |
+| Live refresh while serving                        | `rgctl serve --watch`                                                                                                                                                                                |
 
 ---
 
@@ -138,10 +138,10 @@ After `discover`, under **`{repo}/.rgctl/`**: `graph.snapshot.bin`, optional `se
 
 ## Exit codes
 
-| Code | Meaning |
-|------|---------|
-| `0` | Success |
-| `1` | Policy violation or command error |
+| Code | Meaning                           |
+|------|-----------------------------------|
+| `0`  | Success                           |
+| `1`  | Policy violation or command error |
 
 ## See also
 

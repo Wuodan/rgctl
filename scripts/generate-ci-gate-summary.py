@@ -81,8 +81,12 @@ def load_status(path: Path) -> dict[str, dict]:
 
 
 def main() -> int:
-    status_path = Path(os.environ.get("RGCTL_CI_GATE_STATUS", ".rgctl-ci-gate-status.jsonl"))
-    report_path = Path(os.environ.get("RGCTL_CI_GATE_REPORT", ".rgctl-ci-gate-report.json"))
+    status_path = Path(
+        os.environ.get("RGCTL_CI_GATE_STATUS", ".rgctl-ci-gate-status.jsonl")
+    )
+    report_path = Path(
+        os.environ.get("RGCTL_CI_GATE_REPORT", ".rgctl-ci-gate-report.json")
+    )
     statuses = load_status(status_path)
 
     rows = []

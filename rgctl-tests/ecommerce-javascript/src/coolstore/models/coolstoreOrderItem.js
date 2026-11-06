@@ -1,5 +1,5 @@
-function createCoolstoreOrderItem(productId, quantity, price) {
-  return { productId, quantity, price };
+function createCoolstoreOrderItem (productId, quantity, price) {
+  return { productId, quantity, price }
 }
 
-module.exports = { createCoolstoreOrderItem };
+module.exports = { createCoolstoreOrderItem }

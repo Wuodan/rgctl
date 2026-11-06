@@ -166,7 +166,7 @@ if [[ ! -f "$NOTES_FILE" ]]; then
   else
     COMMITS="$(git log -n 20 --no-merges --pretty=format:'- %s (%h)' || true)"
   fi
-  cat > "$NOTES_FILE" <<EOF
+  cat >"$NOTES_FILE" <<EOF
 # rgctl v${new}
 
 ## Highlights

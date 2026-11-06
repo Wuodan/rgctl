@@ -1,25 +1,25 @@
-const { createDatabase, seedDemoData, migrate } = require('./seed');
-const { SCHEMA_SQL } = require('./schema');
+const { createDatabase, seedDemoData, migrate } = require('./seed')
+const { SCHEMA_SQL } = require('./schema')
 
-let dbInstance = null;
+let dbInstance = null
 
-function getDb() {
+function getDb () {
   if (!dbInstance) {
-    throw new Error('Database not initialized');
+    throw new Error('Database not initialized')
   }
-  return dbInstance;
+  return dbInstance
 }
 
-function initDb(databasePath) {
-  dbInstance = createDatabase(databasePath);
-  seedDemoData(dbInstance);
-  return dbInstance;
+function initDb (databasePath) {
+  dbInstance = createDatabase(databasePath)
+  seedDemoData(dbInstance)
+  return dbInstance
 }
 
-function closeDb() {
+function closeDb () {
   if (dbInstance) {
-    dbInstance.close();
-    dbInstance = null;
+    dbInstance.close()
+    dbInstance = null
   }
 }
 
@@ -30,5 +30,5 @@ module.exports = {
   createDatabase,
   seedDemoData,
   migrate,
-  SCHEMA_SQL,
-};
+  SCHEMA_SQL
+}

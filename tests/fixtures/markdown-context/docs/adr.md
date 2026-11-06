@@ -2,9 +2,9 @@
 
 Index of architecture decision records for the markdown-context example shop.
 
-| ADR | Topic |
-|-----|--------|
-| This file | Payments, platform overview |
+| ADR        | Topic                                     |
+|------------|-------------------------------------------|
+| This file  | Payments, platform overview               |
 | User guide | [Checkout Flow](./guide.md#checkout-flow) |
 
 ## Payments

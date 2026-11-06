@@ -1,7 +1,7 @@
 #ifndef EC_PRODUCT_SERVICE_H
 #define EC_PRODUCT_SERVICE_H
-#include <sqlite3.h>
 #include "ecommerce/types.h"
+#include <sqlite3.h>
 int product_get(sqlite3 *db, int id, void *out);
 int product_list(sqlite3 *db, int *count);
 int product_create(sqlite3 *db, const char *a, const char *b);

@@ -1,6 +1,7 @@
 package com.example.ecommerce
 
 class OrderService {
+
     OrderDTO process(OrderDTO order) {
         order.markProcessed()
         return order
@@ -9,4 +10,5 @@ class OrderService {
     OrderDTO build(String status) {
         return new OrderDTO(status)
     }
+
 }

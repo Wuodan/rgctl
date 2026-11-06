@@ -35,10 +35,10 @@ Programmatic reference for parsing rgctl output. Every structured CLI command em
 
 ### Global flags
 
-| Flag | Effect |
-|------|--------|
-| `-f json` | Emit structured JSON on **stdout** |
-| `-r PATH` | Repository root (default: cwd) |
+| Flag      | Effect                                                 |
+|-----------|--------------------------------------------------------|
+| `-f json` | Emit structured JSON on **stdout**                     |
+| `-r PATH` | Repository root (default: cwd)                         |
 | `-o FILE` | Write stdout payload to a file instead of the terminal |
 
 ```bash
@@ -49,11 +49,11 @@ rgctl -r "$REPO" -f json blast-radius ShoppingCartService -o /tmp/blast.json
 
 ### Stdout vs stderr
 
-| Mode | stdout | stderr |
-|------|--------|--------|
-| `-f json discover` | Single JSON telemetry object | Quiet (errors only) unless `-v` |
-| `-f json` (other commands) | Single JSON result | Errors / warnings |
-| Default text | Human-readable tables | Progress / info logs |
+| Mode                       | stdout                       | stderr                          |
+|----------------------------|------------------------------|---------------------------------|
+| `-f json discover`         | Single JSON telemetry object | Quiet (errors only) unless `-v` |
+| `-f json` (other commands) | Single JSON result           | Errors / warnings               |
+| Default text               | Human-readable tables        | Progress / info logs            |
 
 **Rule:** parse **stdout only** for JSON. Do not scrape stderr.
 
@@ -74,24 +74,24 @@ if (doc.schema_version !== 2) {
 }
 ```
 
-| Command | Current `schema_version` | Breaking changes |
-|---------|------------------------:|------------------|
-| `discover` | **2** | v2 introduced structured `metrics` block |
-| `blast-radius` | **2** | v2 added `target.language`, `target.canonical_fqn`, `metrics.caller_depth_limit` |
-| `find` / `callers` / `callees` / `relations` / `inventory` | **2** | Structured-query envelope |
-| `status` | **3** | v3 adds `capabilities` (structural / cfg_cpg / semantic / agent_skills unlock hints) |
-| `update` | **1** | Incremental structural patch |
-| `metrics` | **1** | — |
-| `check` | **1** | — |
-| `slice` | **1** | — |
-| `inspect` | **1** | — |
-| `semantic index` | **2** | CLI index telemetry |
-| `semantic query` | **3** | hits + optional expansion / fusion fields |
-| `semantic distill` | **1** | RBVK matrix write (hash/code-daemon teacher) |
-| `communities` | **1** | list / label |
-| `clones` | **1 / 2** | exact Type-1 / bloom (v1); fragment hammocks (v2) + optional seed |
-| `cpg` (status / mutations / flows / …) | **1** | per-subcommand shapes |
-| `install` | **3** | agent pack write report (`list-agents` JSON is separate; see §18) |
+| Command                                                    | Current `schema_version` | Breaking changes                                                                     |
+|------------------------------------------------------------|-------------------------:|--------------------------------------------------------------------------------------|
+| `discover`                                                 |                    **2** | v2 introduced structured `metrics` block                                             |
+| `blast-radius`                                             |                    **2** | v2 added `target.language`, `target.canonical_fqn`, `metrics.caller_depth_limit`     |
+| `find` / `callers` / `callees` / `relations` / `inventory` |                    **2** | Structured-query envelope                                                            |
+| `status`                                                   |                    **3** | v3 adds `capabilities` (structural / cfg_cpg / semantic / agent_skills unlock hints) |
+| `update`                                                   |                    **1** | Incremental structural patch                                                         |
+| `metrics`                                                  |                    **1** | —                                                                                    |
+| `check`                                                    |                    **1** | —                                                                                    |
+| `slice`                                                    |                    **1** | —                                                                                    |
+| `inspect`                                                  |                    **1** | —                                                                                    |
+| `semantic index`                                           |                    **2** | CLI index telemetry                                                                  |
+| `semantic query`                                           |                    **3** | hits + optional expansion / fusion fields                                            |
+| `semantic distill`                                         |                    **1** | RBVK matrix write (hash/code-daemon teacher)                                         |
+| `communities`                                              |                    **1** | list / label                                                                         |
+| `clones`                                                   |                **1 / 2** | exact Type-1 / bloom (v1); fragment hammocks (v2) + optional seed                    |
+| `cpg` (status / mutations / flows / …)                     |                    **1** | per-subcommand shapes                                                                |
+| `install`                                                  |                    **3** | agent pack write report (`list-agents` JSON is separate; see §18)                    |
 
 **Omitted vs null:** optional fields are **absent** when unset (not `null`), unless noted otherwise. Empty collections are usually `[]`, not omitted.
 
@@ -101,27 +101,27 @@ if (doc.schema_version !== 2) {
 
 ## 3. Command index
 
-| Command | `-f json` | Primary keys | Typical use |
-|---------|:---------:|--------------|-------------|
-| `discover` | ✅ | `metrics` | CI ingestion gates, timing |
-| `find` / `callers` / `callees` / `relations` / `inventory` | ✅ | `entities`, `edges`, `counts` | Symbol lookup, call graph, inventories |
-| `status` | ✅ | `status`, `nodes`, `edges`, `index_current` | Session snapshot + source staleness |
-| `update` | ✅ | `files_affected`, node/edge deltas | Incremental structural graph patch |
-| `blast-radius` | ✅ | `target`, `metrics`, `topology` | Change-impact automation |
-| `metrics` | ✅ | `pagerank`, `betweenness`, `communities` | Hotspot ranking |
-| `check` | ✅ | `passed`, `violations` | CI policy gate |
-| `slice` | ✅ | `lines` / `nodes` / `edges` / `taint` | Line-level analysis |
-| `inspect` | ✅ | `layer`, `nodes`, `edges` | CFG/PDG/dominance dumps |
-| `semantic` | ✅ | `hits` / `functions_indexed` | Opt-in NL / keyword search |
-| `communities` | ✅ | `communities`, `modularity` | Named community labels |
-| `clones` | ✅ | `groups`, `graph_digest` | Exact / bloom / fragment (SESE + 1-WL) clone groups; not semantic search |
-| `review check` / `review paths` / `review export` | ✅ | violations / paths / composed export | Temporal PR gate + call-path deltas (`pr-check` = alias) |
-| `cpg` | ✅ | varies by subcommand | Hybrid CPG façade (`slice` / `inspect` are canonical for flow/CFG) |
-| `vuln` / `deps` | ✅ | varies | OSV triage / analyze / deps check (`security …` aliases same handlers) |
-| `security` | ✅ | same as `vuln`/`deps`/`taint` | Soft namespace; no separate JSON schema |
-| `install` | ✅ | `writes` | Install bundled agent pack (skills + optional commands) |
-| `export` | ❌ (file) | — | Full-graph serialization |
-| `serve` | ❌ | — | HTTP dashboard + semantic API (foreground) |
+| Command                                                    | `-f json` | Primary keys                                | Typical use                                                              |
+|------------------------------------------------------------|:---------:|---------------------------------------------|--------------------------------------------------------------------------|
+| `discover`                                                 |     ✅     | `metrics`                                   | CI ingestion gates, timing                                               |
+| `find` / `callers` / `callees` / `relations` / `inventory` |     ✅     | `entities`, `edges`, `counts`               | Symbol lookup, call graph, inventories                                   |
+| `status`                                                   |     ✅     | `status`, `nodes`, `edges`, `index_current` | Session snapshot + source staleness                                      |
+| `update`                                                   |     ✅     | `files_affected`, node/edge deltas          | Incremental structural graph patch                                       |
+| `blast-radius`                                             |     ✅     | `target`, `metrics`, `topology`             | Change-impact automation                                                 |
+| `metrics`                                                  |     ✅     | `pagerank`, `betweenness`, `communities`    | Hotspot ranking                                                          |
+| `check`                                                    |     ✅     | `passed`, `violations`                      | CI policy gate                                                           |
+| `slice`                                                    |     ✅     | `lines` / `nodes` / `edges` / `taint`       | Line-level analysis                                                      |
+| `inspect`                                                  |     ✅     | `layer`, `nodes`, `edges`                   | CFG/PDG/dominance dumps                                                  |
+| `semantic`                                                 |     ✅     | `hits` / `functions_indexed`                | Opt-in NL / keyword search                                               |
+| `communities`                                              |     ✅     | `communities`, `modularity`                 | Named community labels                                                   |
+| `clones`                                                   |     ✅     | `groups`, `graph_digest`                    | Exact / bloom / fragment (SESE + 1-WL) clone groups; not semantic search |
+| `review check` / `review paths` / `review export`          |     ✅     | violations / paths / composed export        | Temporal PR gate + call-path deltas (`pr-check` = alias)                 |
+| `cpg`                                                      |     ✅     | varies by subcommand                        | Hybrid CPG façade (`slice` / `inspect` are canonical for flow/CFG)       |
+| `vuln` / `deps`                                            |     ✅     | varies                                      | OSV triage / analyze / deps check (`security …` aliases same handlers)   |
+| `security`                                                 |     ✅     | same as `vuln`/`deps`/`taint`               | Soft namespace; no separate JSON schema                                  |
+| `install`                                                  |     ✅     | `writes`                                    | Install bundled agent pack (skills + optional commands)                  |
+| `export`                                                   | ❌ (file)  | —                                           | Full-graph serialization                                                 |
+| `serve`                                                    |     ❌     | —                                           | HTTP dashboard + semantic API (foreground)                               |
 
 Help groups commands as Lifecycle · Query · Analysis · Security · Policy · Meta (`rgctl --help` command map).
 
@@ -432,11 +432,11 @@ interface SliceHandoff {
 
 Tagged union — discriminant field is **`kind`**:
 
-| `kind` | Fields |
-|--------|--------|
-| `domain_isolation` | `source_domain`, `reached_domain`, `node` |
-| `scale_failure` | `count`, `max` |
-| `cascade_hazard` | `node`, `betweenness`, `threshold` |
+| `kind`                | Fields                                      |
+|-----------------------|---------------------------------------------|
+| `domain_isolation`    | `source_domain`, `reached_domain`, `node`   |
+| `scale_failure`       | `count`, `max`                              |
+| `cascade_hazard`      | `node`, `betweenness`, `threshold`          |
 | `sanitization_bypass` | `sink_line`, `path_trace`, `sanitizer_node` |
 
 ### jq
@@ -913,14 +913,14 @@ rgctl export --export-format json --export-output graph.json --query all
 rgctl export --export-format mermaid --export-output clearCart.mmd --query 'name:clearCart'
 ```
 
-| `--export-format` | File content |
-|-------------------|--------------|
-| `json` | Graph snapshot JSON (filtered when `--query` ≠ `all`) |
-| `graphml` | GraphML XML |
-| `graphviz` | DOT |
-| `mermaid` | Mermaid flowchart |
-| `obsidian` | Obsidian vault directory (one markdown note per doc heading; needs markdown `discover` + `content_store.bin`) |
-| `okf` | Open Knowledge Foundation JSON entity bundle (doc headings + bodies) |
+| `--export-format` | File content                                                                                                  |
+|-------------------|---------------------------------------------------------------------------------------------------------------|
+| `json`            | Graph snapshot JSON (filtered when `--query` ≠ `all`)                                                         |
+| `graphml`         | GraphML XML                                                                                                   |
+| `graphviz`        | DOT                                                                                                           |
+| `mermaid`         | Mermaid flowchart                                                                                             |
+| `obsidian`        | Obsidian vault directory (one markdown note per doc heading; needs markdown `discover` + `content_store.bin`) |
+| `okf`             | Open Knowledge Foundation JSON entity bundle (doc headings + bodies)                                          |
 
 `obsidian` and `okf` export **doc heading modules** from the graph; use `--query all`. Output for `obsidian` is a **directory** (`--export-output "$REPO/vault"`), not a single file.
 
@@ -932,20 +932,20 @@ rgctl export --export-format mermaid --export-output clearCart.mmd --query 'name
 
 These files are written under `.rgctl/` (and copied into `.rgctl/dashboard/` for the UI). They are **not** emitted on stdout but are stable inputs for custom tooling.
 
-| Path | `schema_version` | Purpose |
-|------|------------------:|---------|
-| `dashboard/manifest.json` | 1 | Bundle metadata, phase flags, metric summary |
-| `dashboard/metagraph.json` | 2 | Package-level graph for LOD UI |
-| `dashboard/cfg_index.json` | 1 | CFG function catalog |
-| `dashboard/slice_index.json` | 1 | Slice/PDG function catalog |
-| `dashboard/dataflow_index.json` | 1 | Dataflow function catalog |
-| `dashboard/taint_index.json` | 1 | Taint summary (`discover --with-cfg`) |
-| `dashboard/taint/{uuid}.json` | 1 | Per-function taint flows |
-| `dashboard/slice/{uuid}.json` | 1 | Per-function source + PDG bundle |
-| `dashboard/cfg/{uuid}.json` | 1 | Per-function CFG preview |
-| `kantra_findings.json` | 2 | Kantra violations + enrichment + skipped rules (`discover --with-kantra`) |
-| `file_hashes.json` | — | Incremental discover state |
-| `content_store.bin` | — | Blake3-keyed blob store for truncated markdown bodies / large files (`body_ref`, `blob_ref`) |
+| Path                            | `schema_version` | Purpose                                                                                      |
+|---------------------------------|-----------------:|----------------------------------------------------------------------------------------------|
+| `dashboard/manifest.json`       |                1 | Bundle metadata, phase flags, metric summary                                                 |
+| `dashboard/metagraph.json`      |                2 | Package-level graph for LOD UI                                                               |
+| `dashboard/cfg_index.json`      |                1 | CFG function catalog                                                                         |
+| `dashboard/slice_index.json`    |                1 | Slice/PDG function catalog                                                                   |
+| `dashboard/dataflow_index.json` |                1 | Dataflow function catalog                                                                    |
+| `dashboard/taint_index.json`    |                1 | Taint summary (`discover --with-cfg`)                                                        |
+| `dashboard/taint/{uuid}.json`   |                1 | Per-function taint flows                                                                     |
+| `dashboard/slice/{uuid}.json`   |                1 | Per-function source + PDG bundle                                                             |
+| `dashboard/cfg/{uuid}.json`     |                1 | Per-function CFG preview                                                                     |
+| `kantra_findings.json`          |                2 | Kantra violations + enrichment + skipped rules (`discover --with-kantra`)                    |
+| `file_hashes.json`              |                — | Incremental discover state                                                                   |
+| `content_store.bin`             |                — | Blake3-keyed blob store for truncated markdown bodies / large files (`body_ref`, `blob_ref`) |
 
 ### `manifest.json` (excerpt)
 
@@ -1057,25 +1057,25 @@ Incremental filecontent results are cached under `.rgctl/kantra_cache/` (content
 }
 ```
 
-| Field | Type | Notes |
-|-------|------|-------|
-| `schema_version` | `2` | Artifact version |
-| `command` | `"kantra_findings"` | Discriminator |
-| `catalog_id` | string? | Embedded: `stable-java@<rulesets-git-sha>`; fixture: `fixture@<hash>`; override paths use `dir@…` / tree id |
-| `ruleset` | string | Display name from catalog |
-| `target_filter` | string? | Set when `--kantra-target` is active |
-| `evaluated_rules` | number | Rules in catalog before per-rule skip |
-| `violations` | array | Matches with `rule_id`, `file`, `line`, `matched_by` (`filecontent`, `java.referenced`, …) |
-| `violations[].symbol` | string? | Import or symbol name when resolved by referenced rules |
-| `violations[].enrichment` | object? | Graph linkage + metrics (after blast engine build) |
-| `violations[].enrichment.node_id` | string? | UUID of matched graph node (used for `VIOLATES` edges) |
-| `violations[].enrichment.community_id` | number? | Fast-Leiden community id |
-| `violations[].enrichment.pagerank` | number? | PageRank centrality |
-| `violations[].enrichment.blast_radius_score` | number? | Blast-radius score for the node |
-| `violations[].enrichment.impact_zone_size` | number? | Transitive impact zone size |
-| `skipped_rules` | array | Unsupported providers, invalid regex, or eval errors (`rule_id`, `reason`) |
-| `cache_hits` | number? | Per-file cache hits (`builtin.filecontent` warmup); omitted when zero |
-| `cache_misses` | number? | Stale cache entries re-evaluated; omitted when zero |
+| Field                                        | Type                | Notes                                                                                                       |
+|----------------------------------------------|---------------------|-------------------------------------------------------------------------------------------------------------|
+| `schema_version`                             | `2`                 | Artifact version                                                                                            |
+| `command`                                    | `"kantra_findings"` | Discriminator                                                                                               |
+| `catalog_id`                                 | string?             | Embedded: `stable-java@<rulesets-git-sha>`; fixture: `fixture@<hash>`; override paths use `dir@…` / tree id |
+| `ruleset`                                    | string              | Display name from catalog                                                                                   |
+| `target_filter`                              | string?             | Set when `--kantra-target` is active                                                                        |
+| `evaluated_rules`                            | number              | Rules in catalog before per-rule skip                                                                       |
+| `violations`                                 | array               | Matches with `rule_id`, `file`, `line`, `matched_by` (`filecontent`, `java.referenced`, …)                  |
+| `violations[].symbol`                        | string?             | Import or symbol name when resolved by referenced rules                                                     |
+| `violations[].enrichment`                    | object?             | Graph linkage + metrics (after blast engine build)                                                          |
+| `violations[].enrichment.node_id`            | string?             | UUID of matched graph node (used for `VIOLATES` edges)                                                      |
+| `violations[].enrichment.community_id`       | number?             | Fast-Leiden community id                                                                                    |
+| `violations[].enrichment.pagerank`           | number?             | PageRank centrality                                                                                         |
+| `violations[].enrichment.blast_radius_score` | number?             | Blast-radius score for the node                                                                             |
+| `violations[].enrichment.impact_zone_size`   | number?             | Transitive impact zone size                                                                                 |
+| `skipped_rules`                              | array               | Unsupported providers, invalid regex, or eval errors (`rule_id`, `reason`)                                  |
+| `cache_hits`                                 | number?             | Per-file cache hits (`builtin.filecontent` warmup); omitted when zero                                       |
+| `cache_misses`                               | number?             | Stale cache entries re-evaluated; omitted when zero                                                         |
 
 Query violation edges: `rgctl -f json relations --edge violates --from-type kantrarule --limit 20`.
 
@@ -1087,14 +1087,14 @@ Binary artifacts (`graph.snapshot.bin`, `graph_payload.bin`, `blast_engine.snaps
 
 ## 13. Exit codes
 
-| Command | `0` | `1` |
-|---------|-----|-----|
-| `discover` | Success | Failure |
-| `find` / `callers` / `relations` / … | Success | Query/IO error |
-| `blast-radius` | Success, or policy skipped | `--policy-file` + `policy_status == "VIOLATED"` (JSON still on stdout) |
-| `check` | `passed == true` | `passed == false` |
-| `slice` / `inspect` / `metrics` / `export` | Success | Error |
-| `install` | Skill files written or unchanged | Missing `--skill`, dest differs without `--force` (`skipped_exists`; JSON still on stdout), or I/O error |
+| Command                                    | `0`                              | `1`                                                                                                      |
+|--------------------------------------------|----------------------------------|----------------------------------------------------------------------------------------------------------|
+| `discover`                                 | Success                          | Failure                                                                                                  |
+| `find` / `callers` / `relations` / …       | Success                          | Query/IO error                                                                                           |
+| `blast-radius`                             | Success, or policy skipped       | `--policy-file` + `policy_status == "VIOLATED"` (JSON still on stdout)                                   |
+| `check`                                    | `passed == true`                 | `passed == false`                                                                                        |
+| `slice` / `inspect` / `metrics` / `export` | Success                          | Error                                                                                                    |
+| `install`                                  | Skill files written or unchanged | Missing `--skill`, dest differs without `--force` (`skipped_exists`; JSON still on stdout), or I/O error |
 
 **CI pattern:** capture stdout first, then check `$?`.
 
@@ -1446,12 +1446,12 @@ type CpgMutationsResult = {
 
 ### Other subcommands
 
-| Subcommand | Primary keys |
-|------------|--------------|
-| `cpg function <Symbol>` | `id`, `name`, `has_l_proc`, … |
-| `cpg calls <Symbol>` | `edges[]` (`direction`, `name`, `id`), `function_id`, `function_name` (no `edges_sample` / `returned`) |
-| `cpg flows …` | `steps[]`, `lines[]`, `direction`, `variable`, `schema_version` |
-| `cpg export` | writes a **file** (`--format` / `--output`); not stdout JSON |
+| Subcommand              | Primary keys                                                                                           |
+|-------------------------|--------------------------------------------------------------------------------------------------------|
+| `cpg function <Symbol>` | `id`, `name`, `has_l_proc`, …                                                                          |
+| `cpg calls <Symbol>`    | `edges[]` (`direction`, `name`, `id`), `function_id`, `function_name` (no `edges_sample` / `returned`) |
+| `cpg flows …`           | `steps[]`, `lines[]`, `direction`, `variable`, `schema_version`                                        |
+| `cpg export`            | writes a **file** (`--format` / `--output`); not stdout JSON                                           |
 
 ```bash
 rgctl -r "$REPO" -f json cpg status | jq '{archive_present, function_count, field_write_count}'
@@ -1568,23 +1568,23 @@ See [cli-io-sanity-qe.md](cli-io-sanity-qe.md) for the full coverage matrix.
 
 ## Conventions matrix
 
-| Convention | blast-radius | discover | structured query | metrics | check | slice | inspect | semantic | communities | cpg | install |
-|------------|:------------:|:--------:|:----------------:|:-------:|:-----:|:-----:|:-------:|:--------:|:-----------:|:---:|:-------:|
-| `schema_version` | ✅ v2 | ✅ v2 | ✅ v2 (v1 status) | ✅ v1 | ✅ v1 | ✅ v1 | ✅ v1 | ✅ v2/v3 | ✅ v1 | ✅ v1 | ✅ v1 |
-| Typed `*_output.rs` / analysis types | ✅ | ✅ | ✅ (graph crate) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Explicit empty arrays | ✅ | — | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Omitted optional keys | — | — | — | ✅ | ✅ | ✅ | ✅ | ✅ | — | ✅ | — |
-| Composable graph topology | ✅ | — | — | — | — | ✅ | ✅ | — | — | — | — |
-| Stable node UUIDs (no nil) | ✅ | — | — | — | — | — | — | — | — | — | — |
+| Convention                           | blast-radius | discover | structured query | metrics | check | slice | inspect | semantic | communities | cpg  | install |
+|--------------------------------------|:------------:|:--------:|:----------------:|:-------:|:-----:|:-----:|:-------:|:--------:|:-----------:|:----:|:-------:|
+| `schema_version`                     |     ✅ v2     |   ✅ v2   | ✅ v2 (v1 status) |  ✅ v1   | ✅ v1  | ✅ v1  |  ✅ v1   | ✅ v2/v3  |    ✅ v1     | ✅ v1 |  ✅ v1   |
+| Typed `*_output.rs` / analysis types |      ✅       |    ✅     | ✅ (graph crate)  |    ✅    |   ✅   |   ✅   |    ✅    |    ✅     |      ✅      |  ✅   |    ✅    |
+| Explicit empty arrays                |      ✅       |    —     |        ✅         |    ✅    |   ✅   |   ✅   |    ✅    |    ✅     |      ✅      |  ✅   |    ✅    |
+| Omitted optional keys                |      —       |    —     |        —         |    ✅    |   ✅   |   ✅   |    ✅    |    ✅     |      —      |  ✅   |    —    |
+| Composable graph topology            |      ✅       |    —     |        —         |    —    |   —   |   ✅   |    ✅    |    —     |      —      |  —   |    —    |
+| Stable node UUIDs (no nil)           |      ✅       |    —     |        —         |    —    |   —   |   —   |    —    |    —     |      —      |  —   |    —    |
 
 **Tests:** See [cli-io-sanity-qe.md](cli-io-sanity-qe.md) for the full coverage matrix, harness design, and extension guide.
 
-| Layer | Cargo target | Path | Covers |
-|-------|--------------|------|--------|
-| 1 — Unit schema | `cli_output` | `tests/cli_output/*.rs` | Typed `*_output.rs` fixtures, serde shapes |
-| 2 — Golden path | `subprocess_golden_path` | `tests/cli_output/subprocess_golden_path.rs` | Discover + blast-radius pipelines, exit 1 |
-| 3 — Full sanity | `all_commands_sanity` | `tests/cli_output/all_commands_sanity.rs` | All JSON commands, sandbox `-d`, platform rules |
-| Fixture | — | `tests/fixtures/tiny_polyglot_repo/` | Java + Rust polyglot subprocess input |
+| Layer           | Cargo target             | Path                                         | Covers                                          |
+|-----------------|--------------------------|----------------------------------------------|-------------------------------------------------|
+| 1 — Unit schema | `cli_output`             | `tests/cli_output/*.rs`                      | Typed `*_output.rs` fixtures, serde shapes      |
+| 2 — Golden path | `subprocess_golden_path` | `tests/cli_output/subprocess_golden_path.rs` | Discover + blast-radius pipelines, exit 1       |
+| 3 — Full sanity | `all_commands_sanity`    | `tests/cli_output/all_commands_sanity.rs`    | All JSON commands, sandbox `-d`, platform rules |
+| Fixture         | —                        | `tests/fixtures/tiny_polyglot_repo/`         | Java + Rust polyglot subprocess input           |
 
 ```bash
 cargo test --test cli_output --test subprocess_golden_path --test all_commands_sanity
@@ -1604,12 +1604,12 @@ rgctl -f json blast-radius <SYMBOL> [--depth N] [--policy-file PATH] [--with-sli
 
 **Flags:**
 
-| Flag | Description |
-|------|-------------|
-| `--depth N` | Cap `topology.impact_zone` to upstream callers within **N incoming call hops** (hop 1 = direct callers). Omits `metrics.caller_depth_limit` when unset (full closure). Score is recomputed when capped. |
-| `--policy-file` | Run policy guardrails on the (possibly depth-filtered) impact zone |
-| `--with-slices` | Populate `gatekeeping.handoffs` (requires full graph path) |
-| `--class` / `--file` | Disambiguate overloads |
+| Flag                 | Description                                                                                                                                                                                             |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--depth N`          | Cap `topology.impact_zone` to upstream callers within **N incoming call hops** (hop 1 = direct callers). Omits `metrics.caller_depth_limit` when unset (full closure). Score is recomputed when capped. |
+| `--policy-file`      | Run policy guardrails on the (possibly depth-filtered) impact zone                                                                                                                                      |
+| `--with-slices`      | Populate `gatekeeping.handoffs` (requires full graph path)                                                                                                                                              |
+| `--class` / `--file` | Disambiguate overloads                                                                                                                                                                                  |
 
 **Optional warm path:** foreground `rgctl serve` is `POST /api/query` on `127.0.0.1:8080`. Daemon HTTP uses `/{reponame}/api/query`. See [HTTP Server and Dashboard](https://rgctl.io/docs/guides/http-server-and-dashboard/).
 
@@ -1630,15 +1630,15 @@ rgctl -f json blast-radius <SYMBOL> [--depth N] [--policy-file PATH] [--with-sli
 
 ### `target` — identification metadata (v2)
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | UUID string | Resolved graph node id |
-| `symbol` | string | Bare function/method name |
-| `class_context` | string \| null | Containing class or namespace when known |
-| `file_path` | string | Project-relative source path (empty if unknown) |
-| `language` | string | `"java"`, `"rust"`, `"python"`, or `"unknown"` |
-| `signature` | string \| omitted | Method signature when known (overload disambiguation) |
-| `canonical_fqn` | string | Uniform `Class::method` (e.g. `OrderService::process`) |
+| Field           | Type              | Description                                            |
+|-----------------|-------------------|--------------------------------------------------------|
+| `id`            | UUID string       | Resolved graph node id                                 |
+| `symbol`        | string            | Bare function/method name                              |
+| `class_context` | string \| null    | Containing class or namespace when known               |
+| `file_path`     | string            | Project-relative source path (empty if unknown)        |
+| `language`      | string            | `"java"`, `"rust"`, `"python"`, or `"unknown"`         |
+| `signature`     | string \| omitted | Method signature when known (overload disambiguation)  |
+| `canonical_fqn` | string            | Uniform `Class::method` (e.g. `OrderService::process`) |
 
 - `language` comes from graph `properties.language` (set by language plugins at extract time) or file-extension fallback.
 - `signature` comes from graph `Node.signature` (tree-sitter during discover).
@@ -1646,20 +1646,20 @@ rgctl -f json blast-radius <SYMBOL> [--depth N] [--policy-file PATH] [--with-sli
 
 ### `metrics` — quantitative impact
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `score` | number | Impact score 0–100 |
-| `direct_callers_count` | integer | Immediate caller count |
-| `impact_zone_size` | integer | Transitive caller count (functions only); reflects `--depth` cap when set |
-| `caller_depth_limit` | integer \| omitted | Present when `--depth N` was passed; echoes the hop cap applied to `impact_zone` |
+| Field                  | Type               | Description                                                                      |
+|------------------------|--------------------|----------------------------------------------------------------------------------|
+| `score`                | number             | Impact score 0–100                                                               |
+| `direct_callers_count` | integer            | Immediate caller count                                                           |
+| `impact_zone_size`     | integer            | Transitive caller count (functions only); reflects `--depth` cap when set        |
+| `caller_depth_limit`   | integer \| omitted | Present when `--depth N` was passed; echoes the hop cap applied to `impact_zone` |
 
 ### `topology` — graph layout
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `scc_component_id` | integer \| null | SCC index from engine; `null` on macro-index blast lookup cache hit |
-| `direct_callers` | `SymbolContext[]` | Immediate callers |
-| `impact_zone` | `SymbolContext[]` | Transitive upstream callers (filtered by `--depth` when set) |
+| Field              | Type              | Description                                                         |
+|--------------------|-------------------|---------------------------------------------------------------------|
+| `scc_component_id` | integer \| null   | SCC index from engine; `null` on macro-index blast lookup cache hit |
+| `direct_callers`   | `SymbolContext[]` | Immediate callers                                                   |
+| `impact_zone`      | `SymbolContext[]` | Transitive upstream callers (filtered by `--depth` when set)        |
 
 **`SymbolContext`:**
 
@@ -1678,21 +1678,21 @@ rgctl -f json blast-radius <SYMBOL> [--depth N] [--policy-file PATH] [--with-sli
 
 ### `gatekeeping` — policy and slice tracing
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `policy_status` | string | `"SKIPPED"` (default), `"PASS"`, or `"VIOLATED"` |
-| `violations` | array | Structured policy violations (always present; `[]` when none) |
-| `handoffs` | array | Slice seeds (always present; `[]` without `--with-slices`) |
+| Field           | Type   | Description                                                   |
+|-----------------|--------|---------------------------------------------------------------|
+| `policy_status` | string | `"SKIPPED"` (default), `"PASS"`, or `"VIOLATED"`              |
+| `violations`    | array  | Structured policy violations (always present; `[]` when none) |
+| `handoffs`      | array  | Slice seeds (always present; `[]` without `--with-slices`)    |
 
 **`SliceHandoff`:** `{ "callee": string, "param": string, "index": number }`
 
 **`PolicyViolation`** (internally tagged; discriminant is `kind`):
 
-| `kind` | Fields |
-|--------|--------|
-| `domain_isolation` | `source_domain`, `reached_domain`, `node` |
-| `scale_failure` | `count`, `max` |
-| `cascade_hazard` | `node`, `betweenness`, `threshold` |
+| `kind`                | Fields                                      |
+|-----------------------|---------------------------------------------|
+| `domain_isolation`    | `source_domain`, `reached_domain`, `node`   |
+| `scale_failure`       | `count`, `max`                              |
+| `cascade_hazard`      | `node`, `betweenness`, `threshold`          |
 | `sanitization_bypass` | `sink_line`, `path_trace`, `sanitizer_node` |
 
 ### Schema history (migration)
@@ -1713,14 +1713,14 @@ rgctl -f json blast-radius <SYMBOL> [--depth N] [--policy-file PATH] [--with-sli
 
 **v2 (current)** — adds `target.language`, `target.signature`, `target.canonical_fqn`, and optional `metrics.caller_depth_limit` when `--depth N` is set. `schema_version: 2`.
 
-| jq path (v2) | Replaces legacy |
-|--------------|-----------------|
-| `.metrics.score` | `.score` |
-| `.topology.direct_callers[].fqn` | `.direct_callers[]` (bare names) |
-| `.topology.impact_zone[].fqn` | `.impact_zone[]` |
-| `.target.id` | (new) |
-| `.target.canonical_fqn` | (new — prefer for routing) |
-| `.gatekeeping.handoffs` | `.handoffs` (always present in v1+) |
+| jq path (v2)                     | Replaces legacy                     |
+|----------------------------------|-------------------------------------|
+| `.metrics.score`                 | `.score`                            |
+| `.topology.direct_callers[].fqn` | `.direct_callers[]` (bare names)    |
+| `.topology.impact_zone[].fqn`    | `.impact_zone[]`                    |
+| `.target.id`                     | (new)                               |
+| `.target.canonical_fqn`          | (new — prefer for routing)          |
+| `.gatekeeping.handoffs`          | `.handoffs` (always present in v1+) |
 
 **FQN policy:** route on `target.canonical_fqn` (`Class::method`) and `topology.*.id` (UUID). Treat `topology.*.fqn` as language-native display text only.
 
@@ -1831,31 +1831,31 @@ Migration-hints stdout shape (when `--export-migration-hints` is set):
 }
 ```
 
-| Field | Source |
-|-------|--------|
-| `files_discovered` | `PipelineStats.files_discovered` |
-| `files_indexed` | `PipelineStats.files_processed` |
-| `files_skipped` | `PipelineStats.files_failed` |
-| `nodes_generated` | `PipelineStats.nodes_created` |
-| `edges_generated` | `PipelineStats.edges_created` |
-| `duration_ms` | Full discover wall-clock (includes analysis + persist) |
+| Field              | Source                                                 |
+|--------------------|--------------------------------------------------------|
+| `files_discovered` | `PipelineStats.files_discovered`                       |
+| `files_indexed`    | `PipelineStats.files_processed`                        |
+| `files_skipped`    | `PipelineStats.files_failed`                           |
+| `nodes_generated`  | `PipelineStats.nodes_created`                          |
+| `edges_generated`  | `PipelineStats.edges_created`                          |
+| `duration_ms`      | Full discover wall-clock (includes analysis + persist) |
 
 Without `-f json`, discover remains human-readable text progress (unchanged).
 
 ### Artifacts on disk
 
-| Path | When | Format |
-|------|------|--------|
-| `.rgctl/graph.snapshot.bin` | Always (default canonical graph) | Binary graph snapshot |
-| `.rgctl/blast_engine.snapshot.bin` | Always | Binary blast engine snapshot |
-| `.rgctl/macro_call_index.db` | Always | SQLite **blast-radius lookup cache** only (+ UUID + v2 target columns) |
-| `.rgctl/macro_call_index.bin` | Always | Bincode companion index (same data family as `.db`) |
-| `.rgctl/analysis_results.bin` | Always | Columnar analysis tables |
-| `.rgctl/dashboard/` | When export succeeds | Static dashboard bundle (`index.html`, `manifest.json`, …) |
-| `.rgctl/graph.db` / `.rgctl/graph.json` | `--write-json-graph` only | Legacy full graph JSON |
-| `.rgctl/analysis/cfg_pdg.archive.bin` | `--with-cfg` / `--with-taint`, or lazy append from `slice` / `cpg flows` | CFG + PDG archive (v3 TOC) |
-| `.rgctl/analysis/*.json` | `--with-cfg` or `--with-taint` | Per-function analysis storage (taint, CFG, PDG) |
-| `.rgctl/dashboard/taint_index.json` | `--with-cfg` or `--with-taint` | Dashboard taint catalog (see [json-api.md](json-api.md) §12) |
+| Path                                    | When                                                                     | Format                                                                 |
+|-----------------------------------------|--------------------------------------------------------------------------|------------------------------------------------------------------------|
+| `.rgctl/graph.snapshot.bin`             | Always (default canonical graph)                                         | Binary graph snapshot                                                  |
+| `.rgctl/blast_engine.snapshot.bin`      | Always                                                                   | Binary blast engine snapshot                                           |
+| `.rgctl/macro_call_index.db`            | Always                                                                   | SQLite **blast-radius lookup cache** only (+ UUID + v2 target columns) |
+| `.rgctl/macro_call_index.bin`           | Always                                                                   | Bincode companion index (same data family as `.db`)                    |
+| `.rgctl/analysis_results.bin`           | Always                                                                   | Columnar analysis tables                                               |
+| `.rgctl/dashboard/`                     | When export succeeds                                                     | Static dashboard bundle (`index.html`, `manifest.json`, …)             |
+| `.rgctl/graph.db` / `.rgctl/graph.json` | `--write-json-graph` only                                                | Legacy full graph JSON                                                 |
+| `.rgctl/analysis/cfg_pdg.archive.bin`   | `--with-cfg` / `--with-taint`, or lazy append from `slice` / `cpg flows` | CFG + PDG archive (v3 TOC)                                             |
+| `.rgctl/analysis/*.json`                | `--with-cfg` or `--with-taint`                                           | Per-function analysis storage (taint, CFG, PDG)                        |
+| `.rgctl/dashboard/taint_index.json`     | `--with-cfg` or `--with-taint`                                           | Dashboard taint catalog (see [json-api.md](json-api.md) §12)           |
 
 ---
 
@@ -1903,11 +1903,11 @@ Default (no section flags) computes PageRank, betweenness, and communities; `--c
 }
 ```
 
-| Section | When present | Notes |
-|---------|--------------|-------|
-| `pagerank` | `--pagerank` or default (all) | `top` capped at 20 nodes |
-| `betweenness` | `--betweenness` or default | Top-level **array**, top 20 |
-| `communities` | `--communities` or default | `assignments` = number of labeled nodes |
+| Section       | When present                  | Notes                                   |
+|---------------|-------------------------------|-----------------------------------------|
+| `pagerank`    | `--pagerank` or default (all) | `top` capped at 20 nodes                |
+| `betweenness` | `--betweenness` or default    | Top-level **array**, top 20             |
+| `communities` | `--communities` or default    | `assignments` = number of labeled nodes |
 
 Omitted keys: sections not requested are **absent** (not `null`, not `[]`). Serialization uses `Option` + `#[serde(skip_serializing_if = "Option::is_none")]` via `MetricsJsonResponse`.
 
@@ -1938,11 +1938,11 @@ rgctl -f json check --policy-file PATH
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `policy` | string | Path passed to `--policy-file` |
-| `violations` | array | Always present; empty when passing |
-| `passed` | boolean | `true` iff `violations` is empty |
+| Field        | Type    | Description                        |
+|--------------|---------|------------------------------------|
+| `policy`     | string  | Path passed to `--policy-file`     |
+| `violations` | array   | Always present; empty when passing |
+| `passed`     | boolean | `true` iff `violations` is empty   |
 
 **Violation entry** (one of `error` or `violation`; the other is omitted):
 
@@ -2117,12 +2117,12 @@ rgctl export --export-format json --export-output graph.json [--query "…"]
 
 Writes to `-o`; stdout is a one-line summary unless output is redirected via global `-o`.
 
-| `--format` | File content |
-|------------|--------------|
-| `json` | `CodeGraph::export_json()` (same family as `graph.db`) |
-| `graphml` | GraphML XML |
-| `graphviz` | DOT |
-| `mermaid` | Mermaid flowchart |
+| `--format` | File content                                           |
+|------------|--------------------------------------------------------|
+| `json`     | `CodeGraph::export_json()` (same family as `graph.db`) |
+| `graphml`  | GraphML XML                                            |
+| `graphviz` | DOT                                                    |
+| `mermaid`  | Mermaid flowchart                                      |
 
 ---
 
@@ -2130,27 +2130,27 @@ Writes to `-o`; stdout is a one-line summary unless output is redirected via glo
 
 See [json-api.md §15](json-api.md#15-semantic) for TypeScript shapes and jq recipes.
 
-| Subcommand | `schema_version` | Source |
-|------------|-----------------:|--------|
-| `semantic index` | **2** | `SEMANTIC_INDEX_CLI_SCHEMA_VERSION` |
-| `semantic query` | **3** | `SEMANTIC_QUERY_CLI_SCHEMA_VERSION` |
-| `semantic distill` | **1** | teacher → RBVK write |
+| Subcommand         | `schema_version` | Source                              |
+|--------------------|-----------------:|-------------------------------------|
+| `semantic index`   |            **2** | `SEMANTIC_INDEX_CLI_SCHEMA_VERSION` |
+| `semantic query`   |            **3** | `SEMANTIC_QUERY_CLI_SCHEMA_VERSION` |
+| `semantic distill` |            **1** | teacher → RBVK write                |
 
-| Field (index) | Type | Notes |
-|---------------|------|-------|
-| `model_id` | string | Embedder / model id |
-| `dimensions` | number | Default **256** |
-| `functions_indexed` | number | Entries written |
-| `path` | string | Index file path |
-| `build_stats` | object? | Incremental counters |
+| Field (index)       | Type    | Notes                |
+|---------------------|---------|----------------------|
+| `model_id`          | string  | Embedder / model id  |
+| `dimensions`        | number  | Default **256**      |
+| `functions_indexed` | number  | Entries written      |
+| `path`              | string  | Index file path      |
+| `build_stats`       | object? | Incremental counters |
 
-| Field (query hit) | Type | Notes |
-|-------------------|------|-------|
-| `node_id` | string | Graph node UUID |
-| `name` | string | Function name |
-| `distance` | number | Hamming distance |
-| `score` | number | Similarity or fused score |
-| `fused_score` | number? | Present when fusion ranking applied |
+| Field (query hit) | Type    | Notes                               |
+|-------------------|---------|-------------------------------------|
+| `node_id`         | string  | Graph node UUID                     |
+| `name`            | string  | Function name                       |
+| `distance`        | number  | Hamming distance                    |
+| `score`           | number  | Similarity or fused score           |
+| `fused_score`     | number? | Present when fusion ranking applied |
 
 ---
 
@@ -2158,14 +2158,14 @@ See [json-api.md §15](json-api.md#15-semantic) for TypeScript shapes and jq rec
 
 See [json-api.md §16](json-api.md#16-communities).
 
-| Field | Type | Notes |
-|-------|------|-------|
-| `schema_version` | number | **1** |
-| `modularity` | number | Newman Q |
-| `written` | bool | True after `label --write` |
-| `communities[].id` | number | Community id |
-| `communities[].label` | string | Heuristic label |
-| `communities[].member_count` | number | Members |
+| Field                        | Type   | Notes                      |
+|------------------------------|--------|----------------------------|
+| `schema_version`             | number | **1**                      |
+| `modularity`                 | number | Newman Q                   |
+| `written`                    | bool   | True after `label --write` |
+| `communities[].id`           | number | Community id               |
+| `communities[].label`        | string | Heuristic label            |
+| `communities[].member_count` | number | Members                    |
 
 ---
 
@@ -2173,14 +2173,14 @@ See [json-api.md §16](json-api.md#16-communities).
 
 See [json-api.md §17](json-api.md#17-cpg). `flows` is lazy (no upfront `--with-cfg`); `mutations` still needs `discover --with-cfg`.
 
-| Subcommand | Primary fields |
-|------------|----------------|
-| `status` | `archive_present`, `function_count`, `field_write_*`, `ast_skeleton_*` |
-| `function` | `id`, `name`, `has_l_proc`, `is_constructor` |
-| `calls` | `edges[]` |
-| `mutations` | `mutations[]` (file, line, member, function, …) — needs `--with-cfg` |
-| `flows` | `steps[]` — lazy CFG/PDG; `--function` optional; `--with-alias` |
-| `export` | file output (`--format` / `--output`), not stdout JSON |
+| Subcommand  | Primary fields                                                         |
+|-------------|------------------------------------------------------------------------|
+| `status`    | `archive_present`, `function_count`, `field_write_*`, `ast_skeleton_*` |
+| `function`  | `id`, `name`, `has_l_proc`, `is_constructor`                           |
+| `calls`     | `edges[]`                                                              |
+| `mutations` | `mutations[]` (file, line, member, function, …) — needs `--with-cfg`   |
+| `flows`     | `steps[]` — lazy CFG/PDG; `--function` optional; `--with-alias`        |
+| `export`    | file output (`--format` / `--output`), not stdout JSON                 |
 
 All `-f json` CPG payloads use `schema_version: 1`.
 
@@ -2190,15 +2190,15 @@ All `-f json` CPG payloads use `schema_version: 1`.
 
 See [json-api.md §18](json-api.md#18-install). Source: `src/cli/install_output.rs`. Does not require `discover`.
 
-| Field | Type | Notes |
-|-------|------|-------|
-| `schema_version` | number | **1** |
-| `command` | string | Always `"install"` |
-| `skill` | string | Always `"rgctl"` |
-| `repo` | string | Absolute repository root |
-| `force` | bool | Whether `--force` was set |
-| `writes[].host` | string | `"claude"`, `"codex"`, or `"cursor"` |
-| `writes[].path` | string | Absolute dest path |
+| Field             | Type   | Notes                                                      |
+|-------------------|--------|------------------------------------------------------------|
+| `schema_version`  | number | **1**                                                      |
+| `command`         | string | Always `"install"`                                         |
+| `skill`           | string | Always `"rgctl"`                                           |
+| `repo`            | string | Absolute repository root                                   |
+| `force`           | bool   | Whether `--force` was set                                  |
+| `writes[].host`   | string | `"claude"`, `"codex"`, or `"cursor"`                       |
+| `writes[].path`   | string | Absolute dest path                                         |
 | `writes[].status` | string | `created` / `unchanged` / `overwritten` / `skipped_exists` |
 
 ---

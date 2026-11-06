@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Bulk content rename rgctl → rgctl. Run from repo root."""
+
 from __future__ import annotations
 
 import os
@@ -9,8 +10,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKIP_DIRS = {".git", "target", "node_modules"}
 EXTENSIONS = {
-    ".rs", ".toml", ".md", ".json", ".yaml", ".yml", ".sh", ".py",
-    ".tsx", ".ts", ".js", ".mjs", ".html", ".txt", ".tape", ".lock",
+    ".rs",
+    ".toml",
+    ".md",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".sh",
+    ".py",
+    ".tsx",
+    ".ts",
+    ".js",
+    ".mjs",
+    ".html",
+    ".txt",
+    ".tape",
+    ".lock",
 }
 
 REPLACEMENTS = [
@@ -25,7 +40,10 @@ REPLACEMENTS = [
 
 
 def should_process(path: Path) -> bool:
-    if path.suffix not in EXTENSIONS and path.name not in ("AGENTS.md", "languages.toml"):
+    if path.suffix not in EXTENSIONS and path.name not in (
+        "AGENTS.md",
+        "languages.toml",
+    ):
         return False
     for part in path.parts:
         if part in SKIP_DIRS:

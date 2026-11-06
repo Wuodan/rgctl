@@ -53,16 +53,16 @@ Applies to all extraction / language / discover hot-path work (and OpenSpec `*-e
 
 Rules distilled from linux cold-discover work (`index_extract` / pass-1 / spill / `save_tracker`). Breaking these usually shows up as Gate A wall or RSS regressions — treat O(files)×O(symbols) heap work as a bug.
 
-| Practice | Do | Don't |
-|----------|----|-------|
-| **No heap strings per symbol** | Pass `&str` / slices into pass-1 (`add_symbol_with_prep`); borrow file bytes | `String::from` / `to_string()` for every symbol body or path key on the merge thread |
-| **Prep on workers** | Compute line offsets, BLAKE3 `code_hash`, token bloom in `SymbolPass1Prep` on extract workers | Re-walk source / re-hash on the sequential pass-1 thread |
-| **Hash once** | Set `FileExtraction.file_hash` from bytes already in memory; thread through `StreamStats` / `PipelineStats` into `FileTracker::index_files_with_mapping` | Re-`fs::read` + BLAKE3 all files in `save_tracker` after extract already hashed them |
-| **Empty-tracker short-circuit** | When `file_hashes.json` is empty, `detect_changes` marks all paths **added** without hashing (keeps ChangeSet non-empty so a stale snapshot is not reused) | Hash the whole tree twice on cold discover (detect + index) |
-| **Normalize / map once per file** | `begin_file_batch` → push into `active_tracker_ids`; flush once in `end_file_batch`; accumulate mapping at commit | Per-symbol `HashMap::get_mut` / `normalize_path_str(...).into_owned()`; full mmap node scan/sort just to rebuild file→node ids |
-| **Reuse tree-sitter parsers** | Call `rgctl_plugin_helpers::parse_source` (thread-local `Parser` per Rayon worker); never `Parser::new()` per file on the extract hot path | Fresh `Parser::new` + `set_language` inside `extract_*` / `parse` for every file (linux: ~71k×) |
-| **Spill alloc reuse** | `SegmentedSpill` scratch `Vec` + `bincode::serialize_into`; keep sort runs at `DEFAULT_SORT_RUN_BYTES` (256 MiB) unless profiling says otherwise | Fresh `bincode::serialize` → new `Vec<u8>` per node/edge; shrinking sort runs without a cold gate |
-| **CodeIndex bodies off by default** | Default discover: no body-storing `CodeIndex` (no multi-GB `code_index.json`); nodes still get `code_hash` from prep | Attach a full CodeIndex on the cold path “for convenience” |
+| Practice                            | Do                                                                                                                                                         | Don't                                                                                                                          |
+|-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| **No heap strings per symbol**      | Pass `&str` / slices into pass-1 (`add_symbol_with_prep`); borrow file bytes                                                                               | `String::from` / `to_string()` for every symbol body or path key on the merge thread                                           |
+| **Prep on workers**                 | Compute line offsets, BLAKE3 `code_hash`, token bloom in `SymbolPass1Prep` on extract workers                                                              | Re-walk source / re-hash on the sequential pass-1 thread                                                                       |
+| **Hash once**                       | Set `FileExtraction.file_hash` from bytes already in memory; thread through `StreamStats` / `PipelineStats` into `FileTracker::index_files_with_mapping`   | Re-`fs::read` + BLAKE3 all files in `save_tracker` after extract already hashed them                                           |
+| **Empty-tracker short-circuit**     | When `file_hashes.json` is empty, `detect_changes` marks all paths **added** without hashing (keeps ChangeSet non-empty so a stale snapshot is not reused) | Hash the whole tree twice on cold discover (detect + index)                                                                    |
+| **Normalize / map once per file**   | `begin_file_batch` → push into `active_tracker_ids`; flush once in `end_file_batch`; accumulate mapping at commit                                          | Per-symbol `HashMap::get_mut` / `normalize_path_str(...).into_owned()`; full mmap node scan/sort just to rebuild file→node ids |
+| **Reuse tree-sitter parsers**       | Call `rgctl_plugin_helpers::parse_source` (thread-local `Parser` per Rayon worker); never `Parser::new()` per file on the extract hot path                 | Fresh `Parser::new` + `set_language` inside `extract_*` / `parse` for every file (linux: ~71k×)                                |
+| **Spill alloc reuse**               | `SegmentedSpill` scratch `Vec` + `bincode::serialize_into`; keep sort runs at `DEFAULT_SORT_RUN_BYTES` (256 MiB) unless profiling says otherwise           | Fresh `bincode::serialize` → new `Vec<u8>` per node/edge; shrinking sort runs without a cold gate                              |
+| **CodeIndex bodies off by default** | Default discover: no body-storing `CodeIndex` (no multi-GB `code_index.json`); nodes still get `code_hash` from prep                                       | Attach a full CodeIndex on the cold path “for convenience”                                                                     |
 
 When adding extract or graph-commit code, ask: *does this allocate or re-read once per symbol/file on the sequential merge thread?* If yes, move it to workers or reuse an existing buffer/key.
 
@@ -79,9 +79,9 @@ Deep stage timings and reference machine notes: [docs/internal/profile.md](docs/
 
 ### Gate A — cross-language regression
 
-| Corpus | Test gate | Discover | Baseline (ref M3 Pro, +10%) |
-|--------|-----------|----------|------------------------------|
-| Linux kernel | `linux_cold_discover_within_baseline` | default | **75 s** wall (2026-10-21; post single-pass AST) |
+| Corpus       | Test gate                             | Discover | Baseline (ref M3 Pro, +10%)                      |
+|--------------|---------------------------------------|----------|--------------------------------------------------|
+| Linux kernel | `linux_cold_discover_within_baseline` | default  | **75 s** wall (2026-10-21; post single-pass AST) |
 
 ```bash
 cargo build --release --bin rgctl
@@ -94,23 +94,23 @@ Language changes add (or document) a language-filtered cold discover on a ~10k-f
 
 Fetch: `./scripts/fetch-profile-repos.sh`
 
-| Language | Corpus | Path | Discover | Env override |
-|----------|--------|------|----------|--------------|
-| **C** | Linux | `example/linux` | default | `RGCTL_LINUX_REPO` |
-| **C++** | LLVM | `example/llvm-project` | `-l cpp` on `clang/` | `RGCTL_LLVM_REPO` |
-| **C#** | Roslyn | `example/roslyn` | `-l csharp` on `src/` | `RGCTL_ROSLYN_REPO` |
-| **Go** | Kubernetes | `example/kubernetes` | `-l go` on `pkg/` `cmd/` | — |
-| **Java** | metasfresh | `example/metasfresh-4.9.8b` | `--full` | `METASFRESH_REPO` |
-| **JavaScript** | Node.js | `example/node` | `-l javascript` on `test/` | `RGCTL_NODE_REPO` |
-| **PHP** | Magento 2 | `example/magento2` | `-l php` | `RGCTL_MAGENTO2_REPO` |
-| **Python** | Home Assistant | `example/home-assistant` | `-l python` | `RGCTL_HOME_ASSISTANT_REPO` |
-| **Ruby** | Discourse | `example/discourse` | `-l ruby` | — |
-| **Puppet** | theforeman | `example/theforeman` | `-l puppet,erb,ruby -e spec,vendor` | `RGCTL_THEFOREMAN_REPO` — smoke corpus (~670 files, not O(10⁴)) |
-| **ERB** | *(included in theforeman)* | `example/theforeman` | `-l erb` | *(same corpus — 122 .erb files, 2114 blocks)* |
-| **Rust** | rustc | `example/rust` | `-l rust` | `RGCTL_RUST_REPO` |
-| **TypeScript** | VS Code | `example/vscode` | `-l typescript` on `src/` | `RGCTL_VSCODE_REPO` |
-| **Kotlin** | JetBrains/kotlin | `example/kotlin` | `-l kotlin` (sparse `libraries` `plugins` `analysis`) | `RGCTL_KOTLIN_REPO` |
-| **Groovy** | Gradle | `example/groovy` | `-l groovy` | `RGCTL_GROOVY_REPO` |
+| Language       | Corpus                     | Path                        | Discover                                              | Env override                                                    |
+|----------------|----------------------------|-----------------------------|-------------------------------------------------------|-----------------------------------------------------------------|
+| **C**          | Linux                      | `example/linux`             | default                                               | `RGCTL_LINUX_REPO`                                              |
+| **C++**        | LLVM                       | `example/llvm-project`      | `-l cpp` on `clang/`                                  | `RGCTL_LLVM_REPO`                                               |
+| **C#**         | Roslyn                     | `example/roslyn`            | `-l csharp` on `src/`                                 | `RGCTL_ROSLYN_REPO`                                             |
+| **Go**         | Kubernetes                 | `example/kubernetes`        | `-l go` on `pkg/` `cmd/`                              | —                                                               |
+| **Java**       | metasfresh                 | `example/metasfresh-4.9.8b` | `--full`                                              | `METASFRESH_REPO`                                               |
+| **JavaScript** | Node.js                    | `example/node`              | `-l javascript` on `test/`                            | `RGCTL_NODE_REPO`                                               |
+| **PHP**        | Magento 2                  | `example/magento2`          | `-l php`                                              | `RGCTL_MAGENTO2_REPO`                                           |
+| **Python**     | Home Assistant             | `example/home-assistant`    | `-l python`                                           | `RGCTL_HOME_ASSISTANT_REPO`                                     |
+| **Ruby**       | Discourse                  | `example/discourse`         | `-l ruby`                                             | —                                                               |
+| **Puppet**     | theforeman                 | `example/theforeman`        | `-l puppet,erb,ruby -e spec,vendor`                   | `RGCTL_THEFOREMAN_REPO` — smoke corpus (~670 files, not O(10⁴)) |
+| **ERB**        | *(included in theforeman)* | `example/theforeman`        | `-l erb`                                              | *(same corpus — 122 .erb files, 2114 blocks)*                   |
+| **Rust**       | rustc                      | `example/rust`              | `-l rust`                                             | `RGCTL_RUST_REPO`                                               |
+| **TypeScript** | VS Code                    | `example/vscode`            | `-l typescript` on `src/`                             | `RGCTL_VSCODE_REPO`                                             |
+| **Kotlin**     | JetBrains/kotlin           | `example/kotlin`            | `-l kotlin` (sparse `libraries` `plugins` `analysis`) | `RGCTL_KOTLIN_REPO`                                             |
+| **Groovy**     | Gradle                     | `example/groovy`            | `-l groovy`                                           | `RGCTL_GROOVY_REPO`                                             |
 
 File counts are approximate (goal **O(10⁴)** sources). Exclude `vendor/`, `node_modules/`, `target/`, `third_party/`.
 
@@ -120,31 +120,31 @@ File counts are approximate (goal **O(10⁴)** sources). Exclude `vendor/`, `nod
 
 ### Cargo profiles
 
-| Profile | When |
-|---------|------|
-| default / `dev` | Iterate, unit tests |
-| `--release` | Discover wall times, cold gates, any published timing |
-| `cargo bench` (`[profile.bench]`) | Criterion microbenchmarks |
+| Profile                           | When                                                  |
+|-----------------------------------|-------------------------------------------------------|
+| default / `dev`                   | Iterate, unit tests                                   |
+| `--release`                       | Discover wall times, cold gates, any published timing |
+| `cargo bench` (`[profile.bench]`) | Criterion microbenchmarks                             |
 
 ### Tests (run what you touched)
 
-| Kind | Command | Practice |
-|------|---------|----------|
-| Pre-flight PR gate | `./scripts/preflight-pr.sh` (or `--lint`, `--qe`, `--perf`, `--full`) | **Mandatory** before PR / task completion; default runs Tier 1 (`ci-lint.yml`: fmt, clippy `--all-targets`, `RGCTL_AST_COVERAGE_STRICT=1`) + Tier 2 (`ci.yml`: unit & core integration tests) |
-| Workspace | `cargo test` | Default before merge for touched crates |
-| Release CLI goldens | `cargo test --release --test subprocess_golden_path` (and related) | CLI surface changes |
-| Cold profile gates | `cargo test --release --test cold_profile_gates -- --ignored --nocapture --test-threads=1` | Perf / extraction / ingest; **Gate A** for scale-sensitive work |
-| Dashboard / lang | `dashboard_*`, langfeature / ecommerce fixture tests | When that path changes |
-| Corpora | `./scripts/fetch-profile-repos.sh` | Before ignored gates needing `example/` |
+| Kind                | Command                                                                                    | Practice                                                                                                                                                                                      |
+|---------------------|--------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Pre-flight PR gate  | `./scripts/preflight-pr.sh` (or `--lint`, `--qe`, `--perf`, `--full`)                      | **Mandatory** before PR / task completion; default runs Tier 1 (`ci-lint.yml`: fmt, clippy `--all-targets`, `RGCTL_AST_COVERAGE_STRICT=1`) + Tier 2 (`ci.yml`: unit & core integration tests) |
+| Workspace           | `cargo test`                                                                               | Default before merge for touched crates                                                                                                                                                       |
+| Release CLI goldens | `cargo test --release --test subprocess_golden_path` (and related)                         | CLI surface changes                                                                                                                                                                           |
+| Cold profile gates  | `cargo test --release --test cold_profile_gates -- --ignored --nocapture --test-threads=1` | Perf / extraction / ingest; **Gate A** for scale-sensitive work                                                                                                                               |
+| Dashboard / lang    | `dashboard_*`, langfeature / ecommerce fixture tests                                       | When that path changes                                                                                                                                                                        |
+| Corpora             | `./scripts/fetch-profile-repos.sh`                                                         | Before ignored gates needing `example/`                                                                                                                                                       |
 
 Warm or partial `.rgctl/` **invalidates** cold timings.
 
 ### Benches
 
-| Target | Command |
-|--------|---------|
-| Workspace | `cargo bench` — `parsing`, `graph`, `graph_benchmarks`, `analysis_benchmarks`, `centrality_benchmarks`, `community_benchmarks`, `blast_radius_benchmarks` |
-| Snapshot diff | `cargo bench -p rgctl-graph --bench snapshot_diff` |
+| Target            | Command                                                                                                                                                              |
+|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Workspace         | `cargo bench` — `parsing`, `graph`, `graph_benchmarks`, `analysis_benchmarks`, `centrality_benchmarks`, `community_benchmarks`, `blast_radius_benchmarks`            |
+| Snapshot diff     | `cargo bench -p rgctl-graph --bench snapshot_diff`                                                                                                                   |
 | Cold diff (linux) | `./scripts/prepare-linux-diff-snapshots.sh` then `linux_cold_diff_within_baseline` — see [profile.md](docs/internal/profile.md#cold-diff-profile-linux-two-ref-pair) |
 
 Baselines and notes: [docs/internal/profile.md](docs/internal/profile.md#snapshot-diff-micro-benchmarks).
@@ -155,17 +155,17 @@ Baselines and notes: [docs/internal/profile.md](docs/internal/profile.md#snapsho
 
 ## Must-read documents
 
-| Doc | Why |
-|-----|-----|
-| [docs/analysis-architecture.md](docs/analysis-architecture.md) | Graph tiers, spill, CSR |
-| [docs/design/blast-radius-design.md](docs/design/blast-radius-design.md) | Reachability / SCC |
-| [docs/internal/profile.md](docs/internal/profile.md) | Cold profile deep dive |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Setup, tests, PR norms |
-| [docs/contributor-checklist.md](docs/contributor-checklist.md) | Language / feature checklist |
-| [docs/language-testing-guide.md](docs/language-testing-guide.md) | New-language test locations, asserts, Tier 1 matrix |
-| [semantic search](https://rgctl.io/docs/guides/semantic-search/) | Embedders (if touching semantic) |
-| [docs/releasing.md](docs/releasing.md) | Version bump + GitHub Release tags |
-| `starting-context.md` (ships with the OpenSpec change proposals) | OpenSpec pointer (canonical policy is this file) |
+| Doc                                                                      | Why                                                 |
+|--------------------------------------------------------------------------|-----------------------------------------------------|
+| [docs/analysis-architecture.md](docs/analysis-architecture.md)           | Graph tiers, spill, CSR                             |
+| [docs/design/blast-radius-design.md](docs/design/blast-radius-design.md) | Reachability / SCC                                  |
+| [docs/internal/profile.md](docs/internal/profile.md)                     | Cold profile deep dive                              |
+| [CONTRIBUTING.md](CONTRIBUTING.md)                                       | Setup, tests, PR norms                              |
+| [docs/contributor-checklist.md](docs/contributor-checklist.md)           | Language / feature checklist                        |
+| [docs/language-testing-guide.md](docs/language-testing-guide.md)         | New-language test locations, asserts, Tier 1 matrix |
+| [semantic search](https://rgctl.io/docs/guides/semantic-search/)         | Embedders (if touching semantic)                    |
+| [docs/releasing.md](docs/releasing.md)                                   | Version bump + GitHub Release tags                  |
+| `starting-context.md` (ships with the OpenSpec change proposals)         | OpenSpec pointer (canonical policy is this file)    |
 
 ---
 
@@ -173,15 +173,15 @@ Baselines and notes: [docs/internal/profile.md](docs/internal/profile.md#snapsho
 
 When asked to cut or bump a release, use the lockstep tooling — full detail: [docs/releasing.md](docs/releasing.md).
 
-| Rule | Detail |
-|------|--------|
-| **One version** | SSOT is `[workspace.package] version` in root `Cargo.toml`. Crates use `version.workspace = true`. Do **not** sed/`version =` across every crate by hand. |
-| **Bump TOMLs only** | `./scripts/bump-version.sh patch` (or `minor` / `major` / `X.Y.Z`). Syncs workspace version, `[workspace.dependencies]` path pins, and README release links. |
-| **Bump + tag + push** | `cargo release patch --workspace` (dry-run), then `--execute` when the user wants commit/tag/push. Config: [`release.toml`](release.toml) (`shared-version`, `publish = false`, tag `v{{version}}`). Needs a **clean** git tree. |
-| **Tools** | `cargo install cargo-edit cargo-release --locked` if missing. |
-| **GitHub Release** | Pushing `v*` runs [`.github/workflows/release.yml`](.github/workflows/release.yml) (binaries). Add `docs/releases/vX.Y.Z.md` for curated notes. |
-| **No crates.io** | `publish = false` — do not `cargo publish` unless the user explicitly asks to enable it. |
-| **Commits / tags / push** | Only when the user explicitly requests them (same standing rule as other git ops). Prefer preparing the bump + release notes and stopping for the user to commit/sign/tag if they GPG-sign locally. |
+| Rule                      | Detail                                                                                                                                                                                                                           |
+|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **One version**           | SSOT is `[workspace.package] version` in root `Cargo.toml`. Crates use `version.workspace = true`. Do **not** sed/`version =` across every crate by hand.                                                                        |
+| **Bump TOMLs only**       | `./scripts/bump-version.sh patch` (or `minor` / `major` / `X.Y.Z`). Syncs workspace version, `[workspace.dependencies]` path pins, and README release links.                                                                     |
+| **Bump + tag + push**     | `cargo release patch --workspace` (dry-run), then `--execute` when the user wants commit/tag/push. Config: [`release.toml`](release.toml) (`shared-version`, `publish = false`, tag `v{{version}}`). Needs a **clean** git tree. |
+| **Tools**                 | `cargo install cargo-edit cargo-release --locked` if missing.                                                                                                                                                                    |
+| **GitHub Release**        | Pushing `v*` runs [`.github/workflows/release.yml`](.github/workflows/release.yml) (binaries). Add `docs/releases/vX.Y.Z.md` for curated notes.                                                                                  |
+| **No crates.io**          | `publish = false` — do not `cargo publish` unless the user explicitly asks to enable it.                                                                                                                                         |
+| **Commits / tags / push** | Only when the user explicitly requests them (same standing rule as other git ops). Prefer preparing the bump + release notes and stopping for the user to commit/sign/tag if they GPG-sign locally.                              |
 
 ---
 

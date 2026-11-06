@@ -1,10 +1,10 @@
-function createCoolstoreOrder() {
+function createCoolstoreOrder () {
   return {
     orderId: 0,
     cartId: '',
     cartTotal: 0,
-    items: [],
-  };
+    items: []
+  }
 }
 
-module.exports = { createCoolstoreOrder };
+module.exports = { createCoolstoreOrder }

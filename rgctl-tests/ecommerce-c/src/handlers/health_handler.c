@@ -2,5 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-int handle_health(sqlite3 *db, const char *query) { (void)db; (void)query; return 0; }
-
+int handle_health(sqlite3 *db, const char *query) {
+  (void)db;
+  (void)query;
+  return 0;
+}

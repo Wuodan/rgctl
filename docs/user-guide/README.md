@@ -6,10 +6,10 @@ covered by Rust integration tests. Scenarios follow canonical CLI verbs
 (`find` / `callers` / `relations` / `slice` / `cpg` / `review check`, …) —
 `query` / `pr-check` are compatibility aliases only.
 
-| Test crate | Scope |
-|------------|--------|
+| Test crate                      | Scope                                                                                                                                        |
+|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
 | `tests/user_guide_scenarios.rs` | Full workflow on the nine `ecommerce-*` projects wired in `user_guide_harness.rs` (Ruby and PHP use separate dashboard / langfeatures gates) |
-| `tests/markdown_context_cli.rs` | Markdown fixture structured queries + VHS tape `jq` pipes |
+| `tests/markdown_context_cli.rs` | Markdown fixture structured queries + VHS tape `jq` pipes                                                                                    |
 
 Each project run copies the fixture into a temp directory so `.rgctl/` artifacts stay isolated (see `tests/support/user_guide_harness.rs`).
 Requires `jq` on `PATH`. Uses `CARGO_BIN_EXE_rgctl` when set (CI builds release first).

@@ -6,12 +6,12 @@ End-to-end guide for installing rgctl, indexing an in-tree example, and querying
 
 ### How this guide is organized
 
-| Zone | Sections | Role |
-|------|----------|------|
-| **Tutorial spine** | §1–4, §16 | Install → fixture → discover → recommended workflow |
-| **How-to** | §5–14 | Flags and feature commands with sample output |
-| **Optional UI** | §15 | `serve` / dashboard — nice-to-have, not required for agents |
-| **Reference** | §17–18 | Command cheat sheet + troubleshooting |
+| Zone               | Sections  | Role                                                        |
+|--------------------|-----------|-------------------------------------------------------------|
+| **Tutorial spine** | §1–4, §16 | Install → fixture → discover → recommended workflow         |
+| **How-to**         | §5–14     | Flags and feature commands with sample output               |
+| **Optional UI**    | §15       | `serve` / dashboard — nice-to-have, not required for agents |
+| **Reference**      | §17–18    | Command cheat sheet + troubleshooting                       |
 
 ---
 
@@ -55,21 +55,21 @@ Downloads the latest GitHub Release tarball for your OS/arch into `${RGCTL_INSTA
 
 Pre-built binaries are published on the project **Releases** page:
 
-**https://github.com/rgctl/rgctl/releases**
+**<https://github.com/rgctl/rgctl/releases>**
 
 1. Open the latest release.
 2. Download the archive for your platform:
 
-   | Platform | Typical asset name |
-   |----------|-------------------|
-   | macOS (Apple Silicon) | `rgctl-*-aarch64-apple-darwin.tar.gz` |
-   | macOS (Intel) | `rgctl-*-x86_64-apple-darwin.tar.gz` |
-   | Linux GNU (x86_64) | `rgctl-*-x86_64-unknown-linux-gnu.tar.gz` |
-   | Linux GNU (ARM64) | `rgctl-*-aarch64-unknown-linux-gnu.tar.gz` |
-   | Alpine / musl (x86_64) | `rgctl-*-x86_64-unknown-linux-musl.tar.gz` |
-   | Alpine / musl (ARM64) | `rgctl-*-aarch64-unknown-linux-musl.tar.gz` |
-   | Windows (x86_64) | `rgctl-*-x86_64-pc-windows-msvc.zip` |
-   | Windows (ARM64) | `rgctl-*-aarch64-pc-windows-msvc.zip` |
+   | Platform               | Typical asset name                          |
+   |------------------------|---------------------------------------------|
+   | macOS (Apple Silicon)  | `rgctl-*-aarch64-apple-darwin.tar.gz`       |
+   | macOS (Intel)          | `rgctl-*-x86_64-apple-darwin.tar.gz`        |
+   | Linux GNU (x86_64)     | `rgctl-*-x86_64-unknown-linux-gnu.tar.gz`   |
+   | Linux GNU (ARM64)      | `rgctl-*-aarch64-unknown-linux-gnu.tar.gz`  |
+   | Alpine / musl (x86_64) | `rgctl-*-x86_64-unknown-linux-musl.tar.gz`  |
+   | Alpine / musl (ARM64)  | `rgctl-*-aarch64-unknown-linux-musl.tar.gz` |
+   | Windows (x86_64)       | `rgctl-*-x86_64-pc-windows-msvc.zip`        |
+   | Windows (ARM64)        | `rgctl-*-aarch64-pc-windows-msvc.zip`       |
 
 3. Extract the archive. You should get a single `rgctl` executable (plus `rgctl.exe` on Windows).
 
@@ -207,9 +207,9 @@ ecommerce-java/
 
 **Dual REST surface** (same contract on every `ecommerce-*` language):
 
-| Surface | Role |
-|---------|------|
-| `/api/*` | JWT e-commerce API (auth, categories, cart ownership, reviews, …) |
+| Surface       | Role                                                                         |
+|---------------|------------------------------------------------------------------------------|
+| `/api/*`      | JWT e-commerce API (auth, categories, cart ownership, reviews, …)            |
 | `/services/*` | CoolStore-style products / cart / checkout / orders (`cartId` session carts) |
 
 `ShoppingCartService.priceShoppingCart` mutates cart totals (promo + shipping) — the Layer F target for `cpg mutations --type ShoppingCart`. Full route table: [`rgctl-tests/README.md`](../rgctl-tests/README.md).
@@ -228,11 +228,11 @@ All commands below assume `REPO` points at `ecommerce-java`, or that you run fro
 
 **Choosing the discover target** (common pitfall):
 
-| Command | Indexes |
-|---------|---------|
-| `cd repo && rgctl discover .` | **Recommended** — current directory |
-| `rgctl -r /path/to/repo discover` | Repo at `/path/to/repo` |
-| `rgctl discover /path/to/repo` | Same (absolute path positional) |
+| Command                             | Indexes                                                  |
+|-------------------------------------|----------------------------------------------------------|
+| `cd repo && rgctl discover .`       | **Recommended** — current directory                      |
+| `rgctl -r /path/to/repo discover`   | Repo at `/path/to/repo`                                  |
+| `rgctl discover /path/to/repo`      | Same (absolute path positional)                          |
 | `rgctl -r /path/to/repo discover .` | **Shell cwd only** — `-r` is ignored when `.` is present |
 
 Full table: [Discovering and indexing](https://rgctl.io/docs/guides/discovering-and-indexing/).
@@ -331,18 +331,18 @@ Harmonic, dashboard, migration export, security, CFG/PDG, and discover-time tain
 
 ### Deeper analysis (opt-in)
 
-| Flag | What it adds |
-|------|----------------|
-| `--with-security` | Secret scanning |
-| `--with-cfg` | Whole-repo CFG/PDG archive under `.rgctl/analysis/` (needed for `taint --sink`, `cpg mutations`, richest `inspect`; **not** required for `slice` / `cpg flows`) |
-| `--with-taint` | Discover-time taint into archive (implies CFG/PDG pass) |
-| `--taint-rules PATH` | Extra YAML pack file or directory (after built-ins + `.rgctl/taint-rules.d/`) |
-| `--with-git` | Git churn hotspots + `CoChangesWith` edges (`metrics --churn`, `relations --edge cochangeswith`) |
-| `--scip PATH` | SCIP overlay — upgrades ambiguous call edges (`resolution = "scip"`) |
-| `--with-harmonic` | Harmonic centrality (migration ranking) |
-| `--with-universe` | Universe dashboard bundle under `.rgctl/dashboard/` (`manifest.mode: "universe"`). Served by `rgctl serve --open`. |
-| `--export-migration-hints` | Migration roadmap JSON (alias: `--export-migration-plan`) |
-| `--with-kantra` | Konveyor Kantra rule evaluation + rules graph index (see below) |
+| Flag                       | What it adds                                                                                                                                                    |
+|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--with-security`          | Secret scanning                                                                                                                                                 |
+| `--with-cfg`               | Whole-repo CFG/PDG archive under `.rgctl/analysis/` (needed for `taint --sink`, `cpg mutations`, richest `inspect`; **not** required for `slice` / `cpg flows`) |
+| `--with-taint`             | Discover-time taint into archive (implies CFG/PDG pass)                                                                                                         |
+| `--taint-rules PATH`       | Extra YAML pack file or directory (after built-ins + `.rgctl/taint-rules.d/`)                                                                                   |
+| `--with-git`               | Git churn hotspots + `CoChangesWith` edges (`metrics --churn`, `relations --edge cochangeswith`)                                                                |
+| `--scip PATH`              | SCIP overlay — upgrades ambiguous call edges (`resolution = "scip"`)                                                                                            |
+| `--with-harmonic`          | Harmonic centrality (migration ranking)                                                                                                                         |
+| `--with-universe`          | Universe dashboard bundle under `.rgctl/dashboard/` (`manifest.mode: "universe"`). Served by `rgctl serve --open`.                                              |
+| `--export-migration-hints` | Migration roadmap JSON (alias: `--export-migration-plan`)                                                                                                       |
+| `--with-kantra`            | Konveyor Kantra rule evaluation + rules graph index (see below)                                                                                                 |
 
 ```bash
 # Whole-repo CFG for inspect / cpg mutations / taint --sink
@@ -391,13 +391,13 @@ rgctl discover . --with-kantra --kantra-catalog /path/to/rulesets/stable/java
 rgctl discover . --with-kantra --kantra-index-only
 ```
 
-| Flag | Purpose |
-|------|---------|
-| `--with-kantra` | Run Kantra eval and index `KantraRule` / `KantraRuleset` nodes into the session graph |
-| `--kantra-target NAME` | Evaluate only rules labeled `konveyor.io/target=NAME` |
-| `--kantra-rules DIR` | Single ruleset directory (`ruleset.yaml` + `*.yaml`); overrides embedded catalog |
-| `--kantra-catalog ROOT` | Rulesets tree (e.g. `stable/java`); overrides embedded catalog |
-| `--kantra-index-only` | Skip eval; still index catalog rules into the graph |
+| Flag                    | Purpose                                                                               |
+|-------------------------|---------------------------------------------------------------------------------------|
+| `--with-kantra`         | Run Kantra eval and index `KantraRule` / `KantraRuleset` nodes into the session graph |
+| `--kantra-target NAME`  | Evaluate only rules labeled `konveyor.io/target=NAME`                                 |
+| `--kantra-rules DIR`    | Single ruleset directory (`ruleset.yaml` + `*.yaml`); overrides embedded catalog      |
+| `--kantra-catalog ROOT` | Rulesets tree (e.g. `stable/java`); overrides embedded catalog                        |
+| `--kantra-index-only`   | Skip eval; still index catalog rules into the graph                                   |
 
 **Artifacts:** `.rgctl/kantra_findings.json` (violations + skipped rules). Rule nodes are queryable after index:
 
@@ -495,12 +495,12 @@ rgctl -r "$REPO" -f json status
 
 These apply to **every** subcommand:
 
-| Flag | Purpose |
-|------|---------|
-| `-r, --repo PATH` | Repository root (default: current directory) |
-| `-d, --db PATH` | Legacy graph JSON path (default: `.rgctl/graph.db`) |
-| `-f, --format FORMAT` | Output: `text`, `json`, `graphviz`, `mermaid` |
-| `-o, --output FILE` | Write command output to a file instead of stdout |
+| Flag                  | Purpose                                             |
+|-----------------------|-----------------------------------------------------|
+| `-r, --repo PATH`     | Repository root (default: current directory)        |
+| `-d, --db PATH`       | Legacy graph JSON path (default: `.rgctl/graph.db`) |
+| `-f, --format FORMAT` | Output: `text`, `json`, `graphviz`, `mermaid`       |
+| `-o, --output FILE`   | Write command output to a file instead of stdout    |
 
 Examples:
 
@@ -678,11 +678,11 @@ Remediation: Refine your search query using a fully qualified namespace syntax:
 
 ### Symbol forms
 
-| Form | Example |
-|------|---------|
-| Bare name | `checkout` (fails if ambiguous) |
-| FQN | `CartService::clearCart` |
-| UUID | node id from `find` / blast JSON |
+| Form      | Example                          |
+|-----------|----------------------------------|
+| Bare name | `checkout` (fails if ambiguous)  |
+| FQN       | `CartService::clearCart`         |
+| UUID      | node id from `find` / blast JSON |
 
 Disambiguate with filters:
 
@@ -801,11 +801,11 @@ rgctl -r "$REPO" slice \
 
 ### View modes
 
-| `--view` | Description |
-|----------|-------------|
-| `text` | Summary (default) |
-| `cfg` | CFG overlay — use with `-f mermaid` or `-f graphviz` |
-| `pdg` | PDG overlay |
+| `--view` | Description                                          |
+|----------|------------------------------------------------------|
+| `text`   | Summary (default)                                    |
+| `cfg`    | CFG overlay — use with `-f mermaid` or `-f graphviz` |
+| `pdg`    | PDG overlay                                          |
 
 ```bash
 rgctl -r "$REPO" -f mermaid slice \
@@ -1066,21 +1066,21 @@ Passing `--diffuse` recomputes dense vectors and mixes call-graph neighbors **be
 
 **Doc semantic index:** `--scope docs` on `semantic index` embeds `:Module` sections (`kind=heading` and `kind=code_block`). Query `--scope docs` does **not** filter hits — only `semantic index --scope community` changes query behavior. Build a doc-scoped index before querying doc sections. Large bodies use `content_store.bin` when `body_ref` is set. CLI success text may still say `Indexed N functions` (entry count, not always functions).
 
-| Flag | Purpose |
-|------|---------|
-| **`semantic index --scope`** `function\|docs\|all` | Which symbols to embed (default: functions only) |
-| **`semantic query --scope`** `function\|community\|docs\|all` | `community` = pooled community search; other scopes do not filter hits (index content determines results) |
-| `--no-fusion` | Disable late fusion (default is fusion **on**: blast, PageRank, name, token-bloom, community, package, callees) |
-| `--keyword-and` | Every query token must match metadata or body sketch |
-| `--candidate-pool <N>` | Hamming pool size before fusion [default: 256] |
-| `--expand neighbors\|blast\|all` | Hybrid expansion after top hits |
-| `--embedder hash\|vocab\|onnx\|code-daemon` | Embedding backend [default: `vocab`] |
-| `--embed-bodies` | Append identifier tokens from function source (off by default) |
-| `--dimensions <N>` | Float width before quantize; multiple of 8 [default: 256] |
-| `semantic distill --matrix <PATH>` | Write RBVK from our token list via a teacher (`code-daemon` default; not `vocab`) |
-| `--diffuse` / `--no-diffuse` | Jacobi call-graph mix on dense floats before quantize (index only; off by default) |
-| `--diffuse-alpha` / `--diffuse-iters` | Diffusion blend weight and iterations [defaults: 0.25, 2] |
-| `--diffuse-bidirectional` | Include callers as well as callees |
+| Flag                                                          | Purpose                                                                                                         |
+|---------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| **`semantic index --scope`** `function\|docs\|all`            | Which symbols to embed (default: functions only)                                                                |
+| **`semantic query --scope`** `function\|community\|docs\|all` | `community` = pooled community search; other scopes do not filter hits (index content determines results)       |
+| `--no-fusion`                                                 | Disable late fusion (default is fusion **on**: blast, PageRank, name, token-bloom, community, package, callees) |
+| `--keyword-and`                                               | Every query token must match metadata or body sketch                                                            |
+| `--candidate-pool <N>`                                        | Hamming pool size before fusion [default: 256]                                                                  |
+| `--expand neighbors\|blast\|all`                              | Hybrid expansion after top hits                                                                                 |
+| `--embedder hash\|vocab\|onnx\|code-daemon`                   | Embedding backend [default: `vocab`]                                                                            |
+| `--embed-bodies`                                              | Append identifier tokens from function source (off by default)                                                  |
+| `--dimensions <N>`                                            | Float width before quantize; multiple of 8 [default: 256]                                                       |
+| `semantic distill --matrix <PATH>`                            | Write RBVK from our token list via a teacher (`code-daemon` default; not `vocab`)                               |
+| `--diffuse` / `--no-diffuse`                                  | Jacobi call-graph mix on dense floats before quantize (index only; off by default)                              |
+| `--diffuse-alpha` / `--diffuse-iters`                         | Diffusion blend weight and iterations [defaults: 0.25, 2]                                                       |
+| `--diffuse-bidirectional`                                     | Include callers as well as callees                                                                              |
 
 **Dashboard:** `rgctl serve --open` → **Search** tab uses the same index via `/api/semantic/*`. The UI does not choose the embedder — build the index with CLI first, then restart `serve`. Status shows `model_id` (e.g. `vocab-accumulate-v1`).
 
@@ -1094,21 +1094,21 @@ Design → **[Semantic search design](design/semantic-search-design.md)** · tim
 
 `export` writes the graph or a **filter-selected** subgraph to a file or directory. The `--query` flag uses **filter syntax** (`name:Foo`, `type:Function`, …) — not structured `find` patterns (JSON/graph formats honor the filter; Obsidian/OKF use `--query all`):
 
-| `--export-format` | Output | `--query` |
-|-------------------|--------|-----------|
-| `json` | Graph snapshot JSON | Filter or `all` |
-| `graphml` | GraphML XML | Filter or `all` |
-| `graphviz` | DOT | Filter or `all` |
-| `mermaid` | Mermaid flowchart | Filter or `all` |
-| `obsidian` | Obsidian vault **directory** | `all` (heading modules) |
-| `okf` | OKF JSON entity bundle | `all` |
+| `--export-format` | Output                       | `--query`               |
+|-------------------|------------------------------|-------------------------|
+| `json`            | Graph snapshot JSON          | Filter or `all`         |
+| `graphml`         | GraphML XML                  | Filter or `all`         |
+| `graphviz`        | DOT                          | Filter or `all`         |
+| `mermaid`         | Mermaid flowchart            | Filter or `all`         |
+| `obsidian`        | Obsidian vault **directory** | `all` (heading modules) |
+| `okf`             | OKF JSON entity bundle       | `all`                   |
 
-| Query | Meaning |
-|-------|---------|
-| `all` | Entire graph |
-| `name:clearCart` | Nodes with exact name |
-| `type:Function` | All functions |
-| `functions` | Shortcut for function nodes |
+| Query            | Meaning                     |
+|------------------|-----------------------------|
+| `all`            | Entire graph                |
+| `name:clearCart` | Nodes with exact name       |
+| `type:Function`  | All functions               |
+| `functions`      | Shortcut for function nodes |
 
 ```bash
 rgctl -r "$REPO" export \
@@ -1183,14 +1183,14 @@ rgctl -r "$REPO" serve --open --port 8080
 rgctl -r "$REPO" serve --query-only
 ```
 
-| Endpoint | Purpose |
-|----------|---------|
-| `/` | Dashboard UI (requires prior `discover --with-universe`) |
-| `GET /api/status` | Artifact / pipeline status JSON |
-| `POST /api/semantic/query` | Semantic search (primary HTTP query for agents) |
-| `GET /api/semantic/status` | Semantic index availability |
-| `POST /api/semantic/query` | Semantic search (JSON body) |
-| `/api/health` | Health check |
+| Endpoint                   | Purpose                                                  |
+|----------------------------|----------------------------------------------------------|
+| `/`                        | Dashboard UI (requires prior `discover --with-universe`) |
+| `GET /api/status`          | Artifact / pipeline status JSON                          |
+| `POST /api/semantic/query` | Semantic search (primary HTTP query for agents)          |
+| `GET /api/semantic/status` | Semantic index availability                              |
+| `POST /api/semantic/query` | Semantic search (JSON body)                              |
+| `/api/health`              | Health check                                             |
 
 ```bash
 curl -sS http://127.0.0.1:8080/api/status | jq .
@@ -1258,53 +1258,53 @@ Migration hints (with `--export-migration-hints`) land under `.rgctl/migration_p
 
 ## 17. Command reference
 
-| Command | Purpose |
-|---------|---------|
-| `discover` | Index repo, build `.rgctl/` artifacts (`--full` = staged CFG/Universe/harmonic/taint/Kantra + semantic) |
-| `update` / `watch` / `merge` | Incremental patch; live watch; multi-repo park-and-resolve merge |
-| `find` / `callers` / `callees` / `relations` / `inventory` / `status` | Structured graph queries ([§6](#6-structured-graph-queries)); `query …` is a compatibility alias |
-| `communities` | List / refresh Fast-Leiden community labels |
-| `clones` | Exact / bloom / fragment (`--mode fragment --seed …`) clone groups |
-| `blast-radius` | Upstream call-graph impact for a symbol |
-| `slice` | Line-level program slice or taint trace (lazy CFG/PDG; `--with-alias`) |
-| `inspect` | CFG / PDG / dominance for a function |
-| `cpg` | Hybrid CPG: status, mutations (needs `--with-cfg`), flows (lazy), calls, export |
-| `metrics` | PageRank, betweenness, communities, `--churn` |
-| `export` | Serialize graph (json, graphml, dot, mermaid, obsidian vault, okf) |
-| `check` / `review check` / `review paths` | CI policy; temporal PR gate (`pr-check` alias); call-path deltas |
-| `install` | Copy the bundled agent pack (single skill `rgctl`) into adapter dirs |
-| `semantic` | Opt-in semantic index + query (`--scope community`, `docs`, `all`) |
-| `serve` | HTTP dashboard + `/api/query` + `/api/status` (serve-only; run `discover` first) |
+| Command                                                               | Purpose                                                                                                 |
+|-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| `discover`                                                            | Index repo, build `.rgctl/` artifacts (`--full` = staged CFG/Universe/harmonic/taint/Kantra + semantic) |
+| `update` / `watch` / `merge`                                          | Incremental patch; live watch; multi-repo park-and-resolve merge                                        |
+| `find` / `callers` / `callees` / `relations` / `inventory` / `status` | Structured graph queries ([§6](#6-structured-graph-queries)); `query …` is a compatibility alias        |
+| `communities`                                                         | List / refresh Fast-Leiden community labels                                                             |
+| `clones`                                                              | Exact / bloom / fragment (`--mode fragment --seed …`) clone groups                                      |
+| `blast-radius`                                                        | Upstream call-graph impact for a symbol                                                                 |
+| `slice`                                                               | Line-level program slice or taint trace (lazy CFG/PDG; `--with-alias`)                                  |
+| `inspect`                                                             | CFG / PDG / dominance for a function                                                                    |
+| `cpg`                                                                 | Hybrid CPG: status, mutations (needs `--with-cfg`), flows (lazy), calls, export                         |
+| `metrics`                                                             | PageRank, betweenness, communities, `--churn`                                                           |
+| `export`                                                              | Serialize graph (json, graphml, dot, mermaid, obsidian vault, okf)                                      |
+| `check` / `review check` / `review paths`                             | CI policy; temporal PR gate (`pr-check` alias); call-path deltas                                        |
+| `install`                                                             | Copy the bundled agent pack (single skill `rgctl`) into adapter dirs                                    |
+| `semantic`                                                            | Opt-in semantic index + query (`--scope community`, `docs`, `all`)                                      |
+| `serve`                                                               | HTTP dashboard + `/api/query` + `/api/status` (serve-only; run `discover` first)                        |
 
 Full taxonomy: [CLI command reference](https://rgctl.io/docs/guides/cli-command-reference/).
 
 ### `discover` flags
 
-| Flag | Description |
-|------|-------------|
-| `-l, --languages` | Comma-separated filter (`java`, `typescript`, `rust`, …) |
-| `-e, --exclude` | Comma-separated path exclude patterns |
-| `-v, --verbose` | Debug logging + stage profile lines |
-| `--with-security` | Secret scanning |
-| `--with-cfg` | Whole-repo CFG / PDG archive (not taint); alias `--cfg` |
-| `--with-taint` | Discover-time taint (implies CFG pass) |
-| `--taint-rules PATH` | Extra taint YAML pack (file or dir; after built-ins / `.rgctl/taint-rules.d/`) |
-| `--with-git` | Git churn + `CoChangesWith` (`--git-since`, default `90.days`) |
-| `--scip PATH` | SCIP overlay for compiler-exact call resolution |
-| `--with-dfg-loops` | Tag loop-carried `DataDependency` edges in PDG (with `--with-cfg`) |
-| `--with-ast-skeleton` | Build AST skeleton archive for `cpg ast` |
-| `--with-harmonic` | Harmonic centrality (default off; needed for migration ranking) |
-| `--with-universe` | Universe dashboard bundle under `.rgctl/dashboard/` (default off; UI for `serve --open`) |
-| `--full` | Staged pipeline: basic discover, then CFG+Universe+harmonic+taint+Kantra, then semantic index |
-| `--export-migration-hints` | Migration roadmap JSON (alias `--export-migration-plan`) |
-| `--migration-preset` | Preset for migration hints (`hybrid`, `foundational`, …) |
-| `--migration-order` | `scheduled` (topological) or `priority` |
-| `--write-json-graph` | Also write legacy `graph.db` / `graph.json` |
-| `--with-kantra` | Konveyor Kantra eval + rules graph index (embedded catalog by default) |
-| `--kantra-target NAME` | Filter eval to `konveyor.io/target=NAME` |
-| `--kantra-rules DIR` | Override embedded catalog with one ruleset directory |
-| `--kantra-catalog ROOT` | Override embedded catalog with a rulesets tree |
-| `--kantra-index-only` | Index rules into graph; skip eval |
+| Flag                       | Description                                                                                   |
+|----------------------------|-----------------------------------------------------------------------------------------------|
+| `-l, --languages`          | Comma-separated filter (`java`, `typescript`, `rust`, …)                                      |
+| `-e, --exclude`            | Comma-separated path exclude patterns                                                         |
+| `-v, --verbose`            | Debug logging + stage profile lines                                                           |
+| `--with-security`          | Secret scanning                                                                               |
+| `--with-cfg`               | Whole-repo CFG / PDG archive (not taint); alias `--cfg`                                       |
+| `--with-taint`             | Discover-time taint (implies CFG pass)                                                        |
+| `--taint-rules PATH`       | Extra taint YAML pack (file or dir; after built-ins / `.rgctl/taint-rules.d/`)                |
+| `--with-git`               | Git churn + `CoChangesWith` (`--git-since`, default `90.days`)                                |
+| `--scip PATH`              | SCIP overlay for compiler-exact call resolution                                               |
+| `--with-dfg-loops`         | Tag loop-carried `DataDependency` edges in PDG (with `--with-cfg`)                            |
+| `--with-ast-skeleton`      | Build AST skeleton archive for `cpg ast`                                                      |
+| `--with-harmonic`          | Harmonic centrality (default off; needed for migration ranking)                               |
+| `--with-universe`          | Universe dashboard bundle under `.rgctl/dashboard/` (default off; UI for `serve --open`)      |
+| `--full`                   | Staged pipeline: basic discover, then CFG+Universe+harmonic+taint+Kantra, then semantic index |
+| `--export-migration-hints` | Migration roadmap JSON (alias `--export-migration-plan`)                                      |
+| `--migration-preset`       | Preset for migration hints (`hybrid`, `foundational`, …)                                      |
+| `--migration-order`        | `scheduled` (topological) or `priority`                                                       |
+| `--write-json-graph`       | Also write legacy `graph.db` / `graph.json`                                                   |
+| `--with-kantra`            | Konveyor Kantra eval + rules graph index (embedded catalog by default)                        |
+| `--kantra-target NAME`     | Filter eval to `konveyor.io/target=NAME`                                                      |
+| `--kantra-rules DIR`       | Override embedded catalog with one ruleset directory                                          |
+| `--kantra-catalog ROOT`    | Override embedded catalog with a rulesets tree                                                |
+| `--kantra-index-only`      | Index rules into graph; skip eval                                                             |
 
 There is no umbrella `--all` flag — combine `--with-cfg --with-security --with-taint` explicitly when you want the former deep pass.
 

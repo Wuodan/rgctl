@@ -5,11 +5,11 @@ namespace ecommerce::coolstore {
 
 class ShoppingCartItem {
 public:
-    double price{};
-    int quantity{};
-    double promoSavings{};
-    CatalogProduct product;
-    bool hasProduct{false};
+  double price{};
+  int quantity{};
+  double promoSavings{};
+  CatalogProduct product;
+  bool hasProduct{false};
 };
 
-}  // namespace ecommerce::coolstore
+} // namespace ecommerce::coolstore

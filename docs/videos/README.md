@@ -19,11 +19,11 @@ Comprehensive 7-scene CLI showcase on `rgctl-tests/ecommerce-java`:
 6. **`clones` & `semantic`** — structural token-bloom clone detection and offline vocab semantic code search
 7. **`relations -e violates`, `check`, `review paths`, `install --list-agents`** — Konveyor Kantra violations, CI policy gates, PR call-path deltas, and AI coding agent skill pack
 
-| File | Purpose |
-|------|---------|
-| [`user-guide-cli.tape`](user-guide-cli.tape) | VHS script |
-| [`record-user-guide-cli.sh`](record-user-guide-cli.sh) | Record → `user-guide-cli-no-captions.{gif,mp4}` |
-| [`user-guide-cli.srt`](user-guide-cli.srt) | Timed 2-line developer subtitle cues |
+| File                                                         | Purpose                                                                           |
+|--------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [`user-guide-cli.tape`](user-guide-cli.tape)                 | VHS script                                                                        |
+| [`record-user-guide-cli.sh`](record-user-guide-cli.sh)       | Record → `user-guide-cli-no-captions.{gif,mp4}`                                   |
+| [`user-guide-cli.srt`](user-guide-cli.srt)                   | Timed 2-line developer subtitle cues                                              |
 | [`burn-user-guide-captions.sh`](burn-user-guide-captions.sh) | Burn → `user-guide-cli.mp4` + `user-guide-cli.gif` (embedded in root `README.md`) |
 
 ```bash
@@ -36,10 +36,10 @@ cargo build --release
 
 ## Markdown context graph (VHS)
 
-| File | Purpose |
-|------|---------|
-| [`markdown-context-cli.tape`](markdown-context-cli.tape) | `discover -l markdown,java` + `find` on `tests/fixtures/markdown-context` |
-| [`record-markdown-context-cli.sh`](record-markdown-context-cli.sh) | Record → `markdown-context-cli-no-captions.{gif,mp4}` |
+| File                                                               | Purpose                                                                   |
+|--------------------------------------------------------------------|---------------------------------------------------------------------------|
+| [`markdown-context-cli.tape`](markdown-context-cli.tape)           | `discover -l markdown,java` + `find` on `tests/fixtures/markdown-context` |
+| [`record-markdown-context-cli.sh`](record-markdown-context-cli.sh) | Record → `markdown-context-cli-no-captions.{gif,mp4}`                     |
 
 ```bash
 cargo build --bin rgctl
@@ -50,12 +50,12 @@ cargo build --bin rgctl
 
 ## Dashboard (Playwright)
 
-| File | Purpose |
-|------|---------|
+| File                                                                                           | Purpose                               |
+|------------------------------------------------------------------------------------------------|---------------------------------------|
 | [`../dashboard/scripts/record-feature-demo.mjs`](../dashboard/scripts/record-feature-demo.mjs) | Tab montage (ecommerce-java defaults) |
-| [`record-feature-demo.sh`](record-feature-demo.sh) | Discover + serve + record + burn |
-| [`rgctl-feature-demo.srt`](rgctl-feature-demo.srt) | Written by the recorder |
-| [`burn-feature-demo-captions.sh`](burn-feature-demo-captions.sh) | Burn → `rgctl-feature-demo.mp4` |
+| [`record-feature-demo.sh`](record-feature-demo.sh)                                             | Discover + serve + record + burn      |
+| [`rgctl-feature-demo.srt`](rgctl-feature-demo.srt)                                             | Written by the recorder               |
+| [`burn-feature-demo-captions.sh`](burn-feature-demo-captions.sh)                               | Burn → `rgctl-feature-demo.mp4`       |
 
 ```bash
 cargo build --release
@@ -76,12 +76,12 @@ Captions need ffmpeg with `subtitles` (`brew install ffmpeg-full`).
 
 Blog walkthrough for [Decomposing a Monolith into Microservices](https://shaaf.dev/post/decomposing-a-monolith-into-microservices-with-call-graph-analysis/) on `example/coolstore-weblogic`.
 
-| File | Purpose |
-|------|---------|
-| [`microservices-decomposition-cli.tape`](microservices-decomposition-cli.tape) | VHS script |
+| File                                                                                     | Purpose                                                          |
+|------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| [`microservices-decomposition-cli.tape`](microservices-decomposition-cli.tape)           | VHS script                                                       |
 | [`record-microservices-decomposition-cli.sh`](record-microservices-decomposition-cli.sh) | Record → `microservices-decomposition-cli-no-captions.{gif,mp4}` |
-| [`microservices-decomposition-cli.srt`](microservices-decomposition-cli.srt) | Subtitle cues |
-| [`burn-microservices-decomposition-cli.sh`](burn-microservices-decomposition-cli.sh) | Burn → `microservices-decomposition-cli.mp4` |
+| [`microservices-decomposition-cli.srt`](microservices-decomposition-cli.srt)             | Subtitle cues                                                    |
+| [`burn-microservices-decomposition-cli.sh`](burn-microservices-decomposition-cli.sh)     | Burn → `microservices-decomposition-cli.mp4`                     |
 
 ```bash
 cargo build --release

@@ -18,9 +18,9 @@ _is_unsupported() {
   local out="$1"
   local el
   el="$(echo "$out" | tr '[:upper:]' '[:lower:]')"
-  [[ "$el" == *unsupported* ]] || [[ "$el" == *"not found"* ]] || \
-    [[ "$el" == *"no cfg"* ]] || [[ "$el" == *"no pdg"* ]] || \
-    [[ "$el" == *"no pdg node"* ]] || \
+  [[ "$el" == *unsupported* ]] || [[ "$el" == *"not found"* ]] ||
+    [[ "$el" == *"no cfg"* ]] || [[ "$el" == *"no pdg"* ]] ||
+    [[ "$el" == *"no pdg node"* ]] ||
     [[ "$el" == *ambiguous* ]]
 }
 

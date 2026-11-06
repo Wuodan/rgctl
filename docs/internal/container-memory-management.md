@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-When running `rgctl` on massive codebases (e.g., the Linux kernel with ~71k files, 2.65M nodes, and 1.86M functions), peak Resident Set Size (RSS) currently reaches **12.7 GB to 14.7 GB**. 
+When running `rgctl` on massive codebases (e.g., the Linux kernel with ~71k files, 2.65M nodes, and 1.86M functions), peak Resident Set Size (RSS) currently reaches **12.7 GB to 14.7 GB**.
 
 In containerized environments (Kubernetes pods, Docker containers, AWS ECS / Fargate, CI/CD runners), memory limits are strictly enforced by the Linux kernel using cgroups. If a process exceeds its assigned memory ceiling, the Linux kernel **immediately terminates it via the Out-Of-Memory (OOM) killer** with exit code `137` (`SIGKILL`).
 
@@ -36,20 +36,20 @@ flowchart TD
 
 ### 1.1 Ingest Phase Hotspots
 
-| Component | Source Location | Mechanism | Impact on Large Repos (Linux Kernel) |
-|---|---|---|---|
-| **In-Flight Queue** | `crates/rgctl-pipeline/src/stream.rs:16` | `DEFAULT_STREAM_CHANNEL_CAPACITY = 1024` buffers `FileExtraction` payloads between worker threads and merge. | Up to 1,024 parsed AST results with symbol/relation vectors held in RAM concurrently. |
-| **Pass-1 Name Maps** | `crates/rgctl-extraction/src/graph_builder.rs:28-69` | `HashMap<String, Uuid>` and `HashMap<String, Vec<Uuid>>` for `symbol_index`, `symbols_by_qualified`, `symbols_by_suffix`, and `symbol_files`. | 2.65M heap strings + hash table bucket overhead = **several gigabytes** of heap allocations. |
-| **Spill External Sort** | `crates/rgctl-graph/src/segmented_spill.rs:29` | `DEFAULT_SORT_RUN_BYTES = 256 * 1024 * 1024`. Sort runs for nodes and edges execute concurrently in Rayon. | 2 × 256 MiB raw record buffers + deserialized records + I/O buffers = **~1.0 to 1.5 GB**. |
-| **Columnar Assembly** | `crates/rgctl-graph/src/segmented_spill.rs:265-332` | `write_columnar_from_spill` loads all sorted nodes and edges into `node_rows`, `edge_rows`, `name_index`, `type_index`, and `StringPool`. | Entire node and edge index table materialized in memory simultaneously prior to serialization. |
+| Component               | Source Location                                      | Mechanism                                                                                                                                     | Impact on Large Repos (Linux Kernel)                                                           |
+|-------------------------|------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| **In-Flight Queue**     | `crates/rgctl-pipeline/src/stream.rs:16`             | `DEFAULT_STREAM_CHANNEL_CAPACITY = 1024` buffers `FileExtraction` payloads between worker threads and merge.                                  | Up to 1,024 parsed AST results with symbol/relation vectors held in RAM concurrently.          |
+| **Pass-1 Name Maps**    | `crates/rgctl-extraction/src/graph_builder.rs:28-69` | `HashMap<String, Uuid>` and `HashMap<String, Vec<Uuid>>` for `symbol_index`, `symbols_by_qualified`, `symbols_by_suffix`, and `symbol_files`. | 2.65M heap strings + hash table bucket overhead = **several gigabytes** of heap allocations.   |
+| **Spill External Sort** | `crates/rgctl-graph/src/segmented_spill.rs:29`       | `DEFAULT_SORT_RUN_BYTES = 256 * 1024 * 1024`. Sort runs for nodes and edges execute concurrently in Rayon.                                    | 2 × 256 MiB raw record buffers + deserialized records + I/O buffers = **~1.0 to 1.5 GB**.      |
+| **Columnar Assembly**   | `crates/rgctl-graph/src/segmented_spill.rs:265-332`  | `write_columnar_from_spill` loads all sorted nodes and edges into `node_rows`, `edge_rows`, `name_index`, `type_index`, and `StringPool`.     | Entire node and edge index table materialized in memory simultaneously prior to serialization. |
 
 ### 1.2 Analysis Phase Hotspots
 
-| Component | Source Location | Mechanism | Impact on Large Repos (Linux Kernel) |
-|---|---|---|---|
-| **Dual Topology Maps** | `crates/rgctl-analysis/src/graph_utils.rs:68-80` | `PetGraphView::from_topo` clones `index_to_uuid` and rebuilds a duplicate `uuid_to_index` map over `StructuralTopology`. | Two full 2.65M-entry `HashMap<Uuid, NodeIndex>` structures in memory. |
-| **Community Adjacency** | `crates/rgctl-analysis/src/community.rs:200-260` | Community detection uses `neighbors: Vec<Vec<usize>>` instead of flat CSR slices. | **2.65 million individual heap allocations**, leading to allocator metadata fragmentation. |
-| **Centrality Calculations** | `crates/rgctl-analysis/src/centrality.rs` | Dense `Vec<f64>` arrays for PageRank, Brandes scratchpads for sampled betweenness. | Hundreds of MBs in dense arrays; exact harmonic BFS / HyperBall takes multi-GB if enabled. |
+| Component                   | Source Location                                  | Mechanism                                                                                                                | Impact on Large Repos (Linux Kernel)                                                       |
+|-----------------------------|--------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| **Dual Topology Maps**      | `crates/rgctl-analysis/src/graph_utils.rs:68-80` | `PetGraphView::from_topo` clones `index_to_uuid` and rebuilds a duplicate `uuid_to_index` map over `StructuralTopology`. | Two full 2.65M-entry `HashMap<Uuid, NodeIndex>` structures in memory.                      |
+| **Community Adjacency**     | `crates/rgctl-analysis/src/community.rs:200-260` | Community detection uses `neighbors: Vec<Vec<usize>>` instead of flat CSR slices.                                        | **2.65 million individual heap allocations**, leading to allocator metadata fragmentation. |
+| **Centrality Calculations** | `crates/rgctl-analysis/src/centrality.rs`        | Dense `Vec<f64>` arrays for PageRank, Brandes scratchpads for sampled betweenness.                                       | Hundreds of MBs in dense arrays; exact harmonic BFS / HyperBall takes multi-GB if enabled. |
 
 ---
 
@@ -103,13 +103,13 @@ rgctl discover . -v \
 
 ### 3.2 Feature Profile vs Memory Footprint
 
-| Command / Flag | Target Corpus | Peak RSS | Minimum Container RAM |
-|---|---|---|---|
-| `rgctl discover .` (Default) | Linux kernel (~71k files) | **~12.7 GB** | **16 GB** (or 14 GB + swap) |
-| `rgctl discover .` (Default) | Medium Repo (~10k files, Roslyn/VS Code) | **~1.5 – 3.9 GB** | **4 GB – 6 GB** |
-| `rgctl discover .` (Default) | Standard Repo (<2k files) | **~300 – 800 MB** | **1 GB – 2 GB** |
-| `rgctl discover . --full` | Medium Repo (metasfresh) | **~6.4 GB** | **8 GB** |
-| `rgctl discover . --with-harmonic` | Any large repo (>500k nodes) | **+3 – 5 GB** | **+6 GB** overhead |
+| Command / Flag                     | Target Corpus                            | Peak RSS          | Minimum Container RAM       |
+|------------------------------------|------------------------------------------|-------------------|-----------------------------|
+| `rgctl discover .` (Default)       | Linux kernel (~71k files)                | **~12.7 GB**      | **16 GB** (or 14 GB + swap) |
+| `rgctl discover .` (Default)       | Medium Repo (~10k files, Roslyn/VS Code) | **~1.5 – 3.9 GB** | **4 GB – 6 GB**             |
+| `rgctl discover .` (Default)       | Standard Repo (<2k files)                | **~300 – 800 MB** | **1 GB – 2 GB**             |
+| `rgctl discover . --full`          | Medium Repo (metasfresh)                 | **~6.4 GB**       | **8 GB**                    |
+| `rgctl discover . --with-harmonic` | Any large repo (>500k nodes)             | **+3 – 5 GB**     | **+6 GB** overhead          |
 
 > [!WARNING]
 > Never use `--with-harmonic` or `--full` in containers with less than 16 GB of memory on kernel-scale repositories.
@@ -198,11 +198,11 @@ A process killed by `SIGKILL` (137) produces zero artifacts and leaves a corrupt
 
 ## 5. Implementation Summary & Recommendations
 
-| Priority | Action Item | Target Crate | Complexity | Expected RSS Reduction |
-|---|---|---|---|---|
-| **P0 (Immediate)** | Add `--memory-limit-mb` CLI & cgroup limit detection | `rgctl`, `rgctl-core` | Low | Prevents OOM kills via auto-scaling |
-| **P0 (Immediate)** | Clamp Rayon worker pool to cgroup CPU quota | `rgctl-pipeline` | Low | Cuts multi-GB spikes on large host nodes |
-| **P1 (Near-term)** | Dynamic `stream_channel_capacity` and `SORT_RUN_BYTES` | `rgctl-pipeline`, `rgctl-graph` | Medium | Saves 500 MB – 1.5 GB in ingest |
-| **P1 (Near-term)** | Flatten `CommunityDetector` adjacency from `Vec<Vec<usize>>` to CSR | `rgctl-analysis` | Medium | Saves 1.0 – 1.5 GB in analysis |
-| **P2 (Long-term)** | Replace `String` keys in `GraphBuilder` with interned IDs | `rgctl-extraction` | High | Saves 2.0 – 3.0 GB on 2M+ node graphs |
-| **P2 (Long-term)** | Streaming columnar snapshot assembly directly from spill | `rgctl-graph` | High | Eliminates assembly-time RAM spike |
+| Priority           | Action Item                                                         | Target Crate                    | Complexity | Expected RSS Reduction                   |
+|--------------------|---------------------------------------------------------------------|---------------------------------|------------|------------------------------------------|
+| **P0 (Immediate)** | Add `--memory-limit-mb` CLI & cgroup limit detection                | `rgctl`, `rgctl-core`           | Low        | Prevents OOM kills via auto-scaling      |
+| **P0 (Immediate)** | Clamp Rayon worker pool to cgroup CPU quota                         | `rgctl-pipeline`                | Low        | Cuts multi-GB spikes on large host nodes |
+| **P1 (Near-term)** | Dynamic `stream_channel_capacity` and `SORT_RUN_BYTES`              | `rgctl-pipeline`, `rgctl-graph` | Medium     | Saves 500 MB – 1.5 GB in ingest          |
+| **P1 (Near-term)** | Flatten `CommunityDetector` adjacency from `Vec<Vec<usize>>` to CSR | `rgctl-analysis`                | Medium     | Saves 1.0 – 1.5 GB in analysis           |
+| **P2 (Long-term)** | Replace `String` keys in `GraphBuilder` with interned IDs           | `rgctl-extraction`              | High       | Saves 2.0 – 3.0 GB on 2M+ node graphs    |
+| **P2 (Long-term)** | Streaming columnar snapshot assembly directly from spill            | `rgctl-graph`                   | High       | Eliminates assembly-time RAM spike       |

@@ -6,19 +6,19 @@ Runs the full rgctl feature matrix against all Tier 1 `ecommerce-*` apps and pub
 
 ### Outputs
 
-| File | Description |
-|------|-------------|
-| `rgctl-reports/REPORT.md` | Cross-project **summary** report |
-| `rgctl-reports/REPORT.html` | HTML summary |
-| `rgctl-reports/languages/<id>.md` | **Comprehensive** per-language report |
-| `rgctl-reports/languages/<id>.html` | Per-language HTML report |
-| `rgctl-reports/README.md` | Index linking all artifacts |
-| `rgctl-reports/all-results.json` | Combined JSON results |
-| `rgctl-reports/<id>-summary.json` | Per-project summaries |
-| `rgctl-reports/<id>-metrics.json` | Raw metrics output |
-| `rgctl-reports/<id>-blast.json` | Raw blast-radius output (checkout target) |
-| `rgctl-reports/<id>-blast-top.json` | Top blast scores from full function scan |
-| `rgctl-reports/<id>-export.json` | Exported function subgraph |
+| File                                | Description                               |
+|-------------------------------------|-------------------------------------------|
+| `rgctl-reports/REPORT.md`           | Cross-project **summary** report          |
+| `rgctl-reports/REPORT.html`         | HTML summary                              |
+| `rgctl-reports/languages/<id>.md`   | **Comprehensive** per-language report     |
+| `rgctl-reports/languages/<id>.html` | Per-language HTML report                  |
+| `rgctl-reports/README.md`           | Index linking all artifacts               |
+| `rgctl-reports/all-results.json`    | Combined JSON results                     |
+| `rgctl-reports/<id>-summary.json`   | Per-project summaries                     |
+| `rgctl-reports/<id>-metrics.json`   | Raw metrics output                        |
+| `rgctl-reports/<id>-blast.json`     | Raw blast-radius output (checkout target) |
+| `rgctl-reports/<id>-blast-top.json` | Top blast scores from full function scan  |
+| `rgctl-reports/<id>-export.json`    | Exported function subgraph                |
 
 ### Usage
 
@@ -35,16 +35,16 @@ RGCTL=/path/to/rgctl ./scripts/run_rgctl_report.py --update-readmes
 
 ### Options
 
-| Flag | Description |
-|------|-------------|
-| `--rgctl PATH` | rgctl binary |
-| `--output-dir PATH` | default: `rgctl-reports/` |
-| `--repo-root PATH` | default: parent of `scripts/` |
-| `--no-clean` | skip deleting `.rgctl/` before discover |
-| `--update-readmes` | sync summary tables into root + project READMEs |
-| `--projects rust python …` | run subset only |
-| `--blast-top N` | keep top N blast scores per project (default: 10) |
-| `--skip-blast-scan` | skip full function blast scan (faster; omits top scores) |
+| Flag                       | Description                                              |
+|----------------------------|----------------------------------------------------------|
+| `--rgctl PATH`             | rgctl binary                                             |
+| `--output-dir PATH`        | default: `rgctl-reports/`                                |
+| `--repo-root PATH`         | default: parent of `scripts/`                            |
+| `--no-clean`               | skip deleting `.rgctl/` before discover                  |
+| `--update-readmes`         | sync summary tables into root + project READMEs          |
+| `--projects rust python …` | run subset only                                          |
+| `--blast-top N`            | keep top N blast scores per project (default: 10)        |
+| `--skip-blast-scan`        | skip full function blast scan (faster; omits top scores) |
 
 Exit code **0** if every project `discover` succeeds; **1** otherwise.
 
@@ -66,13 +66,13 @@ RGCTL=/path/to/.rgctl-bin/rgctl ./scripts/run_rgctl_report.py
 
 Environment variables:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `RGCTL_REPO` | `sshaaf/rgctl` | GitHub `owner/repo` |
-| `RGCTL_TAG` | _(latest)_ | Release tag, e.g. `v0.1.0` |
-| `RGCTL_TARGET` | auto-detect | Rust triple, e.g. `x86_64-unknown-linux-gnu` |
-| `RGCTL_INSTALL_DIR` | `.rgctl-bin/` | Extract destination |
-| `GITHUB_TOKEN` / `GH_TOKEN` | — | Optional; higher API rate limits / private release assets |
+| Variable                    | Default        | Description                                               |
+|-----------------------------|----------------|-----------------------------------------------------------|
+| `RGCTL_REPO`                | `sshaaf/rgctl` | GitHub `owner/repo`                                       |
+| `RGCTL_TAG`                 | _(latest)_     | Release tag, e.g. `v0.1.0`                                |
+| `RGCTL_TARGET`              | auto-detect    | Rust triple, e.g. `x86_64-unknown-linux-gnu`              |
+| `RGCTL_INSTALL_DIR`         | `.rgctl-bin/`  | Extract destination                                       |
+| `GITHUB_TOKEN` / `GH_TOKEN` | —              | Optional; higher API rate limits / private release assets |
 
 ### GitHub Actions
 
@@ -92,14 +92,14 @@ The workflow:
 
 In **sshaaf/rgctl** repository secrets:
 
-| Secret | Purpose |
-|--------|---------|
+| Secret                       | Purpose                                                                                                 |
+|------------------------------|---------------------------------------------------------------------------------------------------------|
 | `RGCTL_TESTS_DISPATCH_TOKEN` | PAT (classic `repo` or fine-grained **Actions: write** on `rgctl-tests`) to trigger the report workflow |
 
 Optional in **sshaaf/rgctl-tests**:
 
-| Secret | Purpose |
-|--------|---------|
+| Secret                 | Purpose                            |
+|------------------------|------------------------------------|
 | `RGCTL_DOWNLOAD_TOKEN` | Only if rgctl releases are private |
 
 #### Download a report

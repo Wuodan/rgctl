@@ -1,5 +1,5 @@
-function nowIso() {
-  return new Date().toISOString();
+function nowIso () {
+  return new Date().toISOString()
 }
 
-module.exports = { nowIso };
+module.exports = { nowIso }

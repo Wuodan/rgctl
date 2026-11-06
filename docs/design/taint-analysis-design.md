@@ -10,12 +10,12 @@
 
 ## 1. Goals
 
-| Goal | How |
-|------|-----|
-| Find risky data paths | Intra-procedural taint on CFG/PDG |
-| Rank severity | Flow severity score + vulnerable flag |
-| Dashboard triage | Function sidebar + flows table |
-| CLI verification | `slice --taint`, `rgctl taint --sink`, exported `taint/*.json` |
+| Goal                  | How                                                            |
+|-----------------------|----------------------------------------------------------------|
+| Find risky data paths | Intra-procedural taint on CFG/PDG                              |
+| Rank severity         | Flow severity score + vulnerable flag                          |
+| Dashboard triage      | Function sidebar + flows table                                 |
+| CLI verification      | `slice --taint`, `rgctl taint --sink`, exported `taint/*.json` |
 
 **Whole-repo** taint (`rgctl taint --sink`, dashboard taint bundles) requires `discover --with-cfg` / `--with-taint` (language-dependent pattern catalogs) so the v3 `cfg_pdg.archive.bin` and field/taint sidecars exist. **`rgctl slice --taint`** can still lazily ensure the single enclosing function’s CFG/PDG via `ensure_cfg_pdg_for_source` (same lazy path as plain `slice`); sink-catalog whole-repo scans do not.
 
@@ -70,24 +70,24 @@ Dashboard: filter **vulnerable only**; click a flow for path detail.
 
 ## 4. Rust implementation map
 
-| Component | Path |
-|-----------|------|
-| Taint engine | `crates/rgctl-analysis/src/taint.rs` |
-| Language sinks/sources | Pattern tables per `rgctl-lang-*` |
-| Storage | `crates/rgctl-analysis/src/storage.rs` |
-| Dashboard export | `crates/rgctl-dashboard/src/taint_export.rs` |
-| CLI taint slice | `src/cli/slice.rs` (`--taint`) |
+| Component              | Path                                         |
+|------------------------|----------------------------------------------|
+| Taint engine           | `crates/rgctl-analysis/src/taint.rs`         |
+| Language sinks/sources | Pattern tables per `rgctl-lang-*`            |
+| Storage                | `crates/rgctl-analysis/src/storage.rs`       |
+| Dashboard export       | `crates/rgctl-dashboard/src/taint_export.rs` |
+| CLI taint slice        | `src/cli/slice.rs` (`--taint`)               |
 
 ---
 
 ## 5. Dashboard implementation
 
-| Piece | Path |
-|-------|------|
-| Tab | `dashboard/src/TaintView.tsx` |
-| Index | `taint_index.json` (`flow_count`, `vulnerable_count`) |
-| Detail bundles | `taint/{function_id}.json` |
-| Legends | `viewLegendData.ts` — severity / status badges |
+| Piece          | Path                                                  |
+|----------------|-------------------------------------------------------|
+| Tab            | `dashboard/src/TaintView.tsx`                         |
+| Index          | `taint_index.json` (`flow_count`, `vulnerable_count`) |
+| Detail bundles | `taint/{function_id}.json`                            |
+| Legends        | `viewLegendData.ts` — severity / status badges        |
 
 ---
 
@@ -108,10 +108,10 @@ rgctl slice src/Endpoint.java --line 20 --variable request --function handle --t
 
 ## 7. Testing
 
-| Layer | Location |
-|-------|----------|
-| Language taint fixtures | `tests/*_taint.rs` |
-| Dashboard harness | `tests/dashboard_harness.rs` (`taint_index.json`) |
+| Layer                   | Location                                          |
+|-------------------------|---------------------------------------------------|
+| Language taint fixtures | `tests/*_taint.rs`                                |
+| Dashboard harness       | `tests/dashboard_harness.rs` (`taint_index.json`) |
 
 Screenshots: `capture-design-screenshots.mjs` → `docs/images/design/taint-analysis/`.
 

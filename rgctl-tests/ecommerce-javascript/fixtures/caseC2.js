@@ -2,8 +2,8 @@
 // comment
 // comment
 
-const VALUE = 1;
+const VALUE = 1
 
-export function gamma(n) {
-  return n + VALUE;
+export function gamma (n) {
+  return n + VALUE
 }

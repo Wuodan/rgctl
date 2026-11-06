@@ -9,5 +9,5 @@ module.exports = {
   ...require('./services/shippingService'),
   ...require('./services/coolstoreOrderService'),
   ...require('./services/shoppingCartService'),
-  coolstoreRoutes: require('./routes'),
-};
+  coolstoreRoutes: require('./routes')
+}

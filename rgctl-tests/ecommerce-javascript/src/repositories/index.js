@@ -5,5 +5,5 @@ module.exports = {
   cartRepository: require('./cartRepository'),
   orderRepository: require('./orderRepository'),
   inventoryRepository: require('./inventoryRepository'),
-  reviewRepository: require('./reviewRepository'),
-};
+  reviewRepository: require('./reviewRepository')
+}

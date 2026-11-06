@@ -1,7 +1,10 @@
 package com.example.ecommerce
 
 class OrdersController {
-    fun create(status: String, debug: String?): OrderDTO {
+    fun create(
+        status: String,
+        debug: String?,
+    ): OrderDTO {
         val svc = OrderService()
         val dto = svc.build(status)
         if (debug != null) {

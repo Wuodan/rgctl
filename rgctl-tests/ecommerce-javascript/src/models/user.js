@@ -1,6 +1,6 @@
-function toPublicUser(user) {
-  const { password_hash, ...publicUser } = user;
-  return publicUser;
+function toPublicUser (user) {
+  const { password_hash, ...publicUser } = user
+  return publicUser
 }
 
-module.exports = { toPublicUser };
+module.exports = { toPublicUser }

@@ -10,12 +10,12 @@
 
 ## 1. Goals
 
-| Goal | How |
-|------|-----|
+| Goal                 | How                                                   |
+|----------------------|-------------------------------------------------------|
 | Immediate dominators | Classic Cooper–Harvey–Kennedy style tree per function |
-| Dominance frontiers | Nodes where control from multiple predecessors meet |
-| PDG input | Control-dependence edges derived from dominance |
-| Developer visibility | Same CFG export powers CLI + dashboard |
+| Dominance frontiers  | Nodes where control from multiple predecessors meet   |
+| PDG input            | Control-dependence edges derived from dominance       |
+| Developer visibility | Same CFG export powers CLI + dashboard                |
 
 ---
 
@@ -53,32 +53,32 @@ JSON includes `nodes[]` with `idom`, `frontier_size` when `--frontiers` is set.
 
 ## 4. Rust implementation map
 
-| Component | Path |
-|-----------|------|
+| Component           | Path                                     |
+|---------------------|------------------------------------------|
 | Dominator algorithm | `crates/rgctl-analysis/src/dominance.rs` |
-| CFG integration | `crates/rgctl-analysis/src/cfg.rs` |
-| PDG control edges | `crates/rgctl-analysis/src/pdg.rs` |
-| CLI inspect | `src/cli/inspect.rs` |
+| CFG integration     | `crates/rgctl-analysis/src/cfg.rs`       |
+| PDG control edges   | `crates/rgctl-analysis/src/pdg.rs`       |
+| CLI inspect         | `src/cli/inspect.rs`                     |
 
 ---
 
 ## 5. Dashboard implementation
 
-| Piece | Path |
-|-------|------|
-| View toggle | `DataflowView.tsx` → `viewMode: "dominator"` |
+| Piece        | Path                                             |
+|--------------|--------------------------------------------------|
+| View toggle  | `DataflowView.tsx` → `viewMode: "dominator"`     |
 | Graph layout | `computeDominatorGraph()` in `dataflowEngine.ts` |
-| Node sizing | Larger nodes when `frontier_size > 0` |
-| Legends | `DOMINATOR_NODE_LEGEND`, `DOMINATOR_EDGE_LEGEND` |
+| Node sizing  | Larger nodes when `frontier_size > 0`            |
+| Legends      | `DOMINATOR_NODE_LEGEND`, `DOMINATOR_EDGE_LEGEND` |
 
 ---
 
 ## 6. Testing
 
-| Layer | Location |
-|-------|----------|
-| Dominance tests | `crates/rgctl-analysis/src/dominance.rs` |
-| Semantic verification | `scripts/semantic-verification.sh` |
+| Layer                 | Location                                 |
+|-----------------------|------------------------------------------|
+| Dominance tests       | `crates/rgctl-analysis/src/dominance.rs` |
+| Semantic verification | `scripts/semantic-verification.sh`       |
 
 Screenshots: `capture-design-screenshots.mjs` → `docs/images/design/dominance/`.
 

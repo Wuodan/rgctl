@@ -1,25 +1,25 @@
-const { Router } = require('express');
-const { asyncHandler } = require('../../middleware/errorHandler');
+const { Router } = require('express')
+const { asyncHandler } = require('../../middleware/errorHandler')
 
-function createProductRouter(productService) {
-  const router = Router();
+function createProductRouter (productService) {
+  const router = Router()
 
   router.get(
     '/',
     asyncHandler(async (_req, res) => {
-      res.json(productService.getProducts());
-    }),
-  );
+      res.json(productService.getProducts())
+    })
+  )
 
   router.get(
     '/:itemId',
     asyncHandler(async (req, res) => {
-      const product = productService.getProductByItemId(String(req.params.itemId));
-      res.json(product ?? null);
-    }),
-  );
+      const product = productService.getProductByItemId(String(req.params.itemId))
+      res.json(product ?? null)
+    })
+  )
 
-  return router;
+  return router
 }
 
-module.exports = { createProductRouter };
+module.exports = { createProductRouter }

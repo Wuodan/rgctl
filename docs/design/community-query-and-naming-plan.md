@@ -10,12 +10,12 @@
 
 ## 1. Why this shape
 
-| Concern | Choice |
-|---------|--------|
-| Code graph = facts | Topology stays CALLS/USES/… only |
-| Communities = derived partition | Live in `analysis_results.bin` + dashboard JSON |
-| Naming = metadata on the partition | `community_id → label` sidecar / summary rows |
-| Semantic / embedding community ID | Later: pool member embeddings; still not topology |
+| Concern                            | Choice                                            |
+|------------------------------------|---------------------------------------------------|
+| Code graph = facts                 | Topology stays CALLS/USES/… only                  |
+| Communities = derived partition    | Live in `analysis_results.bin` + dashboard JSON   |
+| Naming = metadata on the partition | `community_id → label` sidecar / summary rows     |
+| Semantic / embedding community ID  | Later: pool member embeddings; still not topology |
 
 UX target (Graphify hero): colored clusters + sidebar of **named** communities with sizes — not `Community 450`.
 
@@ -39,13 +39,13 @@ flowchart LR
 
 ## 2. Phased delivery
 
-| Phase | Outcome | User-visible |
-|-------|---------|--------------|
-| **P0** | Wire existing heuristic labels into export | Dashboard shows real names, not `Community N` |
+| Phase  | Outcome                                         | User-visible                                      |
+|--------|-------------------------------------------------|---------------------------------------------------|
+| **P0** | Wire existing heuristic labels into export      | Dashboard shows real names, not `Community N`     |
 | **P1** | `communities list` + `inventory --by community` | Agents/CLI can list communities and scoped `find` |
-| **P2** | Macros + docs/recipes | One-liner discoverability |
-| **P3** | Optional embedding-assisted / LLM naming | Graphify-quality thematic labels |
-| **P4** | Community semantic search (optional) | “Find communities like checkout” |
+| **P2** | Macros + docs/recipes                           | One-liner discoverability                         |
+| **P3** | Optional embedding-assisted / LLM naming        | Graphify-quality thematic labels                  |
+| **P4** | Community semantic search (optional)            | “Find communities like checkout”                  |
 
 Ship P0→P2 before investing in LLM naming.
 
@@ -118,11 +118,11 @@ Agent recipe copy-paste works on ecommerce-java; JSON schema_version stable.
 
 Layer on P0 heuristics; keep labels in the community summary sidecar.
 
-| Tier | Method | When |
-|------|--------|------|
-| **3a Heuristic v2** | Package-majority vote, top PageRank symbol in cluster, strip infra hubs from naming | Default discover |
-| **3b Embedding-assisted** | Mean/pool member vectors from `semantic_index.bin`; pick representative token or nearest lexicon phrase | After `semantic index` |
-| **3c LLM / agent label** | Opt-in `rgctl communities label` (or discover flag) with member sample → short title | CI/offline; never required for core |
+| Tier                      | Method                                                                                                  | When                                |
+|---------------------------|---------------------------------------------------------------------------------------------------------|-------------------------------------|
+| **3a Heuristic v2**       | Package-majority vote, top PageRank symbol in cluster, strip infra hubs from naming                     | Default discover                    |
+| **3b Embedding-assisted** | Mean/pool member vectors from `semantic_index.bin`; pick representative token or nearest lexicon phrase | After `semantic index`              |
+| **3c LLM / agent label**  | Opt-in `rgctl communities label` (or discover flag) with member sample → short title                    | CI/offline; never required for core |
 
 ### Steps (3a first)
 
@@ -149,16 +149,16 @@ Only after P1 + semantic index maturity.
 
 ## 8. Implementation map (files)
 
-| Area | Likely touch points |
-|------|---------------------|
-| Label inference | `crates/rgctl-analysis/src/community.rs` |
-| Analysis schema | `crates/rgctl-analysis/src/results.rs` (+ migrate/version if new columns) |
-| Dashboard export | `crates/rgctl-dashboard/src/communities.rs`, export bundle entry |
-| Discover write path | `src/cli/discover_impl.rs` (fill labels when community table written) |
-| Structured query | `crates/rgctl-graph/src/structured_query.rs`, `src/cli/structured_query.rs` |
-| Communities CLI | `src/cli/communities.rs` |
-| Docs | `https://rgctl.io/docs/guides/structured-query/`, `AGENTS.md`, user-guide |
-| Tests | analysis unit tests; `communities` JSON; dashboard harness community label assert |
+| Area                | Likely touch points                                                               |
+|---------------------|-----------------------------------------------------------------------------------|
+| Label inference     | `crates/rgctl-analysis/src/community.rs`                                          |
+| Analysis schema     | `crates/rgctl-analysis/src/results.rs` (+ migrate/version if new columns)         |
+| Dashboard export    | `crates/rgctl-dashboard/src/communities.rs`, export bundle entry                  |
+| Discover write path | `src/cli/discover_impl.rs` (fill labels when community table written)             |
+| Structured query    | `crates/rgctl-graph/src/structured_query.rs`, `src/cli/structured_query.rs`       |
+| Communities CLI     | `src/cli/communities.rs`                                                          |
+| Docs                | `https://rgctl.io/docs/guides/structured-query/`, `AGENTS.md`, user-guide         |
+| Tests               | analysis unit tests; `communities` JSON; dashboard harness community label assert |
 
 ---
 
@@ -193,13 +193,13 @@ Only after P1 + semantic index maturity.
 
 ## 10. Risks & decisions
 
-| Risk | Mitigation |
-|------|------------|
-| Users expect `MEMBER_OF` edges | Document virtual model; offer WHERE form first |
-| Label churn every discover | Accept for heuristics; stable id + mutable label; don’t bust graph digest |
-| Analysis/graph skew after partial incremental | If assignments missing, omit property; document “re-run discover” |
-| `:Community` vs real `NodeType` | Keep virtual; never write Community nodes to snapshot |
-| LLM cost/privacy | P3c opt-in only |
+| Risk                                          | Mitigation                                                                |
+|-----------------------------------------------|---------------------------------------------------------------------------|
+| Users expect `MEMBER_OF` edges                | Document virtual model; offer WHERE form first                            |
+| Label churn every discover                    | Accept for heuristics; stable id + mutable label; don’t bust graph digest |
+| Analysis/graph skew after partial incremental | If assignments missing, omit property; document “re-run discover”         |
+| `:Community` vs real `NodeType`               | Keep virtual; never write Community nodes to snapshot                     |
+| LLM cost/privacy                              | P3c opt-in only                                                           |
 
 **Decision locked by this plan:** communities stay **outside** the topology graph; naming and query are **overlays**.
 

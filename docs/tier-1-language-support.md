@@ -12,11 +12,11 @@ This document defines what **fully supported** means for a programming language 
 
 rgctl uses a **hybrid tiering** model across **~69 language plugins**:
 
-| Tier | Handler | Crate pattern | Indexing | CFG / PDG / taint | Call graph | Hybrid CPG (Layer F) |
-|------|---------|---------------|----------|-------------------|------------|----------------------|
-| **Tier 1** | `custom` — dedicated `LanguagePlugin` | `rgctl-lang-{id}/` (`{id}-ast-coverage.json`) | Rich symbols + relations | **Required** | **Required** (`Calls`, `Extends`, `Implements`, …) | **Required** — same bar as Java |
-| **Tier 2** | `queries` — `QueryLanguagePlugin` | `rgctl-lang-{id}/` (`queries/tags.scm` + `config.rs`) | Symbols + container spans from `tags.scm` | Optional | `@reference.call` → `Calls`, `@reference.class` → `References`, `@reference.implementation` → `Implements`, `@import.path` → `Import` | Not required |
-| **Tier 3** | Regex supplement | `rgctl-lang-{id}/` + regex patterns | Pattern-based symbols | No | No | No |
+| Tier       | Handler                               | Crate pattern                                         | Indexing                                  | CFG / PDG / taint | Call graph                                                                                                                            | Hybrid CPG (Layer F)            |
+|------------|---------------------------------------|-------------------------------------------------------|-------------------------------------------|-------------------|---------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **Tier 1** | `custom` — dedicated `LanguagePlugin` | `rgctl-lang-{id}/` (`{id}-ast-coverage.json`)         | Rich symbols + relations                  | **Required**      | **Required** (`Calls`, `Extends`, `Implements`, …)                                                                                    | **Required** — same bar as Java |
+| **Tier 2** | `queries` — `QueryLanguagePlugin`     | `rgctl-lang-{id}/` (`queries/tags.scm` + `config.rs`) | Symbols + container spans from `tags.scm` | Optional          | `@reference.call` → `Calls`, `@reference.class` → `References`, `@reference.implementation` → `Implements`, `@import.path` → `Import` | Not required                    |
+| **Tier 3** | Regex supplement                      | `rgctl-lang-{id}/` + regex patterns                   | Pattern-based symbols                     | No                | No                                                                                                                                    | No                              |
 
 **Tier-1 custom plugins** (`handler = "custom"`, with `{id}-ast-coverage.json` manifests) include 23 languages: Rust, Python, Ruby, PHP, TypeScript, JavaScript, Go, Java, C#, C, C++, Puppet, Kotlin, Groovy, ERB, Swift, Scala, Dart, Elixir, Lua, Bash, SQL, HCL (plus `rgctl-lang-markdown` for the documentation context graph, totaling 24 `*-ast-coverage.json` plugins). **Tier-2 declarative query plugins** (`handler = "queries"`, with `queries/tags.scm`) cover 37 additional languages (Fortran, Zig, Nix, Proto, Solidity, Julia, R, Haskell, GDScript, Verilog, Objective-C, Clojure, OCaml, HTML, CSS, Svelte, GraphQL, Prisma, Elm, Erlang, Gleam, F#, Racket, Scheme, D, Odin, CUDA, GLSL, VHDL, CMake, Make, Starlark, PowerShell, TOML, YAML, JSON, Emacs Lisp) — see [tier-2-language-support.md](tier-2-language-support.md) and [`languages.toml`](../languages.toml).
 
@@ -41,74 +41,74 @@ A language is **fully supported** when all rows are ✅ and backed by automated 
 
 ### Layer A — Graph plugin (indexing)
 
-| # | Requirement | Where |
-|---|-------------|--------|
-| A1 | Custom `LanguagePlugin` (not generic Tier 2 only) | `crates/rgctl-lang-{id}/src/plugin.rs` |
-| A2 | Tree-sitter grammar wired (`grammar()` + parse) | Plugin + `tree-sitter-{id}` crate dep |
-| A3 | **Symbols:** functions/methods with name, location, signature, parameters | `extract_symbols()` |
-| A4 | **Symbols:** types (class/struct/interface/enum as appropriate) | `extract_symbols()` |
-| A5 | **Relations:** `Calls` between functions | `extract_relations()` — use `rgctl_plugin_api::walk_calls` or language-specific walker |
+| #  | Requirement                                                                                                                                                                                | Where                                                                                       |
+|----|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| A1 | Custom `LanguagePlugin` (not generic Tier 2 only)                                                                                                                                          | `crates/rgctl-lang-{id}/src/plugin.rs`                                                      |
+| A2 | Tree-sitter grammar wired (`grammar()` + parse)                                                                                                                                            | Plugin + `tree-sitter-{id}` crate dep                                                       |
+| A3 | **Symbols:** functions/methods with name, location, signature, parameters                                                                                                                  | `extract_symbols()`                                                                         |
+| A4 | **Symbols:** types (class/struct/interface/enum as appropriate)                                                                                                                            | `extract_symbols()`                                                                         |
+| A5 | **Relations:** `Calls` between functions                                                                                                                                                   | `extract_relations()` — use `rgctl_plugin_api::walk_calls` or language-specific walker      |
 | A6 | **Relations (OOP / composition):** `Extends` / `Implements` (or language equivalent: Go struct embed → `Extends`, method-set satisfaction → `Implements`; Rust trait impls when extracted) | Required for Tier 1 — not optional. Document honesty limits (no full points-to) separately. |
-| A7 | Cyclomatic / cognitive complexity for functions | `calculate_complexity()` |
-| A8 | Entry in `languages.toml` with `handler = "custom"` | Repo root |
-| A9 | Registered in `rgctl-languages` | `crates/rgctl-languages/src/lib.rs` |
+| A7 | Cyclomatic / cognitive complexity for functions                                                                                                                                            | `calculate_complexity()`                                                                    |
+| A8 | Entry in `languages.toml` with `handler = "custom"`                                                                                                                                        | Repo root                                                                                   |
+| A9 | Registered in `rgctl-languages`                                                                                                                                                            | `crates/rgctl-languages/src/lib.rs`                                                         |
 
 ### Layer B — Analysis profile (CFG pipeline)
 
-| # | Requirement | Where |
-|---|-------------|--------|
-| B1 | `LanguageAnalysisProfile` with `cfg_enabled: true` | `crates/rgctl-analysis/src/language_profile.rs` |
-| B2 | `tree-sitter-{id}` dependency on **`rgctl-analysis`** | `crates/rgctl-analysis/Cargo.toml` |
-| B3 | `function_kinds` match tree-sitter node kinds used in CFG lookup | `language_profile.rs` + `cfg_builder.rs` |
-| B4 | CFG builders for control flow: `if`, loops, `return`, `break`/`continue` | `crates/rgctl-analysis/src/cfg_builder.rs` |
-| B5 | CFG builders for language-specific control flow (e.g. `switch`, `select`, `match`, `try`) | `cfg_builder.rs` |
-| B6 | Definition-use extraction for assignments / declarations | `crates/rgctl-analysis/src/def_use.rs` |
-| B7 | PDG builds from CFG + source (automatic once CFG + def/use work) | `crates/rgctl-analysis/src/pdg.rs` |
+| #  | Requirement                                                                                      | Where                                                           |
+|----|--------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| B1 | `LanguageAnalysisProfile` with `cfg_enabled: true`                                               | `crates/rgctl-analysis/src/language_profile.rs`                 |
+| B2 | `tree-sitter-{id}` dependency on **`rgctl-analysis`**                                            | `crates/rgctl-analysis/Cargo.toml`                              |
+| B3 | `function_kinds` match tree-sitter node kinds used in CFG lookup                                 | `language_profile.rs` + `cfg_builder.rs`                        |
+| B4 | CFG builders for control flow: `if`, loops, `return`, `break`/`continue`                         | `crates/rgctl-analysis/src/cfg_builder.rs`                      |
+| B5 | CFG builders for language-specific control flow (e.g. `switch`, `select`, `match`, `try`)        | `cfg_builder.rs`                                                |
+| B6 | Definition-use extraction for assignments / declarations                                         | `crates/rgctl-analysis/src/def_use.rs`                          |
+| B7 | PDG builds from CFG + source (automatic once CFG + def/use work)                                 | `crates/rgctl-analysis/src/pdg.rs`                              |
 | B8 | `discover --with-cfg` / `discover --with-cfg --with-security --with-taint` includes `.ext` files | Automatic via `cfg_language_id_from_path` in `discover_impl.rs` |
 
 ### Layer C — Security & interprocedural
 
-| # | Requirement | Where |
-|---|-------------|--------|
-| C1 | `taint_enabled: true` on profile | `language_profile.rs` |
+| #  | Requirement                                                                                               | Where                                                                                  |
+|----|-----------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| C1 | `taint_enabled: true` on profile                                                                          | `language_profile.rs`                                                                  |
 | C2 | Declarative taint pack under `crates/rgctl-analysis/rules/taint/{lang}.yaml` (sources, sinks, sanitizers) | Schema + engine in `taint_rules.rs`; do **not** add `detect_{lang}_patterns()` in Rust |
-| C3 | Taint routed via `canonical_language_id()` | `TaintAnalyzer::detect_patterns` / `TaintRuleSet::for_language` |
-| C4 | Interprocedural CFG uses correct language (not wrong grammar) | `interprocedural_cfg.rs` → `language_id_from_path` |
-| C5 | Slice CLI resolves language from file path | `src/cli/context.rs` → `language_from_path` |
+| C3 | Taint routed via `canonical_language_id()`                                                                | `TaintAnalyzer::detect_patterns` / `TaintRuleSet::for_language`                        |
+| C4 | Interprocedural CFG uses correct language (not wrong grammar)                                             | `interprocedural_cfg.rs` → `language_id_from_path`                                     |
+| C5 | Slice CLI resolves language from file path                                                                | `src/cli/context.rs` → `language_from_path`                                            |
 
 ### Layer D — Dashboard & UX
 
-| # | Requirement | Where |
-|---|-------------|--------|
+| #  | Requirement                                                                                            | Where                              |
+|----|--------------------------------------------------------------------------------------------------------|------------------------------------|
 | D1 | `discover --with-cfg --with-security --with-taint` writes `.rgctl/dashboard/` with CFG index populated | `cfg_index.json` `available: true` |
-| D2 | Per-function CFG + dominance render in dashboard | Manual smoke or Playwright |
-| D3 | Dataflow / taint tabs show data when flows exist | PDG + taint archive export |
-| D4 | Blast radius lists functions with non-zero scores when call graph exists | `manifest.json` `calls_count` > 0 |
+| D2 | Per-function CFG + dominance render in dashboard                                                       | Manual smoke or Playwright         |
+| D3 | Dataflow / taint tabs show data when flows exist                                                       | PDG + taint archive export         |
+| D4 | Blast radius lists functions with non-zero scores when call graph exists                               | `manifest.json` `calls_count` > 0  |
 
 ### Layer E — Tests (required for merge)
 
-| # | Requirement | Where |
-|---|-------------|--------|
-| E1 | Plugin unit tests: symbols + at least one `Calls` relation | `crates/rgctl-lang-{id}/src/plugin.rs` `#[cfg(test)]` |
-| E2 | CFG unit tests: branching function + loop cycle | `crates/rgctl-analysis/src/cfg_builder.rs` tests |
-| E3 | Taint unit/integration test: at least one source→sink path | `tests/taint_analysis.rs` or `tests/{lang}_taint.rs` |
-| E4 | Fixture integration test on a small real repo | e.g. `tests/go_cfg_analysis.rs` |
+| #  | Requirement                                                                                   | Where                                                                 |
+|----|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| E1 | Plugin unit tests: symbols + at least one `Calls` relation                                    | `crates/rgctl-lang-{id}/src/plugin.rs` `#[cfg(test)]`                 |
+| E2 | CFG unit tests: branching function + loop cycle                                               | `crates/rgctl-analysis/src/cfg_builder.rs` tests                      |
+| E3 | Taint unit/integration test: at least one source→sink path                                    | `tests/taint_analysis.rs` or `tests/{lang}_taint.rs`                  |
+| E4 | Fixture integration test on a small real repo                                                 | e.g. `tests/go_cfg_analysis.rs`                                       |
 | E5 | Dashboard golden gate: `discover --with-cfg --with-security --with-taint` + bundle assertions | e.g. `tests/dashboard_ecommerce_go.rs` + `tests/dashboard_harness.rs` |
-| E6 | `cargo test` + `cargo clippy` clean for touched crates | CI |
+| E6 | `cargo test` + `cargo clippy` clean for touched crates                                        | CI                                                                    |
 
 ### Layer F — CPG readiness (hybrid CPG) — **required for Tier 1**
 
 Required for high-quality `cpg mutations` / typed field writes. Reference: Java (`rgctl-lang-java`) + `field_write` golden tests. See [hybrid-cpg-plan.md](design/hybrid-cpg-plan.md).
 
-| # | Requirement | Where | Acceptance |
-|---|-------------|--------|------------|
-| F1 | Type symbols populate **`fields[]`** (name + best-effort type string) | `extract_symbols()` | Plugin unit test lists ≥1 field with type when the grammar has types |
-| F2 | **Constructors** (or language equivalent) extracted as functions; detectable as ctor | Plugin metadata | `metadata.is_constructor: true` **and** qualified name ending in `.<init>` or `::<init>` (Java/C#/TS/JS/Python/`New*` Go / Rust `new` / C++ same-name ctor). Languages without ctors (C): document limit; golden test may mark an init helper as ctor in the graph node |
-| F3 | Methods expose **typed parameters** when the grammar has them | `parameters[].param_type` | Plugin unit test; dynamic langs may leave `None` but still extract names |
-| F4 | CFG/`def_use`: **field-access LHS** recorded as member write (`obj.field`; `->` normalized to `.`) | `def_use.rs` + lang kinds | Covered by shared field-access kinds + lang decl kinds (`lexical_declaration`, etc.) |
-| F5 | Best-effort local/param types for CFG functions | `field_write_locals.rs` | `merge_local_types("{id}", …)` recovers formals + typed locals (or copy-assign inference for JS) |
-| F6 | Golden mutation fixture: type `T` with field write outside ctor → `cpg mutations` / index query hits it with `--exclude-ctors` | `field_write::tests::{id}_cfg_captures_field_write_and_query` | Exactly one non-ctor hit for the typed write |
-| F7 | Document resolution limits (no reflection, no full inference) | This doc + hybrid plan | Honesty note in PR / language section |
+| #  | Requirement                                                                                                                    | Where                                                         | Acceptance                                                                                                                                                                                                                                                              |
+|----|--------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| F1 | Type symbols populate **`fields[]`** (name + best-effort type string)                                                          | `extract_symbols()`                                           | Plugin unit test lists ≥1 field with type when the grammar has types                                                                                                                                                                                                    |
+| F2 | **Constructors** (or language equivalent) extracted as functions; detectable as ctor                                           | Plugin metadata                                               | `metadata.is_constructor: true` **and** qualified name ending in `.<init>` or `::<init>` (Java/C#/TS/JS/Python/`New*` Go / Rust `new` / C++ same-name ctor). Languages without ctors (C): document limit; golden test may mark an init helper as ctor in the graph node |
+| F3 | Methods expose **typed parameters** when the grammar has them                                                                  | `parameters[].param_type`                                     | Plugin unit test; dynamic langs may leave `None` but still extract names                                                                                                                                                                                                |
+| F4 | CFG/`def_use`: **field-access LHS** recorded as member write (`obj.field`; `->` normalized to `.`)                             | `def_use.rs` + lang kinds                                     | Covered by shared field-access kinds + lang decl kinds (`lexical_declaration`, etc.)                                                                                                                                                                                    |
+| F5 | Best-effort local/param types for CFG functions                                                                                | `field_write_locals.rs`                                       | `merge_local_types("{id}", …)` recovers formals + typed locals (or copy-assign inference for JS)                                                                                                                                                                        |
+| F6 | Golden mutation fixture: type `T` with field write outside ctor → `cpg mutations` / index query hits it with `--exclude-ctors` | `field_write::tests::{id}_cfg_captures_field_write_and_query` | Exactly one non-ctor hit for the typed write                                                                                                                                                                                                                            |
+| F7 | Document resolution limits (no reflection, no full inference)                                                                  | This doc + hybrid plan                                        | Honesty note in PR / language section                                                                                                                                                                                                                                   |
 
 **Graph extract** must populate `Symbol.fields` on type symbols (F1). **Graph materialization** of those fields as `Variable` nodes under the owning type (`Contains`) happens only when discover runs with **`--with-cfg`** (CPG path) — default discover keeps fields on symbols without emitting per-field graph nodes (`rgctl-extraction` graph builder). Empty `fields` on the symbol is not enough for Tier 1 plugins.
 
@@ -116,15 +116,15 @@ Required for high-quality `cpg mutations` / typed field writes. Reference: Java 
 
 #### Layer F language notes (honesty)
 
-| Language | Ctor convention | Type strength |
-|----------|-----------------|---------------|
-| Java / C# | Real constructors → `Type.<init>` | Strong |
-| C++ | Name == enclosing class → `Type::<init>` | Strong |
-| Go | `NewT` returning `T`/`*T` → `T.<init>` (heuristic) | Strong on structs |
-| Rust | `fn new` in impl → `Type::<init>` | Strong on structs |
-| TypeScript / JavaScript | `constructor` method → class `.<init>` | TS strong; JS weak (params may be untyped; graph param types / copy inference help) |
-| Python | `__init__` → `Class.<init>`; harvest `self.x` fields | Annotations when present |
-| C | No language ctors; struct fields + typed params required | Strong on structs; `file_stem::name` FQN; normalized `#include` Import graph |
+| Language                | Ctor convention                                          | Type strength                                                                       |
+|-------------------------|----------------------------------------------------------|-------------------------------------------------------------------------------------|
+| Java / C#               | Real constructors → `Type.<init>`                        | Strong                                                                              |
+| C++                     | Name == enclosing class → `Type::<init>`                 | Strong                                                                              |
+| Go                      | `NewT` returning `T`/`*T` → `T.<init>` (heuristic)       | Strong on structs                                                                   |
+| Rust                    | `fn new` in impl → `Type::<init>`                        | Strong on structs                                                                   |
+| TypeScript / JavaScript | `constructor` method → class `.<init>`                   | TS strong; JS weak (params may be untyped; graph param types / copy inference help) |
+| Python                  | `__init__` → `Class.<init>`; harvest `self.x` fields     | Annotations when present                                                            |
+| C                       | No language ctors; struct fields + typed params required | Strong on structs; `file_stem::name` FQN; normalized `#include` Import graph        |
 
 **Java extract honesty (java-extract-gaps + java-grammar-remainder + A+ deep-analysis gates):**
 
@@ -196,11 +196,11 @@ tests/
 
 ### Crate naming rules
 
-| Language | Crate name | Package name on crates.io path |
-|----------|------------|--------------------------------|
-| Go | `rgctl-lang-go` | `rgctl-lang-go` |
-| Java | `rgctl-lang-java` | `rgctl-lang-java` |
-| TypeScript | `rgctl-lang-typescript` | hyphens, not underscores |
+| Language   | Crate name              | Package name on crates.io path |
+|------------|-------------------------|--------------------------------|
+| Go         | `rgctl-lang-go`         | `rgctl-lang-go`                |
+| Java       | `rgctl-lang-java`       | `rgctl-lang-java`              |
+| TypeScript | `rgctl-lang-typescript` | hyphens, not underscores       |
 
 - **Directory:** `crates/rgctl-lang-{id}/`
 - **`language_id()`:** lowercase, no spaces (`"go"`, `"csharp"`, `"javascript"`)
@@ -272,14 +272,14 @@ Run `scripts/generate_lang_configs.py` if you maintain Tier 2 `config.rs` files 
 
 Required methods — see `crates/rgctl-plugin-api/src/lib.rs`:
 
-| Method | Purpose |
-|--------|---------|
-| `language_id()` | Canonical id string |
-| `file_extensions()` | `&["go"]`, `&["java"]`, etc. |
-| `grammar()` | `Some(tree_sitter_*::LANGUAGE.into())` |
-| `extract_symbols()` | Walk AST; emit `Symbol` list |
-| `extract_relations()` | Emit `Relation` with `RelationType::Calls` (minimum) |
-| `calculate_complexity()` | Optional but expected for Tier 1 |
+| Method                   | Purpose                                              |
+|--------------------------|------------------------------------------------------|
+| `language_id()`          | Canonical id string                                  |
+| `file_extensions()`      | `&["go"]`, `&["java"]`, etc.                         |
+| `grammar()`              | `Some(tree_sitter_*::LANGUAGE.into())`               |
+| `extract_symbols()`      | Walk AST; emit `Symbol` list                         |
+| `extract_relations()`    | Emit `Relation` with `RelationType::Calls` (minimum) |
+| `calculate_complexity()` | Optional but expected for Tier 1                     |
 
 **Calls extraction:** prefer shared helper:
 
@@ -293,12 +293,12 @@ Add language-specific call node kinds to `call_extraction.rs` if needed (e.g. `m
 
 **Reference implementations:**
 
-| Feature | Look at |
-|---------|---------|
-| Calls + inheritance | `crates/rgctl-lang-java/src/plugin.rs` |
-| Structs + methods | `crates/rgctl-lang-go/src/plugin.rs` |
+| Feature                  | Look at                                  |
+|--------------------------|------------------------------------------|
+| Calls + inheritance      | `crates/rgctl-lang-java/src/plugin.rs`   |
+| Structs + methods        | `crates/rgctl-lang-go/src/plugin.rs`     |
 | Classes + type inference | `crates/rgctl-lang-python/src/plugin.rs` |
-| Traits + functions | `crates/rgctl-lang-rust/src/plugin.rs` |
+| Traits + functions       | `crates/rgctl-lang-rust/src/plugin.rs`   |
 
 ### Step 4 — Wire the analysis profile
 
@@ -401,16 +401,16 @@ Many languages exist as **generic tree-sitter** plugins (`TreeSitterLanguagePlug
 
 ## 6. What not to do
 
-| Anti-pattern | Why |
-|--------------|-----|
-| Parse language X in `rgctl-graph` or `discover_impl.rs` | Belongs in `rgctl-lang-*` + `rgctl-analysis` |
-| Hardcode `.ext` lists in CLI | Use `language_profile` / `languages.toml` |
-| Tier 1 plugin without `Calls` relations | Blast radius and call graph stay empty |
-| Tier 1 without Layer F (fields / ctors / mutation golden) | `cpg mutations` is Java-only quality; **not** Tier 1 |
-| CFG enabled without tests | Dashboard shows blocks but regressions go unnoticed |
-| Duplicate grammar only in plugin crate | `rgctl-analysis` needs its own `tree-sitter-*` dep for CFG |
-| Skip `rgctl-languages` registration | Language won’t ship in default `rgctl` binary |
-| Full type checker inside the plugin | Out of scope — bound resolution only (decl / param / field) |
+| Anti-pattern                                              | Why                                                         |
+|-----------------------------------------------------------|-------------------------------------------------------------|
+| Parse language X in `rgctl-graph` or `discover_impl.rs`   | Belongs in `rgctl-lang-*` + `rgctl-analysis`                |
+| Hardcode `.ext` lists in CLI                              | Use `language_profile` / `languages.toml`                   |
+| Tier 1 plugin without `Calls` relations                   | Blast radius and call graph stay empty                      |
+| Tier 1 without Layer F (fields / ctors / mutation golden) | `cpg mutations` is Java-only quality; **not** Tier 1        |
+| CFG enabled without tests                                 | Dashboard shows blocks but regressions go unnoticed         |
+| Duplicate grammar only in plugin crate                    | `rgctl-analysis` needs its own `tree-sitter-*` dep for CFG  |
+| Skip `rgctl-languages` registration                       | Language won’t ship in default `rgctl` binary               |
+| Full type checker inside the plugin                       | Out of scope — bound resolution only (decl / param / field) |
 
 ---
 
@@ -443,23 +443,23 @@ Copy into your PR description. For the **testing** half (paths, asserts, command
 
 **AST coverage ratchet (all 24 Tier-1 `*-ast-coverage.json` plugins):** semantic coverage $\ge 98\%$ Grade `A+`, **0** raw `"Skip"`. Live tables: [rgctl.io/docs/languages/](https://rgctl.io/docs/languages/) (generated from manifests). Audit: `python3 scripts/check-tier1-coverage.py`.
 
-| Language | Tier | Calls | CFG | Taint | Dashboard gate | Layer F (CPG mutations) |
-|----------|------|-------|-----|-------|----------------|-------------------------|
-| Java | 1 custom | ✅ + Extends/Implements/AnnotatedWith/Permits/Instantiates | ✅ (+ compact ctor, `<clinit>`) | ✅ rich | gbuilder golden | ✅ F1–F6 |
-| Go | 1 custom | ✅ | ✅ deep | ✅ rich | `dashboard_ecommerce_go` | ✅ F1–F6 |
-| C# | 1 custom | ✅ + AnnotatedWith/FQN/Instantiates + call type hints | ✅ | ✅ | `dashboard_ecommerce_csharp`, `csharp_langfeatures` | ✅ F1–F6 |
-| C | 1 custom | ✅ FQN + includes | ✅ | ✅ | `dashboard_ecommerce_c` | ✅ F1/F3–F6 (no native ctors) |
-| C++ | 1 custom | ✅ + Extends/Instantiates + qualified call hints | ✅ | ✅ | `dashboard_ecommerce_cpp`, `cpp_langfeatures` | ✅ F1–F6 |
-| Python | 1 custom | ✅ Import/Extends/AnnotatedWith/FQN/Instantiates; no `sys.path` resolution; `typing.Protocol` → Implements optional | ✅ | ✅ richest | `dashboard_ecommerce_python`, `python_langfeatures` | ✅ F1–F6 |
-| Rust | 1 custom | ✅ | ✅ | ✅ rich | `dashboard_ecommerce_rust` | ✅ F1–F6 |
-| JS / TS | 1 custom | ✅ Import/Extends/FQN/Instantiates (+ decorators TS); shared `rgctl-plugin-helpers::ecmascript` | ✅ | ✅ rich | `dashboard_ecommerce_javascript`, `javascript_langfeatures`, `typescript_langfeatures` | ✅ F1–F6 (JS weaker types) |
-| PHP | 1 custom | ✅ + Uses (traits), Import, attributes, anonymous classes | ✅ | ✅ + `$_FILES`, `filter_input`, `prepare` | `dashboard_ecommerce_php` | ✅ F1–F6 |
-| Ruby | 1 custom | ✅ Import, mixin Extends/Uses, Instantiates, unresolved dynamic calls | ✅ rescue/begin | ✅ Rack-ish patterns | `dashboard_ecommerce_ruby`, `ruby_langfeatures` | ✅ F1–F6 |
-| Puppet | 1 custom | ✅ IncludesClass/InheritsClass/RequiresResource/DependsOnModule/Calls | ✅ if/unless/case | ✅ lookup/exec patterns | pending `dashboard_ecommerce_puppet` | ✅ F1/F3; F2 N/A; **F6 waived** (honesty) |
-| Kotlin | 1 custom | ✅ Calls/Extends/Implements; `tree-sitter-kotlin-ng` | ✅ if/when/loops | ✅ JVM patterns | ✅ `dashboard_ecommerce_kotlin`, langfeatures, verify script | ✅ Layer F (`navigation_expression`) |
-| Groovy | 1 custom | ✅ best-effort Calls; dynamic honesty | ✅ if/loops (Java-shaped AST) | ✅ script sinks | ✅ `dashboard_ecommerce_groovy`, langfeatures, verify script | ✅ Layer F (`field_access`) |
-| Swift / Scala / Dart / Elixir / Lua / Bash | 1 custom | ✅ | ✅ | ✅ extended pack | depth + langfeature gates | ✅ Layer F visitors |
-| ERB / Markdown / HCL / SQL | 1 DSL | ✅ (schema/template oriented) | HCL/SQL ✅ | — | depth gates | DSL layer bar |
+| Language                                   | Tier     | Calls                                                                                                              | CFG                            | Taint                                    | Dashboard gate                                                                         | Layer F (CPG mutations)                  |
+|--------------------------------------------|----------|--------------------------------------------------------------------------------------------------------------------|--------------------------------|------------------------------------------|----------------------------------------------------------------------------------------|------------------------------------------|
+| Java                                       | 1 custom | ✅ + Extends/Implements/AnnotatedWith/Permits/Instantiates                                                          | ✅ (+ compact ctor, `<clinit>`) | ✅ rich                                   | gbuilder golden                                                                        | ✅ F1–F6                                  |
+| Go                                         | 1 custom | ✅                                                                                                                  | ✅ deep                         | ✅ rich                                   | `dashboard_ecommerce_go`                                                               | ✅ F1–F6                                  |
+| C#                                         | 1 custom | ✅ + AnnotatedWith/FQN/Instantiates + call type hints                                                               | ✅                              | ✅                                        | `dashboard_ecommerce_csharp`, `csharp_langfeatures`                                    | ✅ F1–F6                                  |
+| C                                          | 1 custom | ✅ FQN + includes                                                                                                   | ✅                              | ✅                                        | `dashboard_ecommerce_c`                                                                | ✅ F1/F3–F6 (no native ctors)             |
+| C++                                        | 1 custom | ✅ + Extends/Instantiates + qualified call hints                                                                    | ✅                              | ✅                                        | `dashboard_ecommerce_cpp`, `cpp_langfeatures`                                          | ✅ F1–F6                                  |
+| Python                                     | 1 custom | ✅ Import/Extends/AnnotatedWith/FQN/Instantiates; no `sys.path` resolution; `typing.Protocol` → Implements optional | ✅                              | ✅ richest                                | `dashboard_ecommerce_python`, `python_langfeatures`                                    | ✅ F1–F6                                  |
+| Rust                                       | 1 custom | ✅                                                                                                                  | ✅                              | ✅ rich                                   | `dashboard_ecommerce_rust`                                                             | ✅ F1–F6                                  |
+| JS / TS                                    | 1 custom | ✅ Import/Extends/FQN/Instantiates (+ decorators TS); shared `rgctl-plugin-helpers::ecmascript`                     | ✅                              | ✅ rich                                   | `dashboard_ecommerce_javascript`, `javascript_langfeatures`, `typescript_langfeatures` | ✅ F1–F6 (JS weaker types)                |
+| PHP                                        | 1 custom | ✅ + Uses (traits), Import, attributes, anonymous classes                                                           | ✅                              | ✅ + `$_FILES`, `filter_input`, `prepare` | `dashboard_ecommerce_php`                                                              | ✅ F1–F6                                  |
+| Ruby                                       | 1 custom | ✅ Import, mixin Extends/Uses, Instantiates, unresolved dynamic calls                                               | ✅ rescue/begin                 | ✅ Rack-ish patterns                      | `dashboard_ecommerce_ruby`, `ruby_langfeatures`                                        | ✅ F1–F6                                  |
+| Puppet                                     | 1 custom | ✅ IncludesClass/InheritsClass/RequiresResource/DependsOnModule/Calls                                               | ✅ if/unless/case               | ✅ lookup/exec patterns                   | pending `dashboard_ecommerce_puppet`                                                   | ✅ F1/F3; F2 N/A; **F6 waived** (honesty) |
+| Kotlin                                     | 1 custom | ✅ Calls/Extends/Implements; `tree-sitter-kotlin-ng`                                                                | ✅ if/when/loops                | ✅ JVM patterns                           | ✅ `dashboard_ecommerce_kotlin`, langfeatures, verify script                            | ✅ Layer F (`navigation_expression`)      |
+| Groovy                                     | 1 custom | ✅ best-effort Calls; dynamic honesty                                                                               | ✅ if/loops (Java-shaped AST)   | ✅ script sinks                           | ✅ `dashboard_ecommerce_groovy`, langfeatures, verify script                            | ✅ Layer F (`field_access`)               |
+| Swift / Scala / Dart / Elixir / Lua / Bash | 1 custom | ✅                                                                                                                  | ✅                              | ✅ extended pack                          | depth + langfeature gates                                                              | ✅ Layer F visitors                       |
+| ERB / Markdown / HCL / SQL                 | 1 DSL    | ✅ (schema/template oriented)                                                                                       | HCL/SQL ✅                      | —                                        | depth gates                                                                            | DSL layer bar                            |
 
 Layer F golden coverage lives in `crates/rgctl-analysis/src/field_write.rs` (`*_cfg_captures_field_write_and_query`) and `field_write_locals.rs` (20 general-purpose Tier-1 visitors). Update this table when promoting a language or when F tests regress.
 

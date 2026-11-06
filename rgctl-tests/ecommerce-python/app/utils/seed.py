@@ -1,10 +1,9 @@
 import uuid
 
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session
-
 from app.models.category import Category
 from app.models.product import Product
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
 
 
 def seed_demo_data(db: Session) -> None:

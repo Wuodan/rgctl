@@ -6,10 +6,11 @@ interface Repository {
 
 open class BaseService
 
-class OrderService(val name: String) : BaseService(), Repository {
-    fun validate(x: Int): Int {
-        return if (x > 0) x else -x
-    }
+class OrderService(
+    val name: String,
+) : BaseService(),
+    Repository {
+    fun validate(x: Int): Int = if (x > 0) x else -x
 
     override fun find(id: Long): String {
         validate(1)

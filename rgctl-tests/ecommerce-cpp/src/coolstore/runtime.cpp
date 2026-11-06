@@ -2,9 +2,9 @@
 
 namespace ecommerce::coolstore {
 
-CoolstoreRuntime& runtime() {
-    static CoolstoreRuntime instance;
-    return instance;
+CoolstoreRuntime &runtime() {
+  static CoolstoreRuntime instance;
+  return instance;
 }
 
-}  // namespace ecommerce::coolstore
+} // namespace ecommerce::coolstore

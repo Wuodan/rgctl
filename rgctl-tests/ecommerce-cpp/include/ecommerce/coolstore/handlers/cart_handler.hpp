@@ -9,6 +9,6 @@ namespace ecommerce::coolstore::handlers {
  * DELETE /services/cart/{cartId}/{itemId}/{quantity}
  * POST /services/cart/checkout/{cartId}
  */
-int handle_cart(const char* query);
+int handle_cart(const char *query);
 
-}  // namespace ecommerce::coolstore::handlers
+} // namespace ecommerce::coolstore::handlers

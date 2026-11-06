@@ -19,13 +19,13 @@ Worked NL scenarios showing the discover → query → reason → act pattern fo
 
 **When:** First use, rebuild after large changes, or incremental update after edits.
 
-| Intent | Command |
-|--------|---------|
-| Index repo | `cd "$REPO" && rgctl discover .` or `rgctl -r "$REPO" discover` |
-| Full pipeline | `discover . --full` |
-| Incremental patch | `rgctl update` or `rgctl update --files path1,path2` (requires existing `.rgctl/`) |
-| Live while editing | `rgctl serve --watch` (debounced FS updates; `update` enqueues if watch is live) |
-| Alias | `discover --files path1,path2` (same as `update --files`, including queue handoff) |
+| Intent             | Command                                                                            |
+|--------------------|------------------------------------------------------------------------------------|
+| Index repo         | `cd "$REPO" && rgctl discover .` or `rgctl -r "$REPO" discover`                    |
+| Full pipeline      | `discover . --full`                                                                |
+| Incremental patch  | `rgctl update` or `rgctl update --files path1,path2` (requires existing `.rgctl/`) |
+| Live while editing | `rgctl serve --watch` (debounced FS updates; `update` enqueues if watch is live)   |
+| Alias              | `discover --files path1,path2` (same as `update --files`, including queue handoff) |
 
 **Fast path:** If `.rgctl/` exists and the user did not ask to rebuild, do **not** re-run full discover. Check `rgctl status` (`index_current`); if false, run `rgctl update` once — do not stop `serve --watch` to refresh.
 
@@ -268,18 +268,18 @@ Writes a **file**; success is typically a text summary. Needs prior `discover --
 
 ### Migration feature-flag cheat sheet
 
-| Flag | Enables |
-|------|---------|
-| `--with-cfg` | CFG/PDG/dominance archive (slice, inspect, cpg PDG) |
-| `--with-taint` | Discover-time taint (implies CFG as needed) |
-| `--with-security` | Secret scanning |
-| `--with-universe` | `.rgctl/dashboard/` universe bundle |
-| `--with-harmonic` | Harmonic centrality (migration ranking; expensive) |
-| `--export-migration-hints` | Write `migration_plan.json` |
-| `--with-ast-skeleton` | AST skeleton for `cpg ast` |
-| `--with-dfg-loops` | Tag loop-carried data deps on PDG |
+| Flag                        | Enables                                                                              |
+|-----------------------------|--------------------------------------------------------------------------------------|
+| `--with-cfg`                | CFG/PDG/dominance archive (slice, inspect, cpg PDG)                                  |
+| `--with-taint`              | Discover-time taint (implies CFG as needed)                                          |
+| `--with-security`           | Secret scanning                                                                      |
+| `--with-universe`           | `.rgctl/dashboard/` universe bundle                                                  |
+| `--with-harmonic`           | Harmonic centrality (migration ranking; expensive)                                   |
+| `--export-migration-hints`  | Write `migration_plan.json`                                                          |
+| `--with-ast-skeleton`       | AST skeleton for `cpg ast`                                                           |
+| `--with-dfg-loops`          | Tag loop-carried data deps on PDG                                                    |
 | `--migration-preset <name>` | Strategy: `hybrid_default`, `foundational_first`, `dense_cluster`, `risk_mitigation` |
-| `--migration-order <name>` | Roadmap sort: `scheduled` (dependency-aware), `priority` (score rank) |
+| `--migration-order <name>`  | Roadmap sort: `scheduled` (dependency-aware), `priority` (score rank)                |
 
 Migration-oriented discover (heavy):
 
@@ -404,21 +404,21 @@ cd "$REPO" && rgctl discover . --with-cfg --with-taint
 
 **Primary pipeline (v0.4.22+):** `vuln analyze` populates `.sink_taint.call_sites` (`caller`, `target_method`, `file`, `line`; omitted when empty, so use `.sink_taint.call_sites // []`) from the graph **and** `.rgctl/parked_relations.bin`, plus `.sink_taint.paths[]` (`from`, `to`, `hops`). That eliminates the older manual `find --package` / `callers --package` chain unless you are debugging empty sites.
 
-| Step | Command |
-|------|---------|
-| P−1 Index | `rgctl discover . --with-cfg` (+ `--with-taint` for PDG confidence) |
-| P0 Normalize OSV | `rgctl -f json vuln triage --osv ./advisory.json` |
-| P1 Deps match | `rgctl -r "$REPO" -f json deps check --osv ./advisory.json` (+ `--include-jars lib`) |
+| Step                | Command                                                                                                                                 |
+|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| P−1 Index           | `rgctl discover . --with-cfg` (+ `--with-taint` for PDG confidence)                                                                     |
+| P0 Normalize OSV    | `rgctl -f json vuln triage --osv ./advisory.json`                                                                                       |
+| P1 Deps match       | `rgctl -r "$REPO" -f json deps check --osv ./advisory.json` (+ `--include-jars lib`)                                                    |
 | P2 Orchestrated VEX | `rgctl -r "$REPO" -f json vuln analyze --osv ./advisory.json --include-jars lib` → read `(.sink_taint.call_sites // [])[]` / `.paths[]` |
-| P3 Optional deepen | `slice FILE --line N --variable V --with-alias` or `blast-radius` on a hit caller |
+| P3 Optional deepen  | `slice FILE --line N --variable V --with-alias` or `blast-radius` on a hit caller                                                       |
 
 **Debug-only (when call_sites empty and you need to probe):**
 
-| Step | Command |
-|------|---------|
-| Package imports | `find --package '<coords>' --type import --limit 40` |
-| Facade callers | `callers <Symbol> --package '<coords>' --methods readValue,… --limit 40` |
-| Sink-first taint | `taint --sink ObjectMapper.readValue --source external` |
+| Step             | Command                                                                  |
+|------------------|--------------------------------------------------------------------------|
+| Package imports  | `find --package '<coords>' --type import --limit 40`                     |
+| Facade callers   | `callers <Symbol> --package '<coords>' --methods readValue,… --limit 40` |
+| Sink-first taint | `taint --sink ObjectMapper.readValue --source external`                  |
 
 **Verdicts:** deps `not_affected` | `affected_candidate`. Analyze `exploitability`: `not_affected` | `not_exploitable` | `exploitable` | `under_investigation`. OpenVEX statuses map accordingly; unresolved sinks alone MUST NOT force `not_affected` without caller evidence. With `cfg_available=false`, prefer wording grounded in caller/deps evidence — not “PDG confirmed no path.”
 
@@ -441,7 +441,7 @@ rgctl -r "$REPO" serve --open
 #   rgctl -f json find|callers|relations|inventory|status …
 ```
 
-See https://rgctl.io/docs/guides/http-server-and-dashboard/ (product docs; not bundled in this skill pack). For IDE agents spawn `rgctl -f json` subprocesses; optional `rgctl serve` for a local dashboard on one repo.
+See <https://rgctl.io/docs/guides/http-server-and-dashboard/> (product docs; not bundled in this skill pack). For IDE agents spawn `rgctl -f json` subprocesses; optional `rgctl serve` for a local dashboard on one repo.
 
 
 ---

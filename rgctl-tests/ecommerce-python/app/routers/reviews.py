@@ -1,17 +1,18 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-
 from app.database import get_db
 from app.middleware.auth import require_auth
 from app.schemas.review import CreateReviewRequest, ReviewResponse
 from app.services.review import ReviewService
 from app.utils.dependencies import AuthUser
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/api/products/{product_id}/reviews", tags=["reviews"])
 
 
 @router.get("", response_model=list[ReviewResponse])
-def list_reviews(product_id: str, db: Session = Depends(get_db)) -> list[ReviewResponse]:
+def list_reviews(
+    product_id: str, db: Session = Depends(get_db)
+) -> list[ReviewResponse]:
     return ReviewService(db).list_for_product(product_id)
 
 

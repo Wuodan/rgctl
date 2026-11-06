@@ -34,7 +34,9 @@ def main() -> None:
         lines.append(f"  {id_!r}: {tier},")
     lines.append("};")
     lines.append("")
-    lines.append("/** File extension (no dot) → language id. First wins on collisions. */")
+    lines.append(
+        "/** File extension (no dot) → language id. First wins on collisions. */"
+    )
     lines.append("export const EXTENSION_TO_LANGUAGE: Record<string, string> = {")
     seen: dict[str, str] = {}
     for id_, meta in langs.items():

@@ -2,12 +2,8 @@
 
 namespace ecommerce::fixtures {
 
-Order* make_order() {
-    return new Order();
-}
+Order *make_order() { return new Order(); }
 
-Order* make_order_array(int n) {
-    return new Order[n];
-}
+Order *make_order_array(int n) { return new Order[n]; }
 
-}  // namespace ecommerce::fixtures
+} // namespace ecommerce::fixtures

@@ -6,7 +6,5 @@ class OrderService {
         return order
     }
 
-    fun build(status: String): OrderDTO {
-        return OrderDTO(status)
-    }
+    fun build(status: String): OrderDTO = OrderDTO(status)
 }

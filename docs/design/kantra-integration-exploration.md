@@ -22,12 +22,12 @@ The runtime embeds the Konveyor `stable/java` catalog (~2.6k rules) in release b
 
 rgctl has four other rule and security systems. Kantra evaluation (`rgctl-kantra`) is independent of all of them and does not share their rule format:
 
-| System | Crate | Trigger | Scope |
-|--------|-------|---------|-------|
-| Taint analysis | `rgctl-analysis` (`taint.rs`) | `--with-taint` | Hardcoded per-language source/sink/sanitizer `text.contains()` over PDG nodes |
-| CWE/security patterns | `rgctl-security` | `--with-security` | 10 hardcoded CWE patterns over taint flows |
-| Rule engine | `rgctl-rules` | (library) | JSON rulesets over graph nodes (`And/Or/Not` + leaf conditions, label/metadata actions) |
-| Policy/check | `rgctl-service` | `rgctl check --policy-file` | Blast-radius guardrails as a CI gate |
+| System                | Crate                         | Trigger                     | Scope                                                                                   |
+|-----------------------|-------------------------------|-----------------------------|-----------------------------------------------------------------------------------------|
+| Taint analysis        | `rgctl-analysis` (`taint.rs`) | `--with-taint`              | Hardcoded per-language source/sink/sanitizer `text.contains()` over PDG nodes           |
+| CWE/security patterns | `rgctl-security`              | `--with-security`           | 10 hardcoded CWE patterns over taint flows                                              |
+| Rule engine           | `rgctl-rules`                 | (library)                   | JSON rulesets over graph nodes (`And/Or/Not` + leaf conditions, label/metadata actions) |
+| Policy/check          | `rgctl-service`               | `rgctl check --policy-file` | Blast-radius guardrails as a CI gate                                                    |
 
 Kantra findings are *not* currently fed into the `rgctl check` policy gate — see [§9 Boundaries & open questions](#9-boundaries--open-questions).
 
@@ -56,17 +56,17 @@ A Kantra rule is YAML with three parts: metadata, condition (`when`), and action
 
 ### 3.1 Condition types
 
-| Provider | Capability | Fields |
-|----------|-----------|--------|
+| Provider  | Capability    | Fields                                  |
+|-----------|---------------|-----------------------------------------|
 | `builtin` | `filecontent` | `pattern` (regex), `filePattern` (glob) |
-| `builtin` | `file` | `pattern` (glob) |
-| `builtin` | `xml` | `xpath`, `namespaces`, `filepaths` |
-| `builtin` | `json` | `xpath`, `filepaths` |
-| `builtin` | `hasTags` | (inline list) |
-| `java` | `referenced` | `pattern`, `location`, `annotated` |
-| `java` | `dependency` | `name`, `upperbound`, `lowerbound` |
-| `go` | `referenced` | `pattern` |
-| `go` | `dependency` | `name`, `upperbound`, `lowerbound` |
+| `builtin` | `file`        | `pattern` (glob)                        |
+| `builtin` | `xml`         | `xpath`, `namespaces`, `filepaths`      |
+| `builtin` | `json`        | `xpath`, `filepaths`                    |
+| `builtin` | `hasTags`     | (inline list)                           |
+| `java`    | `referenced`  | `pattern`, `location`, `annotated`      |
+| `java`    | `dependency`  | `name`, `upperbound`, `lowerbound`      |
+| `go`      | `referenced`  | `pattern`                               |
+| `go`      | `dependency`  | `name`, `upperbound`, `lowerbound`      |
 
 Conditions compose with `and:`, `or:`, `not:`.
 
@@ -122,26 +122,26 @@ Coverage is driven by `classify.rs` and the `WhenClause` variants in `schema.rs`
 
 ### 5.1 Per-condition coverage
 
-| Kantra condition | rgctl data source | Status | Notes |
-|------------------|-------------------|--------|-------|
-| `builtin.filecontent` | `SourceCache` (preloaded source text) | **Full** | Regex per line; results cached in `.rgctl/kantra_cache/` |
-| `builtin.file` | graph `File` nodes / file list | **Full** | Glob match on paths |
-| `builtin.hasTags` | node `labels[]` | **Full** | |
-| `go.referenced` | `Import` nodes (`qualified_name`) | **Full** | Pattern match on Go import path |
-| `java.referenced` `IMPORT` | `Import` nodes | **Full** | Regex on import name |
-| `java.referenced` `TYPE`/`CLASS` | `Class`/`Interface`/`Enum` nodes | **Full** | Match `qualified_name` or `name` |
-| `java.referenced` `PACKAGE` | `Import` nodes + source fallback | **Full** | Import match + filecontent fallback |
-| `java.referenced` `INHERITANCE`/`IMPLEMENTS_TYPE` | `EXTENDS`/`IMPLEMENTS` edges + source fallback | **Full** | Uses import-FQN stubs (Phase 0 external-stub edges) |
-| `java.referenced` `ANNOTATION` | `ANNOTATED_WITH` edges + `Annotation` nodes | **Full** | Match annotation name/qualified_name |
-| `java.referenced` `annotated.pattern` | — | **Unsupported** | Parsed into `WhenClause::JavaReferenced.annotated_pattern` but ignored by `eval_leaf` (`annotated_pattern: _`); only the top-level `pattern`/`location` are matched |
-| `java.referenced` (other locations: `METHOD`, `METHOD_CALL`, `FIELD`, `RETURN_TYPE`, …) | source cache | **Partial** | Falls back to filecontent regex over Java sources — no location-precise match |
-| `java.dependency` / `go.dependency` | `Dependency` nodes from manifest extraction | **Full** | `name`/`nameregex` + `lowerbound`/`upperbound` version range; manifests parsed by `rgctl-extraction/src/manifests/` (maven, gradle, go.mod, npm, cargo) |
-| `builtin.xml` (xpath) | on-demand XML reparse | **Partial** | Minimal XPath subset: `//tag`, `//tag[@attr='val']`, `/root/...` — not full XPath |
-| `builtin.json` (jsonpath) | on-demand JSON reparse | **Partial** | Minimal path subset |
-| `and:` / `or:` / `not:` | composed over per-leaf match sites | **Full** | `eval_compose` in `engine.rs` |
-| `java.referenced` with `annotated.elements` | — | **Unsupported** | Listed in `UNSUPPORTED_PROVIDERS`; no structured per-element decomposition (edge `metadata["arguments"]` is an opaque string) |
-| Cross-condition chaining (`as:` / `from:`) | — | **Unsupported** | No inter-condition variable passing |
-| Custom variable interpolation in messages | — | **Unsupported** | Formatting concern, low priority |
+| Kantra condition                                                                        | rgctl data source                              | Status          | Notes                                                                                                                                                               |
+|-----------------------------------------------------------------------------------------|------------------------------------------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `builtin.filecontent`                                                                   | `SourceCache` (preloaded source text)          | **Full**        | Regex per line; results cached in `.rgctl/kantra_cache/`                                                                                                            |
+| `builtin.file`                                                                          | graph `File` nodes / file list                 | **Full**        | Glob match on paths                                                                                                                                                 |
+| `builtin.hasTags`                                                                       | node `labels[]`                                | **Full**        |                                                                                                                                                                     |
+| `go.referenced`                                                                         | `Import` nodes (`qualified_name`)              | **Full**        | Pattern match on Go import path                                                                                                                                     |
+| `java.referenced` `IMPORT`                                                              | `Import` nodes                                 | **Full**        | Regex on import name                                                                                                                                                |
+| `java.referenced` `TYPE`/`CLASS`                                                        | `Class`/`Interface`/`Enum` nodes               | **Full**        | Match `qualified_name` or `name`                                                                                                                                    |
+| `java.referenced` `PACKAGE`                                                             | `Import` nodes + source fallback               | **Full**        | Import match + filecontent fallback                                                                                                                                 |
+| `java.referenced` `INHERITANCE`/`IMPLEMENTS_TYPE`                                       | `EXTENDS`/`IMPLEMENTS` edges + source fallback | **Full**        | Uses import-FQN stubs (Phase 0 external-stub edges)                                                                                                                 |
+| `java.referenced` `ANNOTATION`                                                          | `ANNOTATED_WITH` edges + `Annotation` nodes    | **Full**        | Match annotation name/qualified_name                                                                                                                                |
+| `java.referenced` `annotated.pattern`                                                   | —                                              | **Unsupported** | Parsed into `WhenClause::JavaReferenced.annotated_pattern` but ignored by `eval_leaf` (`annotated_pattern: _`); only the top-level `pattern`/`location` are matched |
+| `java.referenced` (other locations: `METHOD`, `METHOD_CALL`, `FIELD`, `RETURN_TYPE`, …) | source cache                                   | **Partial**     | Falls back to filecontent regex over Java sources — no location-precise match                                                                                       |
+| `java.dependency` / `go.dependency`                                                     | `Dependency` nodes from manifest extraction    | **Full**        | `name`/`nameregex` + `lowerbound`/`upperbound` version range; manifests parsed by `rgctl-extraction/src/manifests/` (maven, gradle, go.mod, npm, cargo)             |
+| `builtin.xml` (xpath)                                                                   | on-demand XML reparse                          | **Partial**     | Minimal XPath subset: `//tag`, `//tag[@attr='val']`, `/root/...` — not full XPath                                                                                   |
+| `builtin.json` (jsonpath)                                                               | on-demand JSON reparse                         | **Partial**     | Minimal path subset                                                                                                                                                 |
+| `and:` / `or:` / `not:`                                                                 | composed over per-leaf match sites             | **Full**        | `eval_compose` in `engine.rs`                                                                                                                                       |
+| `java.referenced` with `annotated.elements`                                             | —                                              | **Unsupported** | Listed in `UNSUPPORTED_PROVIDERS`; no structured per-element decomposition (edge `metadata["arguments"]` is an opaque string)                                       |
+| Cross-condition chaining (`as:` / `from:`)                                              | —                                              | **Unsupported** | No inter-condition variable passing                                                                                                                                 |
+| Custom variable interpolation in messages                                               | —                                              | **Unsupported** | Formatting concern, low priority                                                                                                                                    |
 
 Note on fallbacks: the `java.referenced` `PACKAGE`/`INHERITANCE`/unknown-location paths and `builtin.filecontent` share a line-scan over the source cache, so a rule that cannot be matched precisely still produces file+line hits rather than silently returning nothing.
 
@@ -149,15 +149,15 @@ Note on fallbacks: the `java.referenced` `PACKAGE`/`INHERITANCE`/unknown-locatio
 
 Rough distribution of condition types in [konveyor/rulesets](https://github.com/konveyor/rulesets). The percentages below are **approximate, hand-estimated guidance** (not a measured census) — treat them as order-of-magnitude only:
 
-| Pattern | Approx. frequency | Status |
-|---------|-------------------|--------|
-| `*.referenced` with simple pattern | ~60% | Full |
-| `builtin.filecontent` | ~25% | Full |
-| `builtin.file` | ~5% | Full |
-| Composite `and:`/`or:`/`not:` of the above | ~5% | Full |
-| `*.dependency` version checks | ~3% | Full |
-| `builtin.xml`/`builtin.json` | ~1% | Partial (minimal path subset) |
-| `java.referenced` with `annotated.elements` | ~1% | Unsupported |
+| Pattern                                     | Approx. frequency | Status                        |
+|---------------------------------------------|-------------------|-------------------------------|
+| `*.referenced` with simple pattern          | ~60%              | Full                          |
+| `builtin.filecontent`                       | ~25%              | Full                          |
+| `builtin.file`                              | ~5%               | Full                          |
+| Composite `and:`/`or:`/`not:` of the above  | ~5%               | Full                          |
+| `*.dependency` version checks               | ~3%               | Full                          |
+| `builtin.xml`/`builtin.json`                | ~1%               | Partial (minimal path subset) |
+| `java.referenced` with `annotated.elements` | ~1%               | Unsupported                   |
 
 Rules that cannot be evaluated are not dropped silently — they are recorded in `skipped_rules` with a reason.
 
@@ -173,12 +173,12 @@ Rules that cannot be evaluated are not dropped silently — they are recorded in
 
 Import statements are first-class graph nodes (`NodeType::Import`):
 
-| Language | `name` | `qualified_name` |
-|----------|--------|------------------|
-| Java | Full import text (`import java.util.List;`) | `None` |
-| Go | Short name (last path segment) | Full import path (`github.com/pkg/errors`) |
-| C/C++ | `#include` path | — |
-| C# | `using` directive | — |
+| Language | `name`                                      | `qualified_name`                           |
+|----------|---------------------------------------------|--------------------------------------------|
+| Java     | Full import text (`import java.util.List;`) | `None`                                     |
+| Go       | Short name (last path segment)              | Full import path (`github.com/pkg/errors`) |
+| C/C++    | `#include` path                             | —                                          |
+| C#       | `using` directive                           | —                                          |
 
 ### 6.3 Annotation nodes and edges
 
@@ -203,13 +203,13 @@ Nodes carry `qualified_name`, `signature`, `return_type`, `parameters`, `file_pa
 
 ### 7.1 CLI flags
 
-| Flag | Purpose |
-|------|---------|
-| `--with-kantra` | Run Kantra eval and index `KantraRule`/`KantraRuleset` nodes into the session graph |
-| `--kantra-target NAME` | Evaluate only rules labeled `konveyor.io/target=NAME` |
-| `--kantra-rules DIR` | Single ruleset directory (`ruleset.yaml` + `*.yaml`); overrides embedded catalog |
-| `--kantra-catalog ROOT` | Rulesets tree (e.g. `stable/java`); overrides embedded catalog |
-| `--kantra-index-only` | Skip eval; still index catalog rules into the graph |
+| Flag                    | Purpose                                                                             |
+|-------------------------|-------------------------------------------------------------------------------------|
+| `--with-kantra`         | Run Kantra eval and index `KantraRule`/`KantraRuleset` nodes into the session graph |
+| `--kantra-target NAME`  | Evaluate only rules labeled `konveyor.io/target=NAME`                               |
+| `--kantra-rules DIR`    | Single ruleset directory (`ruleset.yaml` + `*.yaml`); overrides embedded catalog    |
+| `--kantra-catalog ROOT` | Rulesets tree (e.g. `stable/java`); overrides embedded catalog                      |
+| `--kantra-index-only`   | Skip eval; still index catalog rules into the graph                                 |
 
 `--with-kantra` does **not** imply `--with-cfg`, and Kantra evaluation does not use CFG/PDG/taint results today (enrichment is community/centrality/blast-radius only — see §8).
 
@@ -240,11 +240,11 @@ Stage timings are recorded separately in the discover profile: `kantra_eval`, `k
 
 This is what differentiates native evaluation from running Kantra directly. Each violation is enriched (`enrich.rs` → `ViolationEnrichment`) with:
 
-| Enrichment | What it adds |
-|------------|--------------|
-| **Blast radius** (`blast_radius_score`, `impact_zone_size`) | "This symbol is reached by N functions across the graph" |
-| **Community** (`community_id`) | "All violations cluster in community 7 — your payment module" |
-| **Centrality** (`pagerank`) | "This is a high-PageRank hotspot — fixing it has outsized impact" |
+| Enrichment                                                  | What it adds                                                      |
+|-------------------------------------------------------------|-------------------------------------------------------------------|
+| **Blast radius** (`blast_radius_score`, `impact_zone_size`) | "This symbol is reached by N functions across the graph"          |
+| **Community** (`community_id`)                              | "All violations cluster in community 7 — your payment module"     |
+| **Centrality** (`pagerank`)                                 | "This is a high-PageRank hotspot — fixing it has outsized impact" |
 
 Kantra tells you *what* is wrong. The graph tells you *how much it matters*.
 

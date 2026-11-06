@@ -7,12 +7,12 @@ namespace ecommerce::coolstore {
 
 class PromoService {
 public:
-    PromoService();
-    void applyCartItemPromotions(ShoppingCart& shoppingCart);
-    void applyShippingPromotions(ShoppingCart& shoppingCart);
+  PromoService();
+  void applyCartItemPromotions(ShoppingCart &shoppingCart);
+  void applyShippingPromotions(ShoppingCart &shoppingCart);
 
 private:
-    std::unordered_map<std::string, double> percentOffByItem_;
+  std::unordered_map<std::string, double> percentOffByItem_;
 };
 
-}  // namespace ecommerce::coolstore
+} // namespace ecommerce::coolstore

@@ -10,12 +10,12 @@ Practical guide for contributors **adding or extending a programming language** 
 
 Language quality is proven at **four distances** from the plugin:
 
-| Distance | Proves | Typical home |
-|----------|--------|--------------|
-| **Unit** | Grammar walkers emit the right symbols/relations for tiny snippets | `crates/rgctl-lang-{id}/` |
-| **Fixture** | Structured query / CFG / taint on curated sources | `tests/fixtures/{id}/`, `tests/{id}_*.rs` |
-| **Project** | Realistic multi-file graph + dashboard + expected-facts | `rgctl-tests/ecommerce-{id}/` |
-| **Scale / QE** | Determinism, stable keys, invariants, cold discover | Shared QE binaries + Gate B corpus |
+| Distance       | Proves                                                             | Typical home                              |
+|----------------|--------------------------------------------------------------------|-------------------------------------------|
+| **Unit**       | Grammar walkers emit the right symbols/relations for tiny snippets | `crates/rgctl-lang-{id}/`                 |
+| **Fixture**    | Structured query / CFG / taint on curated sources                  | `tests/fixtures/{id}/`, `tests/{id}_*.rs` |
+| **Project**    | Realistic multi-file graph + dashboard + expected-facts            | `rgctl-tests/ecommerce-{id}/`             |
+| **Scale / QE** | Determinism, stable keys, invariants, cold discover                | Shared QE binaries + Gate B corpus        |
 
 Always start with unit + a small fixture. Do not open a Tier 1 PR with only “discover succeeds on one file.”
 
@@ -51,12 +51,12 @@ Cargo.toml                 # [[test]] entries for each new integration binary
 
 **Copy from a neighbor language** (same family helps):
 
-| You’re adding… | Best templates |
-|----------------|----------------|
-| JVM-like (Kotlin, Groovy, Scala) | `java_*`, `ecommerce-java`, `java_langfeatures` |
-| C-family | `c_*` / `cpp_*`, `ecommerce-c` / `ecommerce-cpp` |
-| Dynamic (Ruby, PHP, JS) | `ruby_*` / `php_*` / `javascript_*` |
-| Systems (Rust, Go) | `rust_*` / `go_*` |
+| You’re adding…                   | Best templates                                   |
+|----------------------------------|--------------------------------------------------|
+| JVM-like (Kotlin, Groovy, Scala) | `java_*`, `ecommerce-java`, `java_langfeatures`  |
+| C-family                         | `c_*` / `cpp_*`, `ecommerce-c` / `ecommerce-cpp` |
+| Dynamic (Ruby, PHP, JS)          | `ruby_*` / `php_*` / `javascript_*`              |
+| Systems (Rust, Go)               | `rust_*` / `go_*`                                |
 
 ---
 
@@ -81,28 +81,28 @@ Minimum set depends on tier. Checkboxes are “add these artifacts,” not “pa
 
 Add **all** of the following before calling the language “fully supported.” Ship incrementally if needed, but the PR that claims Tier 1 must close the gaps.
 
-| # | Artifact | What it must prove |
-|---|----------|--------------------|
-| T1 | `cargo test -p rgctl-lang-{id}` | Symbols (functions/types), `Calls` (and inheritance if applicable), honesty limits documented in tests or plugin comments |
-| T2 | AST coverage JSON + unit test | Every named grammar kind classified; bump grammar ⇒ update JSON |
-| T3 | `tests/fixtures/{id}/langfeatures/` (+ optional) | Snippets for features you claim (methods, generics, embeds, …) |
-| T4 | `tests/{id}_langfeatures.rs` + `[[test]]` | After `discover -l {id}`, GQL/structured query finds harness symbols and expected `Calls` |
-| T5 | `tests/{id}_cfg_analysis.rs` | `discover --with-cfg`: CFG block/edge counts or kinds for a branching + looping function |
-| T6 | `tests/{id}_taint.rs` + `rules/taint/{id}.yaml` | At least one source→sink path (or pack hit) with `--with-cfg --with-taint` |
-| T7 | `rgctl-tests/ecommerce-{id}/` | Multi-file sample with real calls across files |
-| T8 | `…/correctness/expected-facts.json` | Registered in `tests/graph_correctness.rs` `PROJECTS`; `min_functions` / `min_calls_edges` (prefer exact harness symbols when stable) |
-| T9 | `tests/dashboard_ecommerce_{id}.rs` | Release discover with dashboard harness flags; CFG index available |
-| T10 | Field-write / Layer F golden (if CPG claimed) | `{id}_cfg_captures_field_write_and_query` pattern in `field_write.rs` — see Tier 1 Layer F |
-| T11 | Gate B cold discover (scale) | ~10k-file corpus entry in [AGENTS.md](../AGENTS.md) Gate B table + baseline in `tests/cold_profile_gates.rs` once numbers exist |
+| #   | Artifact                                         | What it must prove                                                                                                                    |
+|-----|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| T1  | `cargo test -p rgctl-lang-{id}`                  | Symbols (functions/types), `Calls` (and inheritance if applicable), honesty limits documented in tests or plugin comments             |
+| T2  | AST coverage JSON + unit test                    | Every named grammar kind classified; bump grammar ⇒ update JSON                                                                       |
+| T3  | `tests/fixtures/{id}/langfeatures/` (+ optional) | Snippets for features you claim (methods, generics, embeds, …)                                                                        |
+| T4  | `tests/{id}_langfeatures.rs` + `[[test]]`        | After `discover -l {id}`, GQL/structured query finds harness symbols and expected `Calls`                                             |
+| T5  | `tests/{id}_cfg_analysis.rs`                     | `discover --with-cfg`: CFG block/edge counts or kinds for a branching + looping function                                              |
+| T6  | `tests/{id}_taint.rs` + `rules/taint/{id}.yaml`  | At least one source→sink path (or pack hit) with `--with-cfg --with-taint`                                                            |
+| T7  | `rgctl-tests/ecommerce-{id}/`                    | Multi-file sample with real calls across files                                                                                        |
+| T8  | `…/correctness/expected-facts.json`              | Registered in `tests/graph_correctness.rs` `PROJECTS`; `min_functions` / `min_calls_edges` (prefer exact harness symbols when stable) |
+| T9  | `tests/dashboard_ecommerce_{id}.rs`              | Release discover with dashboard harness flags; CFG index available                                                                    |
+| T10 | Field-write / Layer F golden (if CPG claimed)    | `{id}_cfg_captures_field_write_and_query` pattern in `field_write.rs` — see Tier 1 Layer F                                            |
+| T11 | Gate B cold discover (scale)                     | ~10k-file corpus entry in [AGENTS.md](../AGENTS.md) Gate B table + baseline in `tests/cold_profile_gates.rs` once numbers exist       |
 
 **Shared graph QE (no new binary required, but your fixtures must pass):**
 
-| Suite | Command | Your language is covered when… |
-|-------|---------|--------------------------------|
-| Graph correctness + invariants | `cargo test --test graph_correctness` | `ecommerce-{id}` is in `PROJECTS` and has `expected-facts.json` (`assert_graph_invariants` runs on every project) |
-| Stable-key line-shift | `cargo test --test stable_key_invariance_qe` | Language id listed in `LANGS` in that file (prepend 15 comments/blanks → `diff_snapshots` adds/removes **0** nodes/edges). **Do not** put line numbers in `qualified_name` |
-| Extraction determinism | `cargo test --test graph_determinism_qe` | Prefer a multi-file fixture; counts (and ideally `content_digest`) stable across file order / thread count |
-| Cross-feature QE | `cargo test --test cross_feature_qe` | Collision / CALLS↔blast↔CFG agreement on shared fixtures (extend if you introduce ambiguity) |
+| Suite                          | Command                                      | Your language is covered when…                                                                                                                                             |
+|--------------------------------|----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Graph correctness + invariants | `cargo test --test graph_correctness`        | `ecommerce-{id}` is in `PROJECTS` and has `expected-facts.json` (`assert_graph_invariants` runs on every project)                                                          |
+| Stable-key line-shift          | `cargo test --test stable_key_invariance_qe` | Language id listed in `LANGS` in that file (prepend 15 comments/blanks → `diff_snapshots` adds/removes **0** nodes/edges). **Do not** put line numbers in `qualified_name` |
+| Extraction determinism         | `cargo test --test graph_determinism_qe`     | Prefer a multi-file fixture; counts (and ideally `content_digest`) stable across file order / thread count                                                                 |
+| Cross-feature QE               | `cargo test --test cross_feature_qe`         | Collision / CALLS↔blast↔CFG agreement on shared fixtures (extend if you introduce ambiguity)                                                                               |
 
 ---
 
@@ -142,13 +142,13 @@ Typical pattern (see `tests/ruby_langfeatures.rs`, `tests/go_langfeatures.rs`):
 
 Schema: [rgctl-tests/correctness/SCHEMA.md](../rgctl-tests/correctness/SCHEMA.md). Policy: [QE.md](../rgctl-tests/correctness/QE.md) (required failures stay red).
 
-| Field | Guidance |
-|-------|----------|
-| `graph.min_functions` / `min_calls_edges` | Floor so empty extract fails CI |
-| `graph.exact_*` / `forbidden_edges` | Use when the harness is stable |
-| `symbols.*.exact_callees` / `exact_callers` | Prefer over soft mins for correctness harness methods |
-| `symbols.*.identity.canonical_fqn` | Must match what blast/inspect emit **today** |
-| `invariants.B*` | Enable B1/B2/B5… only when CFG/blast are wired for the language |
+| Field                                       | Guidance                                                        |
+|---------------------------------------------|-----------------------------------------------------------------|
+| `graph.min_functions` / `min_calls_edges`   | Floor so empty extract fails CI                                 |
+| `graph.exact_*` / `forbidden_edges`         | Use when the harness is stable                                  |
+| `symbols.*.exact_callees` / `exact_callers` | Prefer over soft mins for correctness harness methods           |
+| `symbols.*.identity.canonical_fqn`          | Must match what blast/inspect emit **today**                    |
+| `invariants.B*`                             | Enable B1/B2/B5… only when CFG/blast are wired for the language |
 
 After discover, `graph_correctness` also runs **`assert_graph_invariants`** (sorted unique nodes/edges, Calls endpoint legality, stable-key consistency, index bijection, digest, external stubs). If this fails, fix extraction or stub policy — do not weaken the checker for convenience.
 
@@ -258,12 +258,12 @@ Paste the commands you ran in the PR description.
 
 ## 8. Related docs
 
-| Doc | Role |
-|-----|------|
-| [tier-1-language-support.md](tier-1-language-support.md) | Capability Layers A–F + scaffold steps |
-| [contributor-checklist.md](contributor-checklist.md) | End-to-end PR hub |
-| [languages/README.md](languages/README.md) | AST coverage SSOT / website |
-| [rgctl-tests/correctness/SCHEMA.md](../rgctl-tests/correctness/SCHEMA.md) | `expected-facts.json` fields |
-| [rgctl-tests/correctness/QE.md](../rgctl-tests/correctness/QE.md) | Required-red policy |
-| [AGENTS.md](../AGENTS.md) | Gate A/B cold profiles, ingest rules |
-| [internal/integration-tests.md](internal/integration-tests.md) | Broader Tier A/B/C integration matrix |
+| Doc                                                                       | Role                                   |
+|---------------------------------------------------------------------------|----------------------------------------|
+| [tier-1-language-support.md](tier-1-language-support.md)                  | Capability Layers A–F + scaffold steps |
+| [contributor-checklist.md](contributor-checklist.md)                      | End-to-end PR hub                      |
+| [languages/README.md](languages/README.md)                                | AST coverage SSOT / website            |
+| [rgctl-tests/correctness/SCHEMA.md](../rgctl-tests/correctness/SCHEMA.md) | `expected-facts.json` fields           |
+| [rgctl-tests/correctness/QE.md](../rgctl-tests/correctness/QE.md)         | Required-red policy                    |
+| [AGENTS.md](../AGENTS.md)                                                 | Gate A/B cold profiles, ingest rules   |
+| [internal/integration-tests.md](internal/integration-tests.md)            | Broader Tier A/B/C integration matrix  |

@@ -96,16 +96,16 @@ cd dashboard && npm ci && npm run build && cd ..
 
 From [GitHub Releases](https://github.com/rgctl/rgctl/releases):
 
-| Platform | Asset pattern |
-|----------|----------------|
-| macOS Apple Silicon | `rgctl-*-aarch64-apple-darwin.tar.gz` |
-| macOS Intel | `rgctl-*-x86_64-apple-darwin.tar.gz` |
-| Linux GNU x86_64 | `rgctl-*-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux GNU ARM64 | `rgctl-*-aarch64-unknown-linux-gnu.tar.gz` |
-| Linux musl x86_64 | `rgctl-*-x86_64-unknown-linux-musl.tar.gz` |
-| Linux musl ARM64 | `rgctl-*-aarch64-unknown-linux-musl.tar.gz` |
-| Windows x86_64 | `rgctl-*-x86_64-pc-windows-msvc.zip` |
-| Windows ARM64 | `rgctl-*-aarch64-pc-windows-msvc.zip` |
+| Platform            | Asset pattern                               |
+|---------------------|---------------------------------------------|
+| macOS Apple Silicon | `rgctl-*-aarch64-apple-darwin.tar.gz`       |
+| macOS Intel         | `rgctl-*-x86_64-apple-darwin.tar.gz`        |
+| Linux GNU x86_64    | `rgctl-*-x86_64-unknown-linux-gnu.tar.gz`   |
+| Linux GNU ARM64     | `rgctl-*-aarch64-unknown-linux-gnu.tar.gz`  |
+| Linux musl x86_64   | `rgctl-*-x86_64-unknown-linux-musl.tar.gz`  |
+| Linux musl ARM64    | `rgctl-*-aarch64-unknown-linux-musl.tar.gz` |
+| Windows x86_64      | `rgctl-*-x86_64-pc-windows-msvc.zip`        |
+| Windows ARM64       | `rgctl-*-aarch64-pc-windows-msvc.zip`       |
 
 Extract and run `rgctl --version`. See [User Guide §1](user-guide.md#1-installation).
 
@@ -121,11 +121,11 @@ Extract and run `rgctl --version`. See [User Guide §1](user-guide.md#1-installa
 
 ## Naming
 
-| Thing | Name |
-|-------|------|
+| Thing                          | Name                                   |
+|--------------------------------|----------------------------------------|
 | Project / crates / GitHub repo | **rgctl** / **rgctl** (`sshaaf/rgctl`) |
-| CLI binary users run | **`rgctl`** |
-| On-disk index directory | **`.rgctl/`** |
+| CLI binary users run           | **`rgctl`**                            |
+| On-disk index directory        | **`.rgctl/`**                          |
 
 Release archives stay `rgctl-${VERSION}-${target}.tar.gz` (project name) and contain the `rgctl` binary.
 

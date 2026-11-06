@@ -14,22 +14,22 @@ Projects without this file are skipped by the graph_correctness tests.
 
 ## Top-level fields
 
-| Field | Type | Meaning |
-|-------|------|---------|
-| `schema_version` | int | Currently `1` |
-| `language` | string | Language id (`java`, `rust`, …) |
-| `project` | string | Directory name (`ecommerce-java`, …) |
-| `graph` | object | Repo-level minimums |
-| `symbols` | object | Named expected-fact entries (keys are stable ids) |
-| `invariants` | object | Cross-feature checks (B1…) |
+| Field            | Type   | Meaning                                           |
+|------------------|--------|---------------------------------------------------|
+| `schema_version` | int    | Currently `1`                                     |
+| `language`       | string | Language id (`java`, `rust`, …)                   |
+| `project`        | string | Directory name (`ecommerce-java`, …)              |
+| `graph`          | object | Repo-level minimums                               |
+| `symbols`        | object | Named expected-fact entries (keys are stable ids) |
+| `invariants`     | object | Cross-feature checks (B1…)                        |
 
 ## Severity
 
-| Value | CI behavior |
-|-------|-------------|
-| `required` | Failure → test fails |
-| `best_effort` | Reported only |
-| `unsupported` | Skipped |
+| Value         | CI behavior          |
+|---------------|----------------------|
+| `required`    | Failure → test fails |
+| `best_effort` | Reported only        |
+| `unsupported` | Skipped              |
 
 ## Symbol entry (thorough)
 
@@ -83,15 +83,15 @@ Prefer **exact** fields for harness symbols. Soft `min_*` / `*_any` remain for d
 
 ### Layers
 
-| Section | Source of truth | What we assert |
-|---------|-----------------|----------------|
-| `identity` | `blast-radius` `target` + `inspect` `symbol` | Exact function name, FQN, class, file, language |
-| `exact_callees` / `exact_callers` | GQL `CALLS` | Exact short-name sets (no extras) |
-| `blast` | `blast-radius` topology/metrics | Exact callers, impact zone, counts, score |
-| `ast` | CFG statement texts/kinds | Call sites and statement text as lowered from AST |
-| `cfg` | `inspect SYMBOL cfg` | Exact blocks, edges, edge kinds, statement text |
-| `pdg` / `dataflow` | `inspect SYMBOL pdg` | Data/control deps, node kinds/labels, data-edge variables |
-| `dom` / `dominance` | `inspect SYMBOL dom` | Block count, idom pairs |
+| Section                           | Source of truth                              | What we assert                                            |
+|-----------------------------------|----------------------------------------------|-----------------------------------------------------------|
+| `identity`                        | `blast-radius` `target` + `inspect` `symbol` | Exact function name, FQN, class, file, language           |
+| `exact_callees` / `exact_callers` | GQL `CALLS`                                  | Exact short-name sets (no extras)                         |
+| `blast`                           | `blast-radius` topology/metrics              | Exact callers, impact zone, counts, score                 |
+| `ast`                             | CFG statement texts/kinds                    | Call sites and statement text as lowered from AST         |
+| `cfg`                             | `inspect SYMBOL cfg`                         | Exact blocks, edges, edge kinds, statement text           |
+| `pdg` / `dataflow`                | `inspect SYMBOL pdg`                         | Data/control deps, node kinds/labels, data-edge variables |
+| `dom` / `dominance`               | `inspect SYMBOL dom`                         | Block count, idom pairs                                   |
 
 ### `match`
 
@@ -102,15 +102,15 @@ Used to resolve a unique function via `blast-radius` / `inspect`:
 
 ## Invariants (B)
 
-| Id | Check |
-|----|--------|
-| `B1_blast_vs_calls` | Blast `topology.direct_callers` names ≡ reverse CALLS neighbors |
-| `B2_gql_calls_nonzero` | At least one CALLS edge exists after discover |
-| `B5_inspect_cfg_present` | `inspect <symbol> cfg` returns nodes |
-| `B6_cfg_calls_subset_of_calls_edges` | Expected callees appear in both CALLS graph and CFG/AST text |
-| `B7_pdg_lines_subset_cfg` | Every PDG node line appears in CFG statements |
-| `B8_dom_blocks_match_cfg` | DOM `block_index` set ≡ CFG `block_index` set |
-| `B9_blast_target_name` | Blast `canonical_fqn` short name ≡ `match.name` |
+| Id                                   | Check                                                           |
+|--------------------------------------|-----------------------------------------------------------------|
+| `B1_blast_vs_calls`                  | Blast `topology.direct_callers` names ≡ reverse CALLS neighbors |
+| `B2_gql_calls_nonzero`               | At least one CALLS edge exists after discover                   |
+| `B5_inspect_cfg_present`             | `inspect <symbol> cfg` returns nodes                            |
+| `B6_cfg_calls_subset_of_calls_edges` | Expected callees appear in both CALLS graph and CFG/AST text    |
+| `B7_pdg_lines_subset_cfg`            | Every PDG node line appears in CFG statements                   |
+| `B8_dom_blocks_match_cfg`            | DOM `block_index` set ≡ CFG `block_index` set                   |
+| `B9_blast_target_name`               | Blast `canonical_fqn` short name ≡ `match.name`                 |
 
 ## Harness conventions
 

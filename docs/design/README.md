@@ -6,23 +6,23 @@ Engineering designs for rgctl capabilities. Each doc follows the [migration plan
 
 ## Index
 
-| Feature | Design doc | Dashboard tab |
-|---------|------------|---------------|
-| Semantic search | [semantic-search-design.md](semantic-search-design.md) | Search |
-| Blast radius | [blast-radius-design.md](blast-radius-design.md) | Blast Radius |
-| Program slicing | [program-slicing-design.md](program-slicing-design.md) | Program Slicing |
-| Taint analysis | [taint-analysis-design.md](taint-analysis-design.md) | Taint Analysis |
-| CFG | [cfg-design.md](cfg-design.md) | CFG / PDG Analysis |
-| PDG | [pdg-design.md](pdg-design.md) | Dataflow |
-| Dominance | [dominance-design.md](dominance-design.md) | Dataflow → Dominator Tree |
-| Structured query (agent CLI) | [../guides/structured-query.md](https://rgctl.io/docs/guides/structured-query/) | CLI + agent skills |
-| Community query & naming | [community-query-and-naming-plan.md](community-query-and-naming-plan.md) | Graph Visualization (legend) + `communities list` |
-| Clone detection (exact / bloom / fragment SESE+1-WL) | [clone-detection-design.md](clone-detection-design.md) | CLI-first (`rgctl clones`); dashboard optional later |
-| Hybrid CPG (two-resolution; lazy flows/slice) | [hybrid-cpg-plan.md](hybrid-cpg-plan.md) | CLI/HTTP agent-first (`cpg`); dashboard optional later |
-| Graph metrics (FastPageRank + Fast-Leiden) | [graph-metrics-design.md](graph-metrics-design.md) | Functions |
-| Migration planner | [migration-planner-design.md](migration-planner-design.md) | Migration |
-| Graph snapshot diff | [graph-diff-design.md](graph-diff-design.md) | CLI (`review check` / `diff`) |
-| CI policy checks | [ci-policy-checks-design.md](ci-policy-checks-design.md) | CLI-first (blast scores in dashboard) |
+| Feature                                              | Design doc                                                                      | Dashboard tab                                          |
+|------------------------------------------------------|---------------------------------------------------------------------------------|--------------------------------------------------------|
+| Semantic search                                      | [semantic-search-design.md](semantic-search-design.md)                          | Search                                                 |
+| Blast radius                                         | [blast-radius-design.md](blast-radius-design.md)                                | Blast Radius                                           |
+| Program slicing                                      | [program-slicing-design.md](program-slicing-design.md)                          | Program Slicing                                        |
+| Taint analysis                                       | [taint-analysis-design.md](taint-analysis-design.md)                            | Taint Analysis                                         |
+| CFG                                                  | [cfg-design.md](cfg-design.md)                                                  | CFG / PDG Analysis                                     |
+| PDG                                                  | [pdg-design.md](pdg-design.md)                                                  | Dataflow                                               |
+| Dominance                                            | [dominance-design.md](dominance-design.md)                                      | Dataflow → Dominator Tree                              |
+| Structured query (agent CLI)                         | [../guides/structured-query.md](https://rgctl.io/docs/guides/structured-query/) | CLI + agent skills                                     |
+| Community query & naming                             | [community-query-and-naming-plan.md](community-query-and-naming-plan.md)        | Graph Visualization (legend) + `communities list`      |
+| Clone detection (exact / bloom / fragment SESE+1-WL) | [clone-detection-design.md](clone-detection-design.md)                          | CLI-first (`rgctl clones`); dashboard optional later   |
+| Hybrid CPG (two-resolution; lazy flows/slice)        | [hybrid-cpg-plan.md](hybrid-cpg-plan.md)                                        | CLI/HTTP agent-first (`cpg`); dashboard optional later |
+| Graph metrics (FastPageRank + Fast-Leiden)           | [graph-metrics-design.md](graph-metrics-design.md)                              | Functions                                              |
+| Migration planner                                    | [migration-planner-design.md](migration-planner-design.md)                      | Migration                                              |
+| Graph snapshot diff                                  | [graph-diff-design.md](graph-diff-design.md)                                    | CLI (`review check` / `diff`)                          |
+| CI policy checks                                     | [ci-policy-checks-design.md](ci-policy-checks-design.md)                        | CLI-first (blast scores in dashboard)                  |
 
 ## Screenshots
 
@@ -62,9 +62,9 @@ Set `DESIGN_DOCS_SCREENSHOT_DIR` or `MIGRATION_DOCS_SCREENSHOT_DIR` to override 
 
 ## User-facing companions
 
-| Audience | Doc |
-|----------|-----|
-| Concepts | [Introduction.md](../Introduction.md) |
-| Commands | [user-guide.md](../user-guide.md) |
-| Dashboard walkthrough | [dashboard-user-guide.md](../dashboard-user-guide.md) |
-| Migration workflow | [building-migration-plan.md](../building-migration-plan.md) |
+| Audience              | Doc                                                         |
+|-----------------------|-------------------------------------------------------------|
+| Concepts              | [Introduction.md](../Introduction.md)                       |
+| Commands              | [user-guide.md](../user-guide.md)                           |
+| Dashboard walkthrough | [dashboard-user-guide.md](../dashboard-user-guide.md)       |
+| Migration workflow    | [building-migration-plan.md](../building-migration-plan.md) |

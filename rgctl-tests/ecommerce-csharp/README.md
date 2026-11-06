@@ -34,32 +34,32 @@ RGCTL=../../target/release/rgctl ../gql-verification-smoke/verify-extraction-gql
 
 Details: [rgctl-tests README](../README.md#extraction-depth-gql-verification).
 
-| Metric | Value |
-|--------|------:|
-| Files indexed | 62 |
-| Nodes | 624 |
-| Edges | 1321 |
-| Discover ms | 309 |
-| Cache MB | 1.31 |
+| Metric        | Value |
+|---------------|------:|
+| Files indexed |    62 |
+| Nodes         |   624 |
+| Edges         |  1321 |
+| Discover ms   |   309 |
+| Cache MB      |  1.31 |
 
-| Feature | Status |
-|---------|:------:|
-| discover | ✓ |
-| blast-radius | ✓ |
-| metrics | ✓ |
-| export | ✗ |
-| check | ✓ |
-| slice / taint | — / ✓ |
+| Feature       | Status |
+|---------------|:------:|
+| discover      |   ✓    |
+| blast-radius  |   ✓    |
+| metrics       |   ✓    |
+| export        |   ✗    |
+| check         |   ✓    |
+| slice / taint | — / ✓  |
 
 ### Top symbols
 
-| Symbol | Score | Callers | Impact |
-|--------|------:|--------:|-------:|
-| `GetUserCartAsync` | 40.25 | 5 | 5 |
-| `GetProductAsync` | 25.10 | 1 | 2 |
-| `InitShoppingCartForPricing` | 25.10 | 1 | 2 |
-| `GetByProductIdAsync` | 25.10 | 1 | 2 |
-| `CorrectnessLeaf` | 25.10 | 1 | 2 |
+| Symbol                       | Score | Callers | Impact |
+|------------------------------|------:|--------:|-------:|
+| `GetUserCartAsync`           | 40.25 |       5 |      5 |
+| `GetProductAsync`            | 25.10 |       1 |      2 |
+| `InitShoppingCartForPricing` | 25.10 |       1 |      2 |
+| `GetByProductIdAsync`        | 25.10 |       1 |      2 |
+| `CorrectnessLeaf`            | 25.10 |       1 |      2 |
 
 ASP.NET Core mirror of Java; Tier 1 CFG/taint/calls.
 

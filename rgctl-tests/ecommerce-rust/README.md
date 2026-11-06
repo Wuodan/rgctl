@@ -11,11 +11,11 @@ cargo run
 
 ## Environment
 
-| Variable | Default |
-|----------|---------|
-| `DATABASE_URL` | `sqlite:ecommerce.db` |
-| `JWT_SECRET` | `dev-secret-change-me` |
-| `BIND_ADDR` | `0.0.0.0:8080` |
+| Variable       | Default                |
+|----------------|------------------------|
+| `DATABASE_URL` | `sqlite:ecommerce.db`  |
+| `JWT_SECRET`   | `dev-secret-change-me` |
+| `BIND_ADDR`    | `0.0.0.0:8080`         |
 
 ## Demo data
 
@@ -42,32 +42,32 @@ RGCTL=../../target/release/rgctl ../gql-verification-smoke/verify-extraction-gql
 
 Details: [rgctl-tests README](../README.md#extraction-depth-gql-verification).
 
-| Metric | Value |
-|--------|------:|
-| Files indexed | 68 |
-| Nodes | 513 |
-| Edges | 1111 |
-| Discover ms | 307 |
-| Cache MB | 1.21 |
+| Metric        | Value |
+|---------------|------:|
+| Files indexed |    68 |
+| Nodes         |   513 |
+| Edges         |  1111 |
+| Discover ms   |   307 |
+| Cache MB      |  1.21 |
 
-| Feature | Status |
-|---------|:------:|
-| discover | ✓ |
-| blast-radius | ✓ |
-| metrics | ✓ |
-| export | ✗ |
-| check | ✓ |
-| slice / taint | ◐ / ✓ |
+| Feature       | Status |
+|---------------|:------:|
+| discover      |   ✓    |
+| blast-radius  |   ✓    |
+| metrics       |   ✓    |
+| export        |   ✗    |
+| check         |   ✓    |
+| slice / taint | ◐ / ✓  |
 
 ### Top symbols
 
-| Symbol | Score | Callers | Impact |
-|--------|------:|--------:|-------:|
-| `now_iso` | 40.35 | 6 | 7 |
-| `correctness_shared` | 40.15 | 2 | 3 |
-| `find_by_email` | 40.10 | 2 | 2 |
-| `items_for_order` | 40.10 | 2 | 2 |
-| `to_response` | 40.10 | 2 | 2 |
+| Symbol               | Score | Callers | Impact |
+|----------------------|------:|--------:|-------:|
+| `now_iso`            | 40.35 |       6 |      7 |
+| `correctness_shared` | 40.15 |       2 |      3 |
+| `find_by_email`      | 40.10 |       2 |      2 |
+| `items_for_order`    | 40.10 |       2 |      2 |
+| `to_response`        | 40.10 |       2 |      2 |
 
 Best deep-analysis reference (CFG/PDG/inspect/taint).
 

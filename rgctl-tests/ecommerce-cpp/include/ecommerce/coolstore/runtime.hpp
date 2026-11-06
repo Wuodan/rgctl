@@ -9,16 +9,17 @@ namespace ecommerce::coolstore {
 
 /** Shared in-memory CoolStore services (dual-API runtime). */
 struct CoolstoreRuntime {
-    CoolstoreProductService productService;
-    PromoService promoService;
-    ShippingService shippingService;
-    CoolstoreOrderService orderService;
-    ShoppingCartService shoppingCartService;
+  CoolstoreProductService productService;
+  PromoService promoService;
+  ShippingService shippingService;
+  CoolstoreOrderService orderService;
+  ShoppingCartService shoppingCartService;
 
-    CoolstoreRuntime()
-        : shoppingCartService(productService, promoService, shippingService, orderService) {}
+  CoolstoreRuntime()
+      : shoppingCartService(productService, promoService, shippingService,
+                            orderService) {}
 };
 
-CoolstoreRuntime& runtime();
+CoolstoreRuntime &runtime();
 
-}  // namespace ecommerce::coolstore
+} // namespace ecommerce::coolstore

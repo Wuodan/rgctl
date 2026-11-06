@@ -1,9 +1,9 @@
-const { Router } = require('express');
+const { Router } = require('express')
 
-const router = Router();
+const router = Router()
 
 router.get('/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'ecommerce-javascript' });
-});
+  res.json({ status: 'ok', service: 'ecommerce-javascript' })
+})
 
-module.exports = router;
+module.exports = router

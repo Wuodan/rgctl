@@ -38,8 +38,8 @@ find_args=(
   .
   \( -path ./.git -o -path ./target -o -path '*/node_modules/*' -o -path './rgctl-tests/*/node_modules/*' \) -prune
   -o -type f \( -name '*.rs' -o -name '*.toml' -o -name '*.md' -o -name '*.json' -o -name '*.yaml' -o -name '*.yml'
-    -o -name '*.sh' -o -name '*.py' -o -name '*.tsx' -o -name '*.ts' -o -name '*.js' -o -name '*.mjs'
-    -o -name '*.html' -o -name '*.txt' -o -name '*.tape' -o -name '*.lock' \)
+  -o -name '*.sh' -o -name '*.py' -o -name '*.tsx' -o -name '*.ts' -o -name '*.js' -o -name '*.mjs'
+  -o -name '*.html' -o -name '*.txt' -o -name '*.tape' -o -name '*.lock' \)
   -print
 )
 

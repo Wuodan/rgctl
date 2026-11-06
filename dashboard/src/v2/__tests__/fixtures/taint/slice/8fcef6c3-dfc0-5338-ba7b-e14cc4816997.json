@@ -15,13 +15,8 @@
         "label": "q = request.GET[\"id\"]",
         "kind": "Assignment",
         "block_index": 1,
-        "defined": [
-          "q"
-        ],
-        "used": [
-          "request.GET",
-          "request"
-        ]
+        "defined": ["q"],
+        "used": ["request.GET", "request"]
       },
       {
         "id": "node_1",
@@ -30,11 +25,7 @@
         "kind": "Expression",
         "block_index": 1,
         "defined": [],
-        "used": [
-          "cursor",
-          "cursor.execute",
-          "q"
-        ]
+        "used": ["cursor", "cursor.execute", "q"]
       }
     ],
     "edges": [

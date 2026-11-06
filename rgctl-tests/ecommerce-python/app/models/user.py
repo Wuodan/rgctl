@@ -1,8 +1,7 @@
-from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.database import Base
 from app.models.base import TimestampMixin
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class User(Base, TimestampMixin):
@@ -14,6 +13,10 @@ class User(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(255))
     role: Mapped[str] = mapped_column(String(50), default="customer")
 
-    cart_items = relationship("CartItem", back_populates="user", cascade="all, delete-orphan")
+    cart_items = relationship(
+        "CartItem", back_populates="user", cascade="all, delete-orphan"
+    )
     orders = relationship("Order", back_populates="user", cascade="all, delete-orphan")
-    reviews = relationship("Review", back_populates="user", cascade="all, delete-orphan")
+    reviews = relationship(
+        "Review", back_populates="user", cascade="all, delete-orphan"
+    )

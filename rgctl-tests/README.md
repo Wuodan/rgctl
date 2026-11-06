@@ -6,29 +6,29 @@ Reference **e-commerce store** applications for indexing, blast-radius, and migr
 
 Each Tier 1 language project implements the same domain:
 
-| Feature | Description |
-|---------|-------------|
-| **Users** | Register, login, JWT/session auth |
-| **Categories** | Product taxonomy |
-| **Products** | Catalog with stock and pricing |
-| **Cart** | Per-user shopping cart |
-| **Orders** | Checkout and order history |
-| **Reviews** | Product ratings and comments |
-| **Inventory** | Stock adjustments on checkout |
+| Feature        | Description                       |
+|----------------|-----------------------------------|
+| **Users**      | Register, login, JWT/session auth |
+| **Categories** | Product taxonomy                  |
+| **Products**   | Catalog with stock and pricing    |
+| **Cart**       | Per-user shopping cart            |
+| **Orders**     | Checkout and order history        |
+| **Reviews**    | Product ratings and comments      |
+| **Inventory**  | Stock adjustments on checkout     |
 
 ## Projects
 
-| Directory | Stack | Database | Run |
-|-----------|-------|----------|-----|
-| [`ecommerce-rust/`](ecommerce-rust/) | Axum + SQLx | SQLite | `cargo run` |
-| [`ecommerce-python/`](ecommerce-python/) | FastAPI + SQLAlchemy | SQLite | `uvicorn app.main:app --reload` |
-| [`ecommerce-go/`](ecommerce-go/) | Gin + GORM | SQLite | `go run ./cmd/server` |
-| [`ecommerce-java/`](ecommerce-java/) | Spring Boot + JPA | H2 (file) | `./mvnw spring-boot:run` |
-| [`ecommerce-csharp/`](ecommerce-csharp/) | ASP.NET Core + EF Core | SQLite | `dotnet run --project src/Ecommerce` |
-| [`ecommerce-c/`](ecommerce-c/) | C + SQLite (layered services/repos) | SQLite | `make` (optional) |
-| [`ecommerce-cpp/`](ecommerce-cpp/) | C++ + SQLite (classes/namespaces) | SQLite | `cmake --build build` (optional) |
-| [`ecommerce-typescript/`](ecommerce-typescript/) | Express + better-sqlite3 | SQLite | `npm run build && npm start` |
-| [`ecommerce-javascript/`](ecommerce-javascript/) | Express + better-sqlite3 | SQLite | `npm start` |
+| Directory                                        | Stack                               | Database  | Run                                  |
+|--------------------------------------------------|-------------------------------------|-----------|--------------------------------------|
+| [`ecommerce-rust/`](ecommerce-rust/)             | Axum + SQLx                         | SQLite    | `cargo run`                          |
+| [`ecommerce-python/`](ecommerce-python/)         | FastAPI + SQLAlchemy                | SQLite    | `uvicorn app.main:app --reload`      |
+| [`ecommerce-go/`](ecommerce-go/)                 | Gin + GORM                          | SQLite    | `go run ./cmd/server`                |
+| [`ecommerce-java/`](ecommerce-java/)             | Spring Boot + JPA                   | H2 (file) | `./mvnw spring-boot:run`             |
+| [`ecommerce-csharp/`](ecommerce-csharp/)         | ASP.NET Core + EF Core              | SQLite    | `dotnet run --project src/Ecommerce` |
+| [`ecommerce-c/`](ecommerce-c/)                   | C + SQLite (layered services/repos) | SQLite    | `make` (optional)                    |
+| [`ecommerce-cpp/`](ecommerce-cpp/)               | C++ + SQLite (classes/namespaces)   | SQLite    | `cmake --build build` (optional)     |
+| [`ecommerce-typescript/`](ecommerce-typescript/) | Express + better-sqlite3            | SQLite    | `npm run build && npm start`         |
+| [`ecommerce-javascript/`](ecommerce-javascript/) | Express + better-sqlite3            | SQLite    | `npm start`                          |
 
 ## Shared REST API (conceptual)
 
@@ -119,45 +119,45 @@ RGCTL=target/release/rgctl ./rgctl-tests/gql-verification-smoke/verify-extractio
 RGCTL_SKIP_EXAMPLE=1 ./rgctl-tests/gql-verification-smoke/run-all-extraction-gql.sh
 ```
 
-| Command | What the script checks |
-|---------|------------------------|
-| `blast-radius` | Primary checkout/cart symbol + CoolStore pricing symbol |
-| `metrics` | `--communities --pagerank` |
-| `communities` | `list` |
-| `inspect` | `cfg`, `pdg`, `dom` on checkout function |
-| `slice` | Backward slice + `--taint` (skipped when unsupported) |
-| `cpg` | `status`; `mutations --type ShoppingCart` (or `OrderDTO` for PHP) |
-| `semantic` | `index --embedder vocab` then `query` |
-| `export` | `--export-format json --query name:…` |
-| `check` | `--policy-file rgctl-tests/rgctl-policy.json` |
+| Command        | What the script checks                                            |
+|----------------|-------------------------------------------------------------------|
+| `blast-radius` | Primary checkout/cart symbol + CoolStore pricing symbol           |
+| `metrics`      | `--communities --pagerank`                                        |
+| `communities`  | `list`                                                            |
+| `inspect`      | `cfg`, `pdg`, `dom` on checkout function                          |
+| `slice`        | Backward slice + `--taint` (skipped when unsupported)             |
+| `cpg`          | `status`; `mutations --type ShoppingCart` (or `OrderDTO` for PHP) |
+| `semantic`     | `index --embedder vocab` then `query`                             |
+| `export`       | `--export-format json --query name:…`                             |
+| `check`        | `--policy-file rgctl-tests/rgctl-policy.json`                     |
 
 Per-language symbols and paths: [`gql-verification-smoke/rgctl-commands-config.sh`](gql-verification-smoke/rgctl-commands-config.sh). Shared runners: [`gql-verification-smoke/extraction-gql-common.sh`](gql-verification-smoke/extraction-gql-common.sh), [`gql-verification-smoke/rgctl-commands-common.sh`](gql-verification-smoke/rgctl-commands-common.sh). See [`gql-verification-smoke/README.md`](gql-verification-smoke/README.md).
 
 Fetch example corpora: `./scripts/fetch-profile-repos.sh` (see [`example/README.md`](../example/README.md)).
 
-| Language | Script | Fixture probes | Example corpus | Discover | Openspec capabilities |
-|----------|--------|----------------|----------------|----------|------------------------|
-| **C** | [`gql-verification-smoke/verify-extraction-gql-c.sh`](gql-verification-smoke/verify-extraction-gql-c.sh) | CALLS, Import, `file::symbol` FQN | `example/linux` | default | `c-include-graph`, `c-call-resolution`, `c-qualified-symbols` |
-| **C++** | [`gql-verification-smoke/verify-extraction-gql-cpp.sh`](gql-verification-smoke/verify-extraction-gql-cpp.sh) | EXTENDS, INSTANTIATES, CALLS | `example/llvm-project/clang` | `-l cpp` | `cpp-inheritance-edges`, `cpp-instantiation`, `cpp-call-resolution` |
-| **C#** | [`gql-verification-smoke/verify-extraction-gql-csharp.sh`](gql-verification-smoke/verify-extraction-gql-csharp.sh) | ANNOTATEDWITH, INSTANTIATES, CALLS, namespace FQN | `example/roslyn/src` | `-l csharp` | `csharp-annotations`, `csharp-instantiation`, `csharp-call-binding`, `csharp-namespace-fqn` |
-| **Go** | [`gql-verification-smoke/verify-extraction-gql-go.sh`](gql-verification-smoke/verify-extraction-gql-go.sh) | LF-05…LF-17 (`IMPLEMENTS`, `EXTENDS`, Import, generics) | `example/kubernetes` | `-l go -e vendor` | `docs/design/go-language-coverage.md` |
-| **Java** | [`gql-verification-smoke/verify-extraction-gql-java.sh`](gql-verification-smoke/verify-extraction-gql-java.sh) | JF-01…JF-07 (INSTANTIATES, ANNOTATED_WITH, REFERENCES, JPMS, lambda, FQN) | `example/metasfresh-4.9.8b` | `--full` | Java extraction-depth / issue #49 |
-| **JavaScript** | [`gql-verification-smoke/verify-extraction-gql-javascript.sh`](gql-verification-smoke/verify-extraction-gql-javascript.sh) | Import, EXTENDS, INSTANTIATES, CALLS, method FQN | `example/node/test` | `-l javascript` | `javascript-module-graph`, `javascript-heritage`, `javascript-call-resolution` |
-| **PHP** | [`gql-verification-smoke/verify-extraction-gql-php.sh`](gql-verification-smoke/verify-extraction-gql-php.sh) | Import, CALLS, cross-file static call; USES/ANNOTATEDWITH/INSTANTIATES (soft) | `example/magento2` (`app lib setup`) | `-l php` | `php-trait-and-imports`, `php-framework-symbols`, `php-analysis-polish` |
-| **Python** | [`gql-verification-smoke/verify-extraction-gql-python.sh`](gql-verification-smoke/verify-extraction-gql-python.sh) | Import, EXTENDS, ANNOTATEDWITH, INSTANTIATES, CALLS, method FQN | `example/home-assistant` | `-l python` | `python-module-graph`, `python-heritage`, `python-decorators`, `python-call-resolution` |
-| **Rust** | [`gql-verification-smoke/verify-extraction-gql-rust.sh`](gql-verification-smoke/verify-extraction-gql-rust.sh) | Import, IMPLEMENTS, ANNOTATEDWITH, INSTANTIATES, CALLS | `example/rust` | `-l rust` | `rust-module-graph`, `rust-trait-heritage`, `rust-attributes`, `rust-call-resolution` |
-| **Ruby** | [`gql-verification-smoke/verify-extraction-gql-ruby.sh`](gql-verification-smoke/verify-extraction-gql-ruby.sh) | Import, mixin EXTENDS/USES, INSTANTIATES, CALLS | `rgctl-tests/ecommerce-ruby` (fixture); optional `example/discourse` | `-l ruby` | `ruby-module-graph`, `ruby-mixin-heritage`, `ruby-call-resolution` |
-| **TypeScript** | [`gql-verification-smoke/verify-extraction-gql-typescript.sh`](gql-verification-smoke/verify-extraction-gql-typescript.sh) | Import, EXTENDS, IMPLEMENTS, ANNOTATEDWITH, CALLS | `example/vscode/src` | `-l typescript` | `typescript-module-graph`, `typescript-heritage`, `typescript-decorators`, `typescript-call-resolution` |
+| Language       | Script                                                                                                                     | Fixture probes                                                                | Example corpus                                                       | Discover          | Openspec capabilities                                                                                   |
+|----------------|----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|----------------------------------------------------------------------|-------------------|---------------------------------------------------------------------------------------------------------|
+| **C**          | [`gql-verification-smoke/verify-extraction-gql-c.sh`](gql-verification-smoke/verify-extraction-gql-c.sh)                   | CALLS, Import, `file::symbol` FQN                                             | `example/linux`                                                      | default           | `c-include-graph`, `c-call-resolution`, `c-qualified-symbols`                                           |
+| **C++**        | [`gql-verification-smoke/verify-extraction-gql-cpp.sh`](gql-verification-smoke/verify-extraction-gql-cpp.sh)               | EXTENDS, INSTANTIATES, CALLS                                                  | `example/llvm-project/clang`                                         | `-l cpp`          | `cpp-inheritance-edges`, `cpp-instantiation`, `cpp-call-resolution`                                     |
+| **C#**         | [`gql-verification-smoke/verify-extraction-gql-csharp.sh`](gql-verification-smoke/verify-extraction-gql-csharp.sh)         | ANNOTATEDWITH, INSTANTIATES, CALLS, namespace FQN                             | `example/roslyn/src`                                                 | `-l csharp`       | `csharp-annotations`, `csharp-instantiation`, `csharp-call-binding`, `csharp-namespace-fqn`             |
+| **Go**         | [`gql-verification-smoke/verify-extraction-gql-go.sh`](gql-verification-smoke/verify-extraction-gql-go.sh)                 | LF-05…LF-17 (`IMPLEMENTS`, `EXTENDS`, Import, generics)                       | `example/kubernetes`                                                 | `-l go -e vendor` | `docs/design/go-language-coverage.md`                                                                   |
+| **Java**       | [`gql-verification-smoke/verify-extraction-gql-java.sh`](gql-verification-smoke/verify-extraction-gql-java.sh)             | JF-01…JF-07 (INSTANTIATES, ANNOTATED_WITH, REFERENCES, JPMS, lambda, FQN)     | `example/metasfresh-4.9.8b`                                          | `--full`          | Java extraction-depth / issue #49                                                                       |
+| **JavaScript** | [`gql-verification-smoke/verify-extraction-gql-javascript.sh`](gql-verification-smoke/verify-extraction-gql-javascript.sh) | Import, EXTENDS, INSTANTIATES, CALLS, method FQN                              | `example/node/test`                                                  | `-l javascript`   | `javascript-module-graph`, `javascript-heritage`, `javascript-call-resolution`                          |
+| **PHP**        | [`gql-verification-smoke/verify-extraction-gql-php.sh`](gql-verification-smoke/verify-extraction-gql-php.sh)               | Import, CALLS, cross-file static call; USES/ANNOTATEDWITH/INSTANTIATES (soft) | `example/magento2` (`app lib setup`)                                 | `-l php`          | `php-trait-and-imports`, `php-framework-symbols`, `php-analysis-polish`                                 |
+| **Python**     | [`gql-verification-smoke/verify-extraction-gql-python.sh`](gql-verification-smoke/verify-extraction-gql-python.sh)         | Import, EXTENDS, ANNOTATEDWITH, INSTANTIATES, CALLS, method FQN               | `example/home-assistant`                                             | `-l python`       | `python-module-graph`, `python-heritage`, `python-decorators`, `python-call-resolution`                 |
+| **Rust**       | [`gql-verification-smoke/verify-extraction-gql-rust.sh`](gql-verification-smoke/verify-extraction-gql-rust.sh)             | Import, IMPLEMENTS, ANNOTATEDWITH, INSTANTIATES, CALLS                        | `example/rust`                                                       | `-l rust`         | `rust-module-graph`, `rust-trait-heritage`, `rust-attributes`, `rust-call-resolution`                   |
+| **Ruby**       | [`gql-verification-smoke/verify-extraction-gql-ruby.sh`](gql-verification-smoke/verify-extraction-gql-ruby.sh)             | Import, mixin EXTENDS/USES, INSTANTIATES, CALLS                               | `rgctl-tests/ecommerce-ruby` (fixture); optional `example/discourse` | `-l ruby`         | `ruby-module-graph`, `ruby-mixin-heritage`, `ruby-call-resolution`                                      |
+| **TypeScript** | [`gql-verification-smoke/verify-extraction-gql-typescript.sh`](gql-verification-smoke/verify-extraction-gql-typescript.sh) | Import, EXTENDS, IMPLEMENTS, ANNOTATEDWITH, CALLS                             | `example/vscode/src`                                                 | `-l typescript`   | `typescript-module-graph`, `typescript-heritage`, `typescript-decorators`, `typescript-call-resolution` |
 
 Shared helpers: [`gql-verification-smoke/extraction-gql-common.sh`](gql-verification-smoke/extraction-gql-common.sh).
 
 Environment:
 
-| Variable | Purpose |
-|----------|---------|
-| `RGCTL` | Path to `rgctl` binary (default: `target/release/rgctl`) |
-| `RGCTL_SKIP_EXAMPLE=1` | Skip example-corpus smoke phase |
-| `RGCTL_REPO` | Override discover root |
+| Variable               | Purpose                                                  |
+|------------------------|----------------------------------------------------------|
+| `RGCTL`                | Path to `rgctl` binary (default: `target/release/rgctl`) |
+| `RGCTL_SKIP_EXAMPLE=1` | Skip example-corpus smoke phase                          |
+| `RGCTL_REPO`           | Override discover root                                   |
 
 ## rgctl analysis results
 
@@ -168,7 +168,7 @@ Summary: **[rgctl-reports/REPORT.md](rgctl-reports/REPORT.md)** · [HTML](rgctl-
 ### Feature coverage (✓ ok · ◐ partial · — unsupported/n/a)
 
 | Feature | Rust | Py | Go | Java | TS | JS |
-|---------|:----:|:--:|:--:|:----:|:--:|:--:|
+| --------- | :----: | :--: | :--: | :----: | :--: | :--: |
 | discover (`--cfg`) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Dashboard | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
 | GQL queries | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -185,33 +185,33 @@ Summary: **[rgctl-reports/REPORT.md](rgctl-reports/REPORT.md)** · [HTML](rgctl-
 
 ### Index size
 
-| Project | Files | Nodes | Edges | Discover ms |
-|---------|------:|------:|------:|------------:|
-| Rust | 68 | 513 | 1111 | 307 |
-| Python | 59 | 571 | 1407 | 307 |
-| Go | 46 | 495 | 1099 | 308 |
-| Java | 66 | 993 | 2211 | 307 |
-| C# | 62 | 624 | 1321 | 309 |
-| TypeScript | 61 | 1607 | 3169 | 305 |
-| JavaScript | 60 | 1440 | 2843 | 303 |
-| C | 84 | 486 | 838 | 309 |
-| C++ | 81 | 638 | 1224 | 308 |
+| Project    | Files | Nodes | Edges | Discover ms |
+|------------|------:|------:|------:|------------:|
+| Rust       |    68 |   513 |  1111 |         307 |
+| Python     |    59 |   571 |  1407 |         307 |
+| Go         |    46 |   495 |  1099 |         308 |
+| Java       |    66 |   993 |  2211 |         307 |
+| C#         |    62 |   624 |  1321 |         309 |
+| TypeScript |    61 |  1607 |  3169 |         305 |
+| JavaScript |    60 |  1440 |  2843 |         303 |
+| C          |    84 |   486 |   838 |         309 |
+| C++        |    81 |   638 |  1224 |         308 |
 
 ### Blast radius (max score per project)
 
 Full function scan (`--blast-top N`); checkout leaf symbols often score 0.
 
-| Project | Scanned | Score > 0 | Max score | Top symbol |
-|---------|--------:|----------:|----------:|------------|
-| Rust | 68 | 21 | 40.35 | `now_iso` |
-| Python | 80 | 43 | 40.45 | `get_product_by_item_id` |
-| Go | 96 | 13 | 40.80 | `handleError` |
-| Java | 182 | 59 | 40.85 | `findByEmail` |
-| C# | 105 | 14 | 40.25 | `GetUserCartAsync` |
-| TypeScript | 88 | 19 | 40.80 | `getDb` |
-| JavaScript | 90 | 19 | 40.80 | `getDb` |
-| C | 165 | 10 | 25.15 | `seed` |
-| C++ | 110 | 11 | 25.10 | `correctnessLeaf` |
+| Project    | Scanned | Score > 0 | Max score | Top symbol               |
+|------------|--------:|----------:|----------:|--------------------------|
+| Rust       |      68 |        21 |     40.35 | `now_iso`                |
+| Python     |      80 |        43 |     40.45 | `get_product_by_item_id` |
+| Go         |      96 |        13 |     40.80 | `handleError`            |
+| Java       |     182 |        59 |     40.85 | `findByEmail`            |
+| C#         |     105 |        14 |     40.25 | `GetUserCartAsync`       |
+| TypeScript |      88 |        19 |     40.80 | `getDb`                  |
+| JavaScript |      90 |        19 |     40.80 | `getDb`                  |
+| C          |     165 |        10 |     25.15 | `seed`                   |
+| C++        |     110 |        11 |     25.10 | `correctnessLeaf`        |
 
 Per-project details: [`rgctl-reports/languages/`](rgctl-reports/languages/) · each `ecommerce-*/README.md` § **rgctl**.
 

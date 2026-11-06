@@ -12,12 +12,14 @@
    The effect was that committing the bundle could never be a no-op: every rebuild of unchanged source
    produced a diff, so every UI commit looked larger than it was and `dist-v2` appeared dirty for no
    reason. */
-@import "tailwindcss" source(none);
+@import url("tailwindcss") source(none);
+
 @source "../v2";
 @source "../../index.v2.html";
 
 :root { color-scheme: dark; }
 html, body, #root { height: 100%; }
+
 body {
   margin: 0;
   background: #0b0d10;

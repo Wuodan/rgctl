@@ -1,10 +1,10 @@
 class OrderService {
-  checkout() {
-    return new OrderDto();
+  checkout () {
+    return new OrderDto()
   }
 
-  dynamicCall(obj, key) {
-    return obj[key]();
+  dynamicCall (obj, key) {
+    return obj[key]()
   }
 }
 

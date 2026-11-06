@@ -10,12 +10,12 @@ Thanks for helping improve rgctl. This guide covers local setup, tests, and wher
 
 Pick a lane — each links to the checklist / architecture docs you will touch most:
 
-| Track | Start here |
-|-------|------------|
-| **Language Plugins & AST Coverage** | [contributor-checklist.md](docs/contributor-checklist.md) · [tier-1-language-support.md](docs/tier-1-language-support.md) · [tier-2-language-support.md](docs/tier-2-language-support.md) · [language-testing-guide.md](docs/language-testing-guide.md) · [languages/README.md](docs/languages/README.md) |
-| **Declarative Taint & Kantra Rules** | [Vulnerability and Osv Analysis](https://rgctl.io/docs/guides/vulnerability-and-osv-analysis/) · [analysis-architecture.md](docs/analysis-architecture.md) · [policy-format.md](docs/policy-format.md) |
-| **Agent Host Adapters & Skills** | [Agent Skill](https://rgctl.io/docs/guides/agent-skill/) · [`skills/rgctl/`](skills/rgctl/) · [USER_AGENTS_TEMPLATE.md](docs/agents/USER_AGENTS_TEMPLATE.md) |
-| **Graph & CPG Algorithms** | [analysis-architecture.md](docs/analysis-architecture.md) · [graph-storage-architecture.md](docs/graph-storage-architecture.md) · [Hybrid Cpg](https://rgctl.io/docs/guides/hybrid-cpg/) · [Blast Radius Analysis](https://rgctl.io/docs/guides/blast-radius-analysis/) |
+| Track                                | Start here                                                                                                                                                                                                                                                                                                |
+|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Language Plugins & AST Coverage**  | [contributor-checklist.md](docs/contributor-checklist.md) · [tier-1-language-support.md](docs/tier-1-language-support.md) · [tier-2-language-support.md](docs/tier-2-language-support.md) · [language-testing-guide.md](docs/language-testing-guide.md) · [languages/README.md](docs/languages/README.md) |
+| **Declarative Taint & Kantra Rules** | [Vulnerability and Osv Analysis](https://rgctl.io/docs/guides/vulnerability-and-osv-analysis/) · [analysis-architecture.md](docs/analysis-architecture.md) · [policy-format.md](docs/policy-format.md)                                                                                                    |
+| **Agent Host Adapters & Skills**     | [Agent Skill](https://rgctl.io/docs/guides/agent-skill/) · [`skills/rgctl/`](skills/rgctl/) · [USER_AGENTS_TEMPLATE.md](docs/agents/USER_AGENTS_TEMPLATE.md)                                                                                                                                              |
+| **Graph & CPG Algorithms**           | [analysis-architecture.md](docs/analysis-architecture.md) · [graph-storage-architecture.md](docs/graph-storage-architecture.md) · [Hybrid Cpg](https://rgctl.io/docs/guides/hybrid-cpg/) · [Blast Radius Analysis](https://rgctl.io/docs/guides/blast-radius-analysis/)                                   |
 
 ---
 
@@ -61,11 +61,11 @@ cargo build -p rgctl-wasm --target wasm32-unknown-unknown --release
 
 GitHub Actions CI does **not** run automatically on every PR, and heavy QE/perf suites are split into separate manual workflows (`ci-qe.yml` and `ci-perf.yml`) and disabled on PRs to conserve Actions minutes:
 
-| Workflow | What it runs | How to trigger |
-|----------|--------------|----------------|
-| [`.github/workflows/ci-lint.yml`](.github/workflows/ci-lint.yml) | Commit policy, `cargo fmt`, `cargo check`, `cargo clippy (--all-targets)` | Label **`ci:lint`** or **`ci`** on PR (or Actions → Run workflow) |
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Workspace `--lib --bins` unit tests + fast core integration tests | Label **`ci:test`** or **`ci`** on PR (or Actions → Run workflow) |
-| [`.github/workflows/ci-qe.yml`](.github/workflows/ci-qe.yml) | Heavy QE/E2E suites + `RGCTL_AST_COVERAGE_TRACK=1` *(disabled on PRs)* | Manual only (Actions → Run workflow) or `./scripts/preflight-pr.sh --qe` |
+| Workflow                                                         | What it runs                                                                                | How to trigger                                                             |
+|------------------------------------------------------------------|---------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`.github/workflows/ci-lint.yml`](.github/workflows/ci-lint.yml) | Commit policy, `cargo fmt`, `cargo check`, `cargo clippy (--all-targets)`                   | Label **`ci:lint`** or **`ci`** on PR (or Actions → Run workflow)          |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml)           | Workspace `--lib --bins` unit tests + fast core integration tests                           | Label **`ci:test`** or **`ci`** on PR (or Actions → Run workflow)          |
+| [`.github/workflows/ci-qe.yml`](.github/workflows/ci-qe.yml)     | Heavy QE/E2E suites + `RGCTL_AST_COVERAGE_TRACK=1` *(disabled on PRs)*                      | Manual only (Actions → Run workflow) or `./scripts/preflight-pr.sh --qe`   |
 | [`.github/workflows/ci-perf.yml`](.github/workflows/ci-perf.yml) | `--release` CLI golden paths, scale/perf gates & `cargo bench --no-run` *(disabled on PRs)* | Manual only (Actions → Run workflow) or `./scripts/preflight-pr.sh --perf` |
 
 ### Local pre-flight PR check (`./scripts/preflight-pr.sh`)
@@ -122,15 +122,15 @@ DASHBOARD_URL=http://127.0.0.1:8765/ node scripts/test-guide-cli.mjs
 
 ## Project layout (short)
 
-| Area | Path |
-|------|------|
-| CLI entry | `src/cli/` |
-| Analysis (CFG, PDG, taint) | `crates/rgctl-analysis/` |
-| Graph storage | `crates/rgctl-graph/` |
-| Dashboard export | `crates/rgctl-dashboard/` |
-| Browser UI | `dashboard/src/` |
-| WASM engine | `crates/rgctl-wasm/` |
-| Language plugins | `crates/rgctl-lang-*/` |
+| Area                       | Path                      |
+|----------------------------|---------------------------|
+| CLI entry                  | `src/cli/`                |
+| Analysis (CFG, PDG, taint) | `crates/rgctl-analysis/`  |
+| Graph storage              | `crates/rgctl-graph/`     |
+| Dashboard export           | `crates/rgctl-dashboard/` |
+| Browser UI                 | `dashboard/src/`          |
+| WASM engine                | `crates/rgctl-wasm/`      |
+| Language plugins           | `crates/rgctl-lang-*/`    |
 
 Full map: [docs/Code_structure.md](docs/Code_structure.md)
 

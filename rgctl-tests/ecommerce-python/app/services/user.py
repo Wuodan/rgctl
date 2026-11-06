@@ -1,8 +1,7 @@
-from sqlalchemy.orm import Session
-
 from app.exceptions import NotFoundError
 from app.repositories.user import UserRepository
 from app.schemas.user import UserResponse, UserUpdateRequest
+from sqlalchemy.orm import Session
 
 
 class UserService:

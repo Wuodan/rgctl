@@ -8,16 +8,16 @@ Writes:
   .reports/sq-field-results.jsonl
   .reports/multi-language-structured-query-field-report.md
 """
+
 from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import subprocess
 import sys
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Optional
 
@@ -214,7 +214,12 @@ def extract_json(text: str) -> Optional[Any]:
                         break
     # Plain count-only integer
     if re.fullmatch(r"-?\d+", text.splitlines()[-1].strip() if text else ""):
-        return {"returned": int(text.splitlines()[-1].strip()), "total": int(text.splitlines()[-1].strip()), "schema_version": 1, "count_only": True}
+        return {
+            "returned": int(text.splitlines()[-1].strip()),
+            "total": int(text.splitlines()[-1].strip()),
+            "schema_version": 1,
+            "count_only": True,
+        }
     return None
 
 
@@ -248,7 +253,9 @@ class ProbeResult:
     extra: Optional[dict] = None
 
 
-def run_rgctl(cwd: Path, args: list[str], timeout: int = 600) -> tuple[int, str, str, float]:
+def run_rgctl(
+    cwd: Path, args: list[str], timeout: int = 600
+) -> tuple[int, str, str, float]:
     cmd = [str(RGCTL), "-f", "json", *args]
     t0 = time.perf_counter()
     try:
@@ -263,8 +270,16 @@ def run_rgctl(cwd: Path, args: list[str], timeout: int = 600) -> tuple[int, str,
         return p.returncode, p.stdout, p.stderr, wall
     except subprocess.TimeoutExpired as e:
         wall = time.perf_counter() - t0
-        out = (e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or "")
-        err = (e.stderr or b"").decode() if isinstance(e.stderr, bytes) else (e.stderr or "")
+        out = (
+            (e.stdout or b"").decode()
+            if isinstance(e.stdout, bytes)
+            else (e.stdout or "")
+        )
+        err = (
+            (e.stderr or b"").decode()
+            if isinstance(e.stderr, bytes)
+            else (e.stderr or "")
+        )
         return 124, out, err + "\nTIMEOUT", wall
 
 
@@ -311,7 +326,9 @@ def probe(
             returned = data.get("returned")
             total = data.get("total")
             if returned is None and "counts" in data:
-                extra["nonzero"] = sum(1 for c in data["counts"] if c.get("count", 0) > 0)
+                extra["nonzero"] = sum(
+                    1 for c in data["counts"] if c.get("count", 0) > 0
+                )
                 extra["keys"] = len(data["counts"])
             if expect_total_gt is not None:
                 t = total if total is not None else 0
@@ -330,7 +347,18 @@ def probe(
     detail = "; ".join(detail_parts) if detail_parts else ("pass" if ok else "fail")
     if returned is not None or total is not None:
         detail = f"returned={returned} total={total}; {detail}"
-    return ProbeResult(lang, probe_id, [str(RGCTL), "-f", "json", *args], ok, code, wall, detail, returned, total, extra or None)
+    return ProbeResult(
+        lang,
+        probe_id,
+        [str(RGCTL), "-f", "json", *args],
+        ok,
+        code,
+        wall,
+        detail,
+        returned,
+        total,
+        extra or None,
+    )
 
 
 def has_snapshot(path: Path) -> bool:
@@ -340,12 +368,22 @@ def has_snapshot(path: Path) -> bool:
 def ensure_discover(lang: str, cfg: dict[str, Any], force: bool = False) -> ProbeResult:
     path: Path = cfg["path"]
     if not path.is_dir():
-        return ProbeResult(lang, "DISCOVER", [], False, 2, 0.0, f"corpus missing: {path}")
+        return ProbeResult(
+            lang, "DISCOVER", [], False, 2, 0.0, f"corpus missing: {path}"
+        )
     if has_snapshot(path) and not force and not cfg.get("rediscover"):
         return ProbeResult(lang, "DISCOVER", [], True, 0, 0.0, "reuse warm snapshot")
     if has_snapshot(path) and cfg.get("rediscover") and not force:
         # still allow warm pass; rediscover flagged separately
-        return ProbeResult(lang, "DISCOVER", [], True, 0, 0.0, "warm snapshot present (rediscover deferred)")
+        return ProbeResult(
+            lang,
+            "DISCOVER",
+            [],
+            True,
+            0,
+            0.0,
+            "warm snapshot present (rediscover deferred)",
+        )
     args = cfg["discover"]
     print(f"[{lang}] discovering: {' '.join(args)}", flush=True)
     t0 = time.perf_counter()
@@ -369,20 +407,40 @@ def ensure_discover(lang: str, cfg: dict[str, Any], force: bool = False) -> Prob
     )
 
 
-def run_lang(lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover: bool) -> list[ProbeResult]:
+def run_lang(
+    lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover: bool
+) -> list[ProbeResult]:
     path: Path = cfg["path"]
     results: list[ProbeResult] = []
     if not path.is_dir():
-        results.append(ProbeResult(lang, "SKIP", [], False, 0, 0.0, f"corpus absent: {path}"))
+        results.append(
+            ProbeResult(lang, "SKIP", [], False, 0, 0.0, f"corpus absent: {path}")
+        )
         return results
 
     if do_discover or (force_rediscover and cfg.get("rediscover")):
-        results.append(ensure_discover(lang, cfg, force=force_rediscover and bool(cfg.get("rediscover"))))
+        results.append(
+            ensure_discover(
+                lang, cfg, force=force_rediscover and bool(cfg.get("rediscover"))
+            )
+        )
     elif not has_snapshot(path):
-        results.append(ProbeResult(lang, "SKIP", [], False, 0, 0.0, "no snapshot; cold discover not requested"))
+        results.append(
+            ProbeResult(
+                lang,
+                "SKIP",
+                [],
+                False,
+                0,
+                0.0,
+                "no snapshot; cold discover not requested",
+            )
+        )
         return results
     else:
-        results.append(ProbeResult(lang, "DISCOVER", [], True, 0, 0.0, "reuse warm snapshot"))
+        results.append(
+            ProbeResult(lang, "DISCOVER", [], True, 0, 0.0, "reuse warm snapshot")
+        )
 
     if not has_snapshot(path):
         return results
@@ -392,19 +450,57 @@ def run_lang(lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover
         results.append(probe(lang, f"A-{by}", path, ["inventory", "--by", by]))
 
     # B find
-    results.append(probe(lang, "B1", path, ["find", "--type", "function", "--count-only"]))
-    results.append(probe(lang, "B2", path, ["find", "--type", cfg["find_type"], "--count-only"]))
-    results.append(probe(lang, "B4", path, ["find", cfg["find_pat"], "--type", cfg["find_type"], "--limit", "20"]))
+    results.append(
+        probe(lang, "B1", path, ["find", "--type", "function", "--count-only"])
+    )
+    results.append(
+        probe(lang, "B2", path, ["find", "--type", cfg["find_type"], "--count-only"])
+    )
+    results.append(
+        probe(
+            lang,
+            "B4",
+            path,
+            ["find", cfg["find_pat"], "--type", cfg["find_type"], "--limit", "20"],
+        )
+    )
     results.append(probe(lang, "B5", path, ["find", cfg["find_pat"], "--limit", "20"]))
-    results.append(probe(lang, "B6", path, ["find", "--type", "import", "--count-only"]))
-    results.append(probe(lang, "B10", path, ["find", "--type", "not_a_real_type"], expect_ok=False, check_schema=False))
-    results.append(probe(lang, "B11", path, ["query", "find", cfg["find_pat"], "--limit", "5"]))
+    results.append(
+        probe(lang, "B6", path, ["find", "--type", "import", "--count-only"])
+    )
+    results.append(
+        probe(
+            lang,
+            "B10",
+            path,
+            ["find", "--type", "not_a_real_type"],
+            expect_ok=False,
+            check_schema=False,
+        )
+    )
+    results.append(
+        probe(lang, "B11", path, ["query", "find", cfg["find_pat"], "--limit", "5"])
+    )
 
     # C scope
     scope = cfg.get("scope")
     if scope:
         expect = 0  # just complete; mark soft
-        r = probe(lang, "C-scope", path, ["find", cfg["find_pat"], "--type", cfg["find_type"], "--scope", scope, "--limit", "10"])
+        r = probe(
+            lang,
+            "C-scope",
+            path,
+            [
+                "find",
+                cfg["find_pat"],
+                "--type",
+                cfg["find_type"],
+                "--scope",
+                scope,
+                "--limit",
+                "10",
+            ],
+        )
         # Soft pass: command ok; note if total==0
         if r.ok and (r.total or 0) == 0:
             r.detail += "; WARN total=0 (scope miss?)"
@@ -414,7 +510,16 @@ def run_lang(lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover
             lang,
             "C-scope-alt",
             path,
-            ["find", cfg["find_pat"], "--type", cfg["find_type"], "--scope", cfg["scope_alt"], "--limit", "10"],
+            [
+                "find",
+                cfg["find_pat"],
+                "--type",
+                cfg["find_type"],
+                "--scope",
+                cfg["scope_alt"],
+                "--limit",
+                "10",
+            ],
         )
         if r.ok and (r.total or 0) == 0:
             r.detail += "; WARN total=0"
@@ -447,7 +552,14 @@ def run_lang(lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover
 
         if seed_file:
             base = Path(seed_file).name
-            results.append(probe(lang, "C5-file-basename", path, ["find", "*", "--file", base, "--limit", "5"]))
+            results.append(
+                probe(
+                    lang,
+                    "C5-file-basename",
+                    path,
+                    ["find", "*", "--file", base, "--limit", "5"],
+                )
+            )
             # Path-segment scope from file path (Go/TS style)
             parts = Path(seed_file).parts
             if len(parts) >= 2:
@@ -456,20 +568,42 @@ def run_lang(lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover
                     lang,
                     "C-scope-from-file",
                     path,
-                    ["find", "*", "--type", cfg["find_type"], "--scope", seg, "--limit", "10"],
+                    [
+                        "find",
+                        "*",
+                        "--type",
+                        cfg["find_type"],
+                        "--scope",
+                        seg,
+                        "--limit",
+                        "10",
+                    ],
                 )
                 if r.ok and (r.total or 0) == 0:
                     r.detail += "; WARN total=0"
                 results.append(r)
 
     if seed:
-        results.append(probe(lang, "B3-exact", path, ["find", seed, "--exact", "--limit", "5"]))
+        results.append(
+            probe(lang, "B3-exact", path, ["find", seed, "--exact", "--limit", "5"])
+        )
         # Prefer basename --file for disambiguation (full paths often still collide on name).
         file_flag = Path(seed_file).name if seed_file else None
         call_args = ["callers", seed, "--depth", "1", "--limit", "20"]
         callee_args = ["callees", seed, "--depth", "1", "--limit", "20"]
         call2_args = ["callers", seed, "--depth", "2", "--limit", "20"]
-        rel_args = ["relations", seed, "--edge", "calls", "--direction", "out", "--depth", "1", "--limit", "20"]
+        rel_args = [
+            "relations",
+            seed,
+            "--edge",
+            "calls",
+            "--direction",
+            "out",
+            "--depth",
+            "1",
+            "--limit",
+            "20",
+        ]
         if file_flag:
             call_args += ["--file", file_flag]
             callee_args += ["--file", file_flag]
@@ -480,7 +614,9 @@ def run_lang(lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover
         results.append(probe(lang, "D3-callers-d2", path, call2_args))
         results.append(probe(lang, "E7-seeded", path, rel_args))
         # D4: without --file — ambiguous error OR unique resolve both acceptable
-        code_d4, out_d4, err_d4, wall_d4 = run_rgctl(path, ["callers", seed, "--depth", "1", "--limit", "5"])
+        code_d4, out_d4, err_d4, wall_d4 = run_rgctl(
+            path, ["callers", seed, "--depth", "1", "--limit", "5"]
+        )
         d4_ok = code_d4 != 0 and "Ambiguous" in (err_d4 + out_d4) or code_d4 == 0
         results.append(
             ProbeResult(
@@ -494,9 +630,20 @@ def run_lang(lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover
             )
         )
     else:
-        results.append(ProbeResult(lang, "SEED", [], False, 0, 0.0, "no seed symbol from find"))
+        results.append(
+            ProbeResult(lang, "SEED", [], False, 0, 0.0, "no seed symbol from find")
+        )
 
-    results.append(probe(lang, "D5-missing", path, ["callers", "__no_such_symbol_zz__"], expect_ok=False, check_schema=False))
+    results.append(
+        probe(
+            lang,
+            "D5-missing",
+            path,
+            ["callers", "__no_such_symbol_zz__"],
+            expect_ok=False,
+            check_schema=False,
+        )
+    )
 
     # E relations seedless
     for edge, pid in (
@@ -506,7 +653,9 @@ def run_lang(lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover
         ("annotatedwith", "E4"),
         ("instantiates", "E6"),
     ):
-        results.append(probe(lang, pid, path, ["relations", "--edge", edge, "--limit", "20"]))
+        results.append(
+            probe(lang, pid, path, ["relations", "--edge", edge, "--limit", "20"])
+        )
     results.append(
         probe(
             lang,
@@ -525,14 +674,33 @@ def run_lang(lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover
             ],
         )
     )
-    results.append(probe(lang, "E8", path, ["relations", "--edge", "not_a_real_edge"], expect_ok=False, check_schema=False))
+    results.append(
+        probe(
+            lang,
+            "E8",
+            path,
+            ["relations", "--edge", "not_a_real_edge"],
+            expect_ok=False,
+            check_schema=False,
+        )
+    )
     if scope:
         results.append(
             probe(
                 lang,
                 "E9",
                 path,
-                ["relations", "--edge", "extends", "--scope", scope, "--scope-mode", "inside", "--limit", "20"],
+                [
+                    "relations",
+                    "--edge",
+                    "extends",
+                    "--scope",
+                    scope,
+                    "--scope-mode",
+                    "inside",
+                    "--limit",
+                    "20",
+                ],
             )
         )
         results.append(
@@ -540,7 +708,17 @@ def run_lang(lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover
                 lang,
                 "C6-crossing",
                 path,
-                ["relations", "--edge", "calls", "--scope", scope, "--scope-mode", "crossing", "--limit", "20"],
+                [
+                    "relations",
+                    "--edge",
+                    "calls",
+                    "--scope",
+                    scope,
+                    "--scope-mode",
+                    "crossing",
+                    "--limit",
+                    "20",
+                ],
             )
         )
 
@@ -560,14 +738,40 @@ def run_lang(lang: str, cfg: dict[str, Any], do_discover: bool, force_rediscover
             notes.append("WARN typealias=0 (need re-discover?)")
     if lang == "groovy" and cm.get("annotation", 0) == 0:
         notes.append("WARN annotation nodes=0 (usage edges may still exist)")
-    detail = f"types_top={sorted(cm.items(), key=lambda x:-x[1])[:5]}; edges_top={sorted(em.items(), key=lambda x:-x[1])[:5]}; " + "; ".join(notes)
+    detail = (
+        f"types_top={sorted(cm.items(), key=lambda x:-x[1])[:5]}; edges_top={sorted(em.items(), key=lambda x:-x[1])[:5]}; "
+        + "; ".join(notes)
+    )
     ok_f = "FAIL" not in detail
-    results.append(ProbeResult(lang, "F-extract", ["inventory"], ok_f, 0, wall + wall2, detail, extra={"types": cm, "edges": em}))
+    results.append(
+        ProbeResult(
+            lang,
+            "F-extract",
+            ["inventory"],
+            ok_f,
+            0,
+            wall + wall2,
+            detail,
+            extra={"types": cm, "edges": em},
+        )
+    )
 
     # G latency on java
     if cfg.get("latency") and seed:
         for pid, args in (
-            ("G1-find-scope", ["find", cfg["find_pat"], "--type", cfg["find_type"], "--scope", scope, "--limit", "50"]),
+            (
+                "G1-find-scope",
+                [
+                    "find",
+                    cfg["find_pat"],
+                    "--type",
+                    cfg["find_type"],
+                    "--scope",
+                    scope,
+                    "--limit",
+                    "50",
+                ],
+            ),
             (
                 "G2-anno",
                 [
@@ -608,7 +812,7 @@ def write_report(all_results: list[ProbeResult]) -> None:
     lines = [
         "# Multi-language structured-query field report",
         "",
-        f"Generated from OpenSpec [test-plan-multi-language.md](../openspec/changes/add-structured-query-cli/test-plan-multi-language.md).",
+        "Generated from OpenSpec [test-plan-multi-language.md](../openspec/changes/add-structured-query-cli/test-plan-multi-language.md).",
         f"Binary: `{RGCTL}` (`rgctl` release).",
         f"Probes: {len(all_results)}; languages: {len(by_lang)}.",
         "",
@@ -627,7 +831,12 @@ def write_report(all_results: list[ProbeResult]) -> None:
 
     lines += ["", "## Per-language probes", ""]
     for lang, rows in sorted(by_lang.items()):
-        lines += [f"### {lang}", "", "| ID | OK | wall_s | detail |", "|----|----|--------|--------|"]
+        lines += [
+            f"### {lang}",
+            "",
+            "| ID | OK | wall_s | detail |",
+            "|----|----|--------|--------|",
+        ]
         for r in rows:
             mark = "✅" if r.ok else "❌"
             det = r.detail.replace("|", "\\|")[:180]
@@ -640,7 +849,9 @@ def write_report(all_results: list[ProbeResult]) -> None:
         lines.append("None.")
     else:
         for r in fails:
-            lines.append(f"- **{r.lang}/{r.probe_id}**: {r.detail} — `{' '.join(r.cmd[-6:])}`")
+            lines.append(
+                f"- **{r.lang}/{r.probe_id}**: {r.detail} — `{' '.join(r.cmd[-6:])}`"
+            )
     lines.append("")
     MD.write_text("\n".join(lines))
     print(f"Wrote {JSONL} and {MD}", flush=True)
@@ -650,14 +861,20 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--phase", choices=("warm", "cold", "all"), default="warm")
     ap.add_argument("--lang", default="", help="comma-separated language filter")
-    ap.add_argument("--discover", action="store_true", help="run discover when snapshot missing")
-    ap.add_argument("--rediscover", action="store_true", help="force re-discover for flagged langs")
+    ap.add_argument(
+        "--discover", action="store_true", help="run discover when snapshot missing"
+    )
+    ap.add_argument(
+        "--rediscover", action="store_true", help="force re-discover for flagged langs"
+    )
     args = ap.parse_args()
     if not RGCTL.is_file():
         print(f"missing release binary: {RGCTL}", file=sys.stderr)
         return 2
 
-    langs = [x.strip() for x in args.lang.split(",") if x.strip()] or list(CORPORA.keys())
+    langs = [x.strip() for x in args.lang.split(",") if x.strip()] or list(
+        CORPORA.keys()
+    )
     all_results: list[ProbeResult] = []
     for lang in langs:
         cfg = CORPORA.get(lang)
@@ -666,16 +883,28 @@ def main() -> int:
             continue
         phase = cfg.get("phase", "warm")
         if args.phase == "warm" and phase != "warm":
-            all_results.append(ProbeResult(lang, "SKIP", [], True, 0, 0.0, f"phase={phase}; skipped in warm"))
+            all_results.append(
+                ProbeResult(
+                    lang, "SKIP", [], True, 0, 0.0, f"phase={phase}; skipped in warm"
+                )
+            )
             continue
         if args.phase == "cold" and phase != "cold":
             continue
         if cfg.get("optional") and args.phase != "all":
-            all_results.append(ProbeResult(lang, "SKIP", [], True, 0, 0.0, "optional corpus; use --phase all"))
+            all_results.append(
+                ProbeResult(
+                    lang, "SKIP", [], True, 0, 0.0, "optional corpus; use --phase all"
+                )
+            )
             continue
         print(f"=== {lang} ===", flush=True)
         need_discover = args.discover or not has_snapshot(cfg["path"])
-        all_results.extend(run_lang(lang, cfg, do_discover=need_discover, force_rediscover=args.rediscover))
+        all_results.extend(
+            run_lang(
+                lang, cfg, do_discover=need_discover, force_rediscover=args.rediscover
+            )
+        )
 
     write_report(all_results)
     hard_fails = [r for r in all_results if not r.ok and r.probe_id not in ("SKIP",)]

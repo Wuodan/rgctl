@@ -11,8 +11,11 @@ cd "$ROOT"
 fail=0
 
 step() { printf '\n==> %s\n' "$1"; }
-ok()   { printf '  ok   %s\n' "$1"; }
-bad()  { printf '  FAIL %s\n' "$1"; fail=1; }
+ok() { printf '  ok   %s\n' "$1"; }
+bad() {
+  printf '  FAIL %s\n' "$1"
+  fail=1
+}
 
 step "cargo: dashboard crate"
 if cargo test -p rgctl-dashboard 2>&1 | tail -3 | grep -q "test result: ok"; then
@@ -67,10 +70,11 @@ fi
 step "offline gate: no external resource references"
 offline_check() {
   local dir="$1" label="$2" hits
-  hits=$( { grep -ohE '(src|href)="https?://[^"]+"' "$dir"/index.html 2>/dev/null || true
-            grep -ohE 'url\((https?:)?//[^)]+\)' "$dir"/assets/*.css 2>/dev/null || true
-            grep -ohE 'from"https?://[^"]+"|import"https?://[^"]+"' "$dir"/assets/*.js 2>/dev/null || true
-          } | sort -u )
+  hits=$({
+    grep -ohE '(src|href)="https?://[^"]+"' "$dir"/index.html 2>/dev/null || true
+    grep -ohE 'url\((https?:)?//[^)]+\)' "$dir"/assets/*.css 2>/dev/null || true
+    grep -ohE 'from"https?://[^"]+"|import"https?://[^"]+"' "$dir"/assets/*.js 2>/dev/null || true
+  } | sort -u)
   if [[ -z "$hits" ]]; then
     ok "$label loads no external origin"
   else
@@ -82,7 +86,7 @@ offline_check dashboard/dist v1
 offline_check dashboard/dist-v2 v2
 
 printf '\n'
-if (( fail )); then
+if ((fail)); then
   echo "dashboard gates: FAILED"
   exit 1
 fi

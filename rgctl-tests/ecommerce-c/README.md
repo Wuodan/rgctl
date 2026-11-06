@@ -31,32 +31,32 @@ RGCTL=../../target/release/rgctl ../gql-verification-smoke/verify-extraction-gql
 
 Details: [rgctl-tests README](../README.md#extraction-depth-gql-verification).
 
-| Metric | Value |
-|--------|------:|
-| Files indexed | 84 |
-| Nodes | 486 |
-| Edges | 838 |
-| Discover ms | 309 |
-| Cache MB | 0.92 |
+| Metric        | Value |
+|---------------|------:|
+| Files indexed |    84 |
+| Nodes         |   486 |
+| Edges         |   838 |
+| Discover ms   |   309 |
+| Cache MB      |  0.92 |
 
-| Feature | Status |
-|---------|:------:|
-| discover | ✓ |
-| blast-radius | ✓ |
-| metrics | ✓ |
-| export | ✗ |
-| check | ✓ |
-| slice / taint | — / ✓ |
+| Feature       | Status |
+|---------------|:------:|
+| discover      |   ✓    |
+| blast-radius  |   ✓    |
+| metrics       |   ✓    |
+| export        |   ✗    |
+| check         |   ✓    |
+| slice / taint | — / ✓  |
 
 ### Top symbols
 
-| Symbol | Score | Callers | Impact |
-|--------|------:|--------:|-------:|
-| `seed` | 25.15 | 1 | 3 |
-| `correctness_leaf` | 25.10 | 1 | 2 |
-| `init_shopping_cart_for_pricing` | 25.10 | 1 | 2 |
-| `round2` | 25.05 | 1 | 1 |
-| `is_post` | 25.05 | 1 | 1 |
+| Symbol                           | Score | Callers | Impact |
+|----------------------------------|------:|--------:|-------:|
+| `seed`                           | 25.15 |       1 |      3 |
+| `correctness_leaf`               | 25.10 |       1 |      2 |
+| `init_shopping_cart_for_pricing` | 25.10 |       1 |      2 |
+| `round2`                         | 25.05 |       1 |      1 |
+| `is_post`                        | 25.05 |       1 |      1 |
 
 C fixture with CoolStore /services cart pricing mutations.
 

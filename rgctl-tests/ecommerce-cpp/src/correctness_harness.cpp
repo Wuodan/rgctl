@@ -1,6 +1,7 @@
 // Intentional call graph for rgctl expected-facts checks.
 // Avoid intermediate locals that some extractors mis-label as callers.
-// Definitions only in this .cpp (no header prototypes) to avoid ambiguous symbols.
+// Definitions only in this .cpp (no header prototypes) to avoid ambiguous
+// symbols.
 
 namespace ecommerce {
 namespace correctness {
@@ -16,5 +17,5 @@ int correctnessRoot(bool flag) {
   return correctnessMid();
 }
 
-}  // namespace correctness
-}  // namespace ecommerce
+} // namespace correctness
+} // namespace ecommerce

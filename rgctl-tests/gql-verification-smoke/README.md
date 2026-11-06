@@ -24,10 +24,10 @@ RGCTL_SKIP_EXAMPLE=1 ./rgctl-tests/gql-verification-smoke/run-all-extraction-gql
 
 ## Layout
 
-| File | Role |
-|------|------|
-| `verify-extraction-gql-<lang>.sh` | Per-language GQL + command smoke |
-| `run-all-extraction-gql.sh` | Run all languages |
-| `extraction-gql-common.sh` | GQL helpers |
-| `rgctl-commands-common.sh` | Command-suite runner |
-| `rgctl-commands-config.sh` | Per-language symbols and discover flags |
+| File                              | Role                                    |
+|-----------------------------------|-----------------------------------------|
+| `verify-extraction-gql-<lang>.sh` | Per-language GQL + command smoke        |
+| `run-all-extraction-gql.sh`       | Run all languages                       |
+| `extraction-gql-common.sh`        | GQL helpers                             |
+| `rgctl-commands-common.sh`        | Command-suite runner                    |
+| `rgctl-commands-config.sh`        | Per-language symbols and discover flags |

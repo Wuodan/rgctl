@@ -3,5 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int handle_product(sqlite3 *db, const char *query) { (void)query; return 0; }
-
+int handle_product(sqlite3 *db, const char *query) {
+  (void)query;
+  return 0;
+}

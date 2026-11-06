@@ -1,8 +1,8 @@
-@import "bootstrap/dist/css/bootstrap.min.css";
-@import "bootstrap-icons/font/bootstrap-icons.css";
+@import url("bootstrap/dist/css/bootstrap.min.css");
+@import url("bootstrap-icons/font/bootstrap-icons.css");
 
 :root {
-  --rb-graph-canvas: #ffffff;
+  --rb-graph-canvas: #fff;
   --rb-stat-blue: #0d6efd;
 }
 
@@ -95,7 +95,7 @@ body {
   max-height: 40vh;
 }
 
-@media (min-width: 992px) {
+@media (width >= 992px) {
   .cfg-dom-col {
     width: 34%;
     max-height: none;
@@ -161,7 +161,7 @@ body {
   flex-direction: column;
 }
 
-@media (min-width: 992px) {
+@media (width >= 992px) {
   .analysis-graph-stage {
     flex-direction: row;
   }
@@ -184,7 +184,7 @@ body {
   flex-direction: column;
 }
 
-@media (min-width: 992px) {
+@media (width >= 992px) {
   .analysis-graph-side {
     width: 34%;
     max-width: 420px;
@@ -235,11 +235,11 @@ body {
 }
 
 .slice-editor-host .cm-slice-line {
-  background: rgba(13, 110, 253, 0.1);
+  background: rgb(13 110 253 / 10%);
 }
 
 .slice-editor-host .cm-slice-criterion {
-  background: rgba(25, 135, 84, 0.18);
+  background: rgb(25 135 84 / 18%);
 }
 
 .kantra-snippet-editor-host .cm-editor {
@@ -252,19 +252,19 @@ body {
 }
 
 .kantra-snippet-editor-host .cm-kantra-line-mandatory {
-  background: rgba(220, 53, 69, 0.22);
+  background: rgb(220 53 69 / 22%);
 }
 
 .kantra-snippet-editor-host .cm-kantra-line-potential {
-  background: rgba(255, 193, 7, 0.28);
+  background: rgb(255 193 7 / 28%);
 }
 
 .kantra-snippet-editor-host .cm-kantra-line-optional {
-  background: rgba(13, 202, 240, 0.2);
+  background: rgb(13 202 240 / 20%);
 }
 
 .kantra-snippet-editor-host .cm-kantra-line-uncategorized {
-  background: rgba(108, 117, 125, 0.18);
+  background: rgb(108 117 125 / 18%);
 }
 
 .rb-tab-panel-body--scroll {
@@ -325,7 +325,7 @@ body {
 .rb-tab-doc-toggle:hover,
 .rb-tab-doc-toggle:focus {
   color: inherit;
-  background: rgba(0, 0, 0, 0.03);
+  background: rgb(0 0 0 / 3%);
 }
 
 .rb-tab-doc-chevron {
@@ -388,7 +388,7 @@ body {
   min-height: calc(100vh - 14rem);
 }
 
-@media (min-width: 992px) {
+@media (width >= 992px) {
   .rb-app--graph-focus .rb-tab-workspace {
     min-height: calc(100vh - 13rem);
   }
@@ -448,9 +448,9 @@ body {
   gap: 0.25rem;
   padding: 0.25rem;
   border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgb(255 255 255 / 94%);
   border: 1px solid #dee2e6;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
 }
 
 .graph-zoom-btn {
@@ -562,7 +562,7 @@ body {
 }
 
 .function-list-item.active {
-  background: rgba(13, 110, 253, 0.1);
+  background: rgb(13 110 253 / 10%);
 }
 
 .function-list-item-name {
@@ -593,7 +593,7 @@ body {
   background: #fff;
 }
 
-@media (max-width: 991.98px) {
+@media (width <= 991.98px) {
   .function-list-sidebar--collapsed {
     flex: 0 0 auto;
     width: auto;
@@ -605,7 +605,7 @@ body {
   }
 }
 
-@media (max-width: 767.98px) {
+@media (width <= 767.98px) {
   .function-list-layout {
     flex-direction: column;
   }
@@ -677,7 +677,7 @@ body {
 }
 
 .graph-sidebar-item.active {
-  background: rgba(13, 110, 253, 0.1);
+  background: rgb(13 110 253 / 10%);
   color: #0d6efd;
 }
 
@@ -855,7 +855,7 @@ body {
   line-height: 1.35;
   white-space: normal;
   text-align: left;
-  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 20%);
   pointer-events: none;
   transition: opacity 0.12s ease, visibility 0.12s ease;
 }
@@ -941,8 +941,7 @@ code {
 }
 
 .migration-table-section .table-responsive {
-  overflow-x: auto;
-  overflow-y: visible;
+  overflow: auto visible;
 }
 
 .migration-table-section thead,

@@ -7,10 +7,10 @@ namespace ecommerce::coolstore {
 
 class CoolstoreOrder {
 public:
-    long orderId{};
-    std::string cartId;
-    double cartTotal{};
-    std::vector<CoolstoreOrderItem> items;
+  long orderId{};
+  std::string cartId;
+  double cartTotal{};
+  std::vector<CoolstoreOrderItem> items;
 };
 
-}  // namespace ecommerce::coolstore
+} // namespace ecommerce::coolstore

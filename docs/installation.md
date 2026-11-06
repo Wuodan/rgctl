@@ -25,12 +25,12 @@ Everything you need to install rgctl (`rgctl`), choose the right operating mode,
 
 ## Prerequisites
 
-| Requirement | Notes |
-|-------------|-------|
-| **OS** | macOS (Apple Silicon or Intel), Linux (x86_64 or ARM64), Windows (x86_64 or ARM64) |
-| **Rust 1.85+** | Only for building from source ([rustup.rs](https://rustup.rs/)). Pre-built binaries need no Rust toolchain. |
-| **Git** | For cloning the repository (source builds) |
-| **Git LFS** | Optional. Only required if you use `semantic index --embedder code-daemon` (~206 MB ONNX weights). The default `vocab` embedder needs no LFS. |
+| Requirement    | Notes                                                                                                                                         |
+|----------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **OS**         | macOS (Apple Silicon or Intel), Linux (x86_64 or ARM64), Windows (x86_64 or ARM64)                                                            |
+| **Rust 1.85+** | Only for building from source ([rustup.rs](https://rustup.rs/)). Pre-built binaries need no Rust toolchain.                                   |
+| **Git**        | For cloning the repository (source builds)                                                                                                    |
+| **Git LFS**    | Optional. Only required if you use `semantic index --embedder code-daemon` (~206 MB ONNX weights). The default `vocab` embedder needs no LFS. |
 
 Disk space: the `.rgctl/` artifacts directory typically uses 50-500 MB depending on repository size and enabled features.
 
@@ -50,21 +50,21 @@ Downloads the latest GitHub Release tarball for your OS/arch into `${RGCTL_INSTA
 
 Pre-built binaries are published on the project **Releases** page:
 
-**https://github.com/rgctl/rgctl/releases**
+**<https://github.com/rgctl/rgctl/releases>**
 
 1. Open the latest release.
 2. Download the archive for your platform:
 
-   | Platform | Asset name |
-   |----------|------------|
-   | macOS (Apple Silicon) | `rgctl-*-aarch64-apple-darwin.tar.gz` |
-   | macOS (Intel) | `rgctl-*-x86_64-apple-darwin.tar.gz` |
-   | Linux GNU (x86_64) | `rgctl-*-x86_64-unknown-linux-gnu.tar.gz` |
-   | Linux GNU (ARM64) | `rgctl-*-aarch64-unknown-linux-gnu.tar.gz` |
-   | Alpine / musl (x86_64) | `rgctl-*-x86_64-unknown-linux-musl.tar.gz` |
-   | Alpine / musl (ARM64) | `rgctl-*-aarch64-unknown-linux-musl.tar.gz` |
-   | Windows (x86_64) | `rgctl-*-x86_64-pc-windows-msvc.zip` |
-   | Windows (ARM64) | `rgctl-*-aarch64-pc-windows-msvc.zip` |
+   | Platform               | Asset name                                  |
+   |------------------------|---------------------------------------------|
+   | macOS (Apple Silicon)  | `rgctl-*-aarch64-apple-darwin.tar.gz`       |
+   | macOS (Intel)          | `rgctl-*-x86_64-apple-darwin.tar.gz`        |
+   | Linux GNU (x86_64)     | `rgctl-*-x86_64-unknown-linux-gnu.tar.gz`   |
+   | Linux GNU (ARM64)      | `rgctl-*-aarch64-unknown-linux-gnu.tar.gz`  |
+   | Alpine / musl (x86_64) | `rgctl-*-x86_64-unknown-linux-musl.tar.gz`  |
+   | Alpine / musl (ARM64)  | `rgctl-*-aarch64-unknown-linux-musl.tar.gz` |
+   | Windows (x86_64)       | `rgctl-*-x86_64-pc-windows-msvc.zip`        |
+   | Windows (ARM64)        | `rgctl-*-aarch64-pc-windows-msvc.zip`       |
 
    **Linux glibc note:** the GNU releases are linked against a relatively new glibc (CI runner). They may **not** run on older LTS hosts such as **Ubuntu 22.04**. If `./rgctl` fails with `GLIBC_… not found`, use the matching musl asset. It supports normal rgctl use. Build from source (see Option C) if you need the optional `semantic index --embedder code-daemon` mode.
 
@@ -249,14 +249,14 @@ See the [HTTP Server and Dashboard guide](https://rgctl.io/docs/guides/http-serv
 
 ### Mode comparison
 
-| | CLI | HTTP server |
-|---|---|---|
-| **Transport** | Process per command | HTTP `127.0.0.1:8080` |
-| **Artifact location** | `{repo}/.rgctl/` | Same (reads in-repo artifacts) |
-| **Dashboard** | No | Yes (optional) |
-| **Indexing** | Manual `discover` | Manual `discover` first (`serve` does not index) |
-| **Use case** | Agents, CI, scripts | Team, repeated queries, visual |
-| **Output** | stdout (text or `-f json`) | HTTP JSON |
+|                       | CLI                        | HTTP server                                      |
+|-----------------------|----------------------------|--------------------------------------------------|
+| **Transport**         | Process per command        | HTTP `127.0.0.1:8080`                            |
+| **Artifact location** | `{repo}/.rgctl/`           | Same (reads in-repo artifacts)                   |
+| **Dashboard**         | No                         | Yes (optional)                                   |
+| **Indexing**          | Manual `discover`          | Manual `discover` first (`serve` does not index) |
+| **Use case**          | Agents, CI, scripts        | Team, repeated queries, visual                   |
+| **Output**            | stdout (text or `-f json`) | HTTP JSON                                        |
 
 ### Migrating from daemon cache
 
@@ -300,11 +300,11 @@ rgctl -f json semantic query "checkout flow"  # search
 
 **Embedder options:**
 
-| Embedder | Command | Requirements | Quality |
-|----------|---------|-------------|---------|
-| `vocab` (default) | `semantic index` | None | Good (compiled token table) |
-| `hash` | `semantic index --embedder hash` | None | Fast, lower quality (CI/testing) |
-| `code-daemon` | `semantic index --embedder code-daemon` | Git LFS (~206 MB ONNX) | Best |
+| Embedder          | Command                                 | Requirements           | Quality                          |
+|-------------------|-----------------------------------------|------------------------|----------------------------------|
+| `vocab` (default) | `semantic index`                        | None                   | Good (compiled token table)      |
+| `hash`            | `semantic index --embedder hash`        | None                   | Fast, lower quality (CI/testing) |
+| `code-daemon`     | `semantic index --embedder code-daemon` | Git LFS (~206 MB ONNX) | Best                             |
 
 For document section search: `semantic index --scope docs --embedder hash`.
 
@@ -417,13 +417,13 @@ Start with the default mode (no extra flags). Add `--with-cfg`, `--with-taint`, 
 
 ## Next steps
 
-| Goal | Where to go |
-|------|-------------|
-| Full CLI walkthrough | [User Guide](user-guide.md) |
-| Concepts and architecture | [Introduction](Introduction.md) |
-| Use rgctl with agents | [Agent pack](https://rgctl.io/docs/guides/agent-skill/) · [USER_AGENTS_TEMPLATE](agents/USER_AGENTS_TEMPLATE.md) |
-| Contribute to rgctl (agent README) | [AGENTS.md](../AGENTS.md) |
-| Step-by-step feature guides | [Guides](https://rgctl.io/docs/guides/) |
-| JSON output reference | [JSON API](json-api.md) |
-| HTTP API details | [HTTP Server and Dashboard](https://rgctl.io/docs/guides/http-server-and-dashboard/) |
-| Supported languages | [Languages](languages/README.md) |
+| Goal                               | Where to go                                                                                                      |
+|------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| Full CLI walkthrough               | [User Guide](user-guide.md)                                                                                      |
+| Concepts and architecture          | [Introduction](Introduction.md)                                                                                  |
+| Use rgctl with agents              | [Agent pack](https://rgctl.io/docs/guides/agent-skill/) · [USER_AGENTS_TEMPLATE](agents/USER_AGENTS_TEMPLATE.md) |
+| Contribute to rgctl (agent README) | [AGENTS.md](../AGENTS.md)                                                                                        |
+| Step-by-step feature guides        | [Guides](https://rgctl.io/docs/guides/)                                                                          |
+| JSON output reference              | [JSON API](json-api.md)                                                                                          |
+| HTTP API details                   | [HTTP Server and Dashboard](https://rgctl.io/docs/guides/http-server-and-dashboard/)                             |
+| Supported languages                | [Languages](languages/README.md)                                                                                 |

@@ -21,9 +21,15 @@ run_fixture_gql() {
 }
 
 run_example_smoke() {
-  [[ -z "${RGCTL_SKIP_EXAMPLE:-}" ]] || { echo "skip example smoke (RGCTL_SKIP_EXAMPLE set)"; return 0; }
+  [[ -z "${RGCTL_SKIP_EXAMPLE:-}" ]] || {
+    echo "skip example smoke (RGCTL_SKIP_EXAMPLE set)"
+    return 0
+  }
   local ex="${RGCTL_MONOREPO}/${EXAMPLE_REL}"
-  [[ -d "${ex}" ]] || { echo "skip example smoke (${EXAMPLE_REL} not cloned)"; return 0; }
+  [[ -d "${ex}" ]] || {
+    echo "skip example smoke (${EXAMPLE_REL} not cloned)"
+    return 0
+  }
   echo "--- example GQL: ${ex} ---"
   discover_repo "${ex}" -l csharp
   assert_edge_min "ANNOTATEDWITH (scale)" ANNOTATEDWITH 1 "${ex}"

@@ -1,13 +1,12 @@
 import uuid
 
-from sqlalchemy.orm import Session
-
 from app.exceptions import BadRequestError, NotFoundError
 from app.models.order import Order, OrderItem
 from app.repositories.cart import CartRepository
 from app.repositories.order import OrderRepository
 from app.repositories.product import ProductRepository
 from app.schemas.order import OrderResponse
+from sqlalchemy.orm import Session
 
 
 class OrderService:

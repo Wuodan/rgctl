@@ -110,13 +110,17 @@ class AstCoverageAudit:
     layer_c_taint: bool
     layer_f_field_write: bool
     depth_test_mode: str  # "hard_assert", "soft_fallback", "none"
-    effective_tier: str   # "Tier-1 Gold", "Tier-1 Standard", "Tier-1 Partial", "Tier-1 DSL"
+    effective_tier: (
+        str  # "Tier-1 Gold", "Tier-1 Standard", "Tier-1 Partial", "Tier-1 DSL"
+    )
     blockers_to_gold: List[str] = field(default_factory=list)
 
 
 def parse_bundled_specs_from_rust() -> Dict[str, Tuple[str, int, str]]:
     """Parse bundled_specs() in crates/rgctl-ast-coverage/src/lib.rs."""
-    lib_rs = (REPO_ROOT / "crates/rgctl-ast-coverage/src/lib.rs").read_text(encoding="utf-8")
+    lib_rs = (REPO_ROOT / "crates/rgctl-ast-coverage/src/lib.rs").read_text(
+        encoding="utf-8"
+    )
     specs: Dict[str, Tuple[str, int, str]] = {}
     pattern = re.compile(
         r'CoverageSpec\s*\{\s*id:\s*"([^"]+)",\s*crate_dir:\s*"([^"]+)",\s*'
@@ -128,13 +132,19 @@ def parse_bundled_specs_from_rust() -> Dict[str, Tuple[str, int, str]]:
     for match in pattern.finditer(lib_rs):
         lang_id, crate_dir, manifest_file, min_handled, target_grade = match.groups()
         rel_path = f"crates/{crate_dir}/{manifest_file}"
-        specs[lang_id] = (rel_path, int(min_handled), grade_map.get(target_grade, target_grade))
+        specs[lang_id] = (
+            rel_path,
+            int(min_handled),
+            grade_map.get(target_grade, target_grade),
+        )
     return specs
 
 
 def parse_language_profiles() -> Tuple[Set[str], Set[str]]:
     """Return (cfg_enabled_ids, taint_enabled_ids) from crates/rgctl-analysis/src/language_profile.rs."""
-    src = (REPO_ROOT / "crates/rgctl-analysis/src/language_profile.rs").read_text(encoding="utf-8")
+    src = (REPO_ROOT / "crates/rgctl-analysis/src/language_profile.rs").read_text(
+        encoding="utf-8"
+    )
     cfg_ids: Set[str] = set()
     taint_ids: Set[str] = set()
     pattern = re.compile(
@@ -153,7 +163,9 @@ def parse_language_profiles() -> Tuple[Set[str], Set[str]]:
 
 def parse_field_write_languages() -> Set[str]:
     """Return language ids handled in crates/rgctl-analysis/src/field_write_locals.rs."""
-    src = (REPO_ROOT / "crates/rgctl-analysis/src/field_write_locals.rs").read_text(encoding="utf-8")
+    src = (REPO_ROOT / "crates/rgctl-analysis/src/field_write_locals.rs").read_text(
+        encoding="utf-8"
+    )
     fn_block = re.search(
         r"pub fn language_visit_fn\(.*?\n\}",
         src,
@@ -173,7 +185,10 @@ def inspect_depth_test_mode(lang_id: str) -> str:
     for path in sorted(test_dir.glob("*.rs")):
         text = path.read_text(encoding="utf-8")
         if "assert_all_exercised" in text:
-            if "match tracker.assert_all_exercised()" in text or "assert_present_kinds_exercised" in text:
+            if (
+                "match tracker.assert_all_exercised()" in text
+                or "assert_present_kinds_exercised" in text
+            ):
                 return "soft_fallback"
             return "hard_assert"
     return "none"
@@ -258,7 +273,9 @@ def audit_tier1_languages() -> List[AstCoverageAudit]:
             if not layer_f:
                 blockers.append("Missing Layer F (field_write_locals)")
         if depth_mode != "hard_assert":
-            blockers.append(f"Test exercise gate is '{depth_mode}' (need unconditional assert_all_exercised)")
+            blockers.append(
+                f"Test exercise gate is '{depth_mode}' (need unconditional assert_all_exercised)"
+            )
 
         if not blockers and not is_dsl:
             effective_tier = "Tier-1 Gold"
@@ -336,13 +353,18 @@ def print_report(
     if single_lang:
         matched = [a for a in audits if a.id == single_lang]
         if not matched:
-            print(f"Language '{single_lang}' not found in Tier-1 AST coverage manifests.", file=sys.stderr)
+            print(
+                f"Language '{single_lang}' not found in Tier-1 AST coverage manifests.",
+                file=sys.stderr,
+            )
             sys.exit(1)
         a = matched[0]
         print(f"=== Tier-1 Enforcement Audit: {a.id} ({a.effective_tier}) ===")
         print(f"  Manifest:              {a.manifest_path}")
         print(f"  Total Grammar Kinds:   {a.total_grammar_kinds}")
-        print(f"  Active Handled Kinds:  {a.handled_kinds} (ratchet min: {a.min_handled_kinds})")
+        print(
+            f"  Active Handled Kinds:  {a.handled_kinds} (ratchet min: {a.min_handled_kinds})"
+        )
         print(
             f"  Passive Breakdown:     Skip={a.skip_kinds}, SkipWrapper={a.skip_wrapper_kinds}, "
             f"SkipTypeToken={a.skip_type_token_kinds}, Unimplemented={a.unimplemented_kinds}"
@@ -354,8 +376,12 @@ def print_report(
         )
         print(f"  Legacy Semantic Skips: {a.legacy_semantic_skips}")
         if a.legacy_semantic_skip_examples:
-            print(f"    Examples:            {', '.join(a.legacy_semantic_skip_examples)}")
-        print(f"  Passive Dispatch Gate: {'YES' if a.has_passive_dispatch_gate else 'NO'}")
+            print(
+                f"    Examples:            {', '.join(a.legacy_semantic_skip_examples)}"
+            )
+        print(
+            f"  Passive Dispatch Gate: {'YES' if a.has_passive_dispatch_gate else 'NO'}"
+        )
         print(
             f"  Analysis Layers:       A(Plugin)={'Y' if a.layer_a_plugin else 'N'} "
             f"B(CFG/PDG)={'Y' if a.layer_b_cfg else 'N'} "
@@ -368,7 +394,9 @@ def print_report(
             for b in a.blockers_to_gold:
                 print(f"    - {b}")
         else:
-            print("  Status:                PASSES ALL 5 PILLARS (Tier-1 Gold Reference)")
+            print(
+                "  Status:                PASSES ALL 5 PILLARS (Tier-1 Gold Reference)"
+            )
         return
 
     gold = [a for a in audits if a.effective_tier == "Tier-1 Gold"]
@@ -394,9 +422,13 @@ def print_report(
     print(header)
     print("-" * 118)
 
-    for a in sorted(audits, key=lambda x: (-GRADE_RANK[x.current_grade], -x.coverage_ratio, x.id)):
+    for a in sorted(
+        audits, key=lambda x: (-GRADE_RANK[x.current_grade], -x.coverage_ratio, x.id)
+    ):
         hs = f"{a.handled_kinds}/{a.semantic_denominator}"
-        wtu = f"{a.skip_wrapper_kinds}/{a.skip_type_token_kinds}/{a.unimplemented_kinds}"
+        wtu = (
+            f"{a.skip_wrapper_kinds}/{a.skip_type_token_kinds}/{a.unimplemented_kinds}"
+        )
         layers = (
             ("A" if a.layer_a_plugin else "-")
             + ("B" if a.layer_b_cfg else "-")
@@ -411,18 +443,28 @@ def print_report(
         )
 
     print("-" * 118)
-    print(f"Mainframe Custom Plugins ({len(mainframe_custom)}, line-oriented, no tree-sitter AST manifest):")
+    print(
+        f"Mainframe Custom Plugins ({len(mainframe_custom)}, line-oriented, no tree-sitter AST manifest):"
+    )
     print("  " + ", ".join(mainframe_custom))
-    print(f"\nTier-2 Declarative tags.scm Plugins ({len(tier2_queries)}, symbol/reference extraction only):")
+    print(
+        f"\nTier-2 Declarative tags.scm Plugins ({len(tier2_queries)}, symbol/reference extraction only):"
+    )
     for i in range(0, len(tier2_queries), 12):
         print("  " + ", ".join(tier2_queries[i : i + 12]))
     print("=" * 118)
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Audit rgctl Tier-1 vs Tier-2 language enforcement.")
-    parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON report")
-    parser.add_argument("--language", "-l", type=str, help="Inspect a single Tier-1 language in detail")
+    parser = argparse.ArgumentParser(
+        description="Audit rgctl Tier-1 vs Tier-2 language enforcement."
+    )
+    parser.add_argument(
+        "--json", action="store_true", help="Emit machine-readable JSON report"
+    )
+    parser.add_argument(
+        "--language", "-l", type=str, help="Inspect a single Tier-1 language in detail"
+    )
     parser.add_argument(
         "--run-tests",
         action="store_true",
@@ -438,10 +480,18 @@ def main() -> int:
     if args.json:
         payload = {
             "summary": {
-                "total_languages": len(audits) + len(mainframe_custom) + len(tier2_queries),
-                "tier1_gold": [a.id for a in audits if a.effective_tier == "Tier-1 Gold"],
-                "tier1_deep": [a.id for a in audits if a.effective_tier == "Tier-1 Deep"],
-                "tier1_shallow": [a.id for a in audits if a.effective_tier == "Tier-1 Shallow"],
+                "total_languages": len(audits)
+                + len(mainframe_custom)
+                + len(tier2_queries),
+                "tier1_gold": [
+                    a.id for a in audits if a.effective_tier == "Tier-1 Gold"
+                ],
+                "tier1_deep": [
+                    a.id for a in audits if a.effective_tier == "Tier-1 Deep"
+                ],
+                "tier1_shallow": [
+                    a.id for a in audits if a.effective_tier == "Tier-1 Shallow"
+                ],
                 "tier1_dsl": [a.id for a in audits if a.effective_tier == "Tier-1 DSL"],
                 "mainframe_custom": mainframe_custom,
                 "tier2_queries": tier2_queries,

@@ -2,34 +2,34 @@
 
 `/example/` is **gitignored**. Clone stress corpora here for manual profile and integration gates.
 
-| Path | Fetch | Gate |
-|------|-------|------|
-| `linux/` | Linux kernel tree (maintainer checkout) | `linux_cold_discover_within_baseline` — default discover, wall ≤ **145 s** (+10%); cold *diff*: `./scripts/prepare-linux-diff-snapshots.sh` then `linux_cold_diff_within_baseline` |
-| `metasfresh-4.9.8b/` | metasfresh ERP checkout | `metasfresh_cold_discover_within_baseline` — `discover --full`, wall ≤ **74 s** (+10%) |
-| `kafka/` | Kafka source tree | `kafka_cold_discover_within_baseline` |
-| `kubernetes/` | Kubernetes source tree | manual / future gate |
-| `magento2/` | [Magento Open Source](https://github.com/magento/magento2) | PHP stress corpus — `discover app lib setup -l php` (exclude `vendor/`, `generated/`) |
-| `k8s-website/` | [kubernetes/website](https://github.com/kubernetes/website) `content/en` | `./scripts/fetch-profile-repos.sh` then `k8s_website_markdown_cold_discover_within_baseline -- --ignored` or `k8s_website_obsidian_export_to_vault -- --ignored` (after discover) |
+| Path                 | Fetch                                                                    | Gate                                                                                                                                                                               |
+|----------------------|--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `linux/`             | Linux kernel tree (maintainer checkout)                                  | `linux_cold_discover_within_baseline` — default discover, wall ≤ **145 s** (+10%); cold *diff*: `./scripts/prepare-linux-diff-snapshots.sh` then `linux_cold_diff_within_baseline` |
+| `metasfresh-4.9.8b/` | metasfresh ERP checkout                                                  | `metasfresh_cold_discover_within_baseline` — `discover --full`, wall ≤ **74 s** (+10%)                                                                                             |
+| `kafka/`             | Kafka source tree                                                        | `kafka_cold_discover_within_baseline`                                                                                                                                              |
+| `kubernetes/`        | Kubernetes source tree                                                   | manual / future gate                                                                                                                                                               |
+| `magento2/`          | [Magento Open Source](https://github.com/magento/magento2)               | PHP stress corpus — `discover app lib setup -l php` (exclude `vendor/`, `generated/`)                                                                                              |
+| `k8s-website/`       | [kubernetes/website](https://github.com/kubernetes/website) `content/en` | `./scripts/fetch-profile-repos.sh` then `k8s_website_markdown_cold_discover_within_baseline -- --ignored` or `k8s_website_obsidian_export_to_vault -- --ignored` (after discover)  |
 
 ### Language-scale corpora (~10k source files)
 
 Per-language cold discover gates for extraction-depth work. Fetch via `./scripts/fetch-profile-repos.sh`. Filter with `-l <lang>`; exclude `vendor/`, `node_modules/`, `target/`.
 
-| Language | Path | Upstream | Discover | ~Files |
-|----------|------|----------|----------|--------|
-| C | `linux/` | torvalds/linux | default (Gate A) | ~10k+ `.c`/`.h` |
-| C++ | `llvm-project/` | llvm/llvm-project (`clang/`) | `-l cpp` | ~10k+ `.cpp`/`.h` |
-| C# | `roslyn/` | dotnet/roslyn (`src/`) | `-l csharp` | ~8k+ `.cs` |
-| Go | `kubernetes/` | kubernetes/kubernetes | `-l go` | ~10k+ `.go` |
-| Java | `metasfresh-4.9.8b/` | metasfresh/metasfresh | `--full` | ~10k+ `.java` |
-| JavaScript | `node/` | nodejs/node (`test/`, sparse) | `-l javascript` on `test/` | ~9k `.js` |
-| PHP | `magento2/` | magento/magento2 | `-l php` on `app/` `lib/` `setup/` | ~10k+ `.php` |
-| Python | `home-assistant/` | home-assistant/core | `-l python` | ~12k+ `.py` |
-| Ruby | `discourse/` | discourse/discourse (shallow clone OK) | `-l ruby` | ~26k+ `.rb` in tree; gate indexes Ruby only |
-| Rust | `rust/` | rust-lang/rust (`library/` `compiler/`) | `-l rust` | ~10k+ `.rs` |
-| TypeScript | `vscode/` | microsoft/vscode (`src/`) | `-l typescript` | ~10k+ `.ts` |
-| Kotlin | `kotlin/` | JetBrains/kotlin (sparse `libraries` `plugins` `analysis`) | `-l kotlin` | ~18k `.kt`; gate: `kotlin_cold_discover_within_baseline` (≤ **10 s** +10%) |
-| Groovy | `groovy/` | gradle/gradle (shallow) | `-l groovy` | ~6.7k `.groovy`; gate: `groovy_cold_discover_within_baseline` (≤ **5 s** +10%) |
+| Language   | Path                 | Upstream                                                   | Discover                           | ~Files                                                                         |
+|------------|----------------------|------------------------------------------------------------|------------------------------------|--------------------------------------------------------------------------------|
+| C          | `linux/`             | torvalds/linux                                             | default (Gate A)                   | ~10k+ `.c`/`.h`                                                                |
+| C++        | `llvm-project/`      | llvm/llvm-project (`clang/`)                               | `-l cpp`                           | ~10k+ `.cpp`/`.h`                                                              |
+| C#         | `roslyn/`            | dotnet/roslyn (`src/`)                                     | `-l csharp`                        | ~8k+ `.cs`                                                                     |
+| Go         | `kubernetes/`        | kubernetes/kubernetes                                      | `-l go`                            | ~10k+ `.go`                                                                    |
+| Java       | `metasfresh-4.9.8b/` | metasfresh/metasfresh                                      | `--full`                           | ~10k+ `.java`                                                                  |
+| JavaScript | `node/`              | nodejs/node (`test/`, sparse)                              | `-l javascript` on `test/`         | ~9k `.js`                                                                      |
+| PHP        | `magento2/`          | magento/magento2                                           | `-l php` on `app/` `lib/` `setup/` | ~10k+ `.php`                                                                   |
+| Python     | `home-assistant/`    | home-assistant/core                                        | `-l python`                        | ~12k+ `.py`                                                                    |
+| Ruby       | `discourse/`         | discourse/discourse (shallow clone OK)                     | `-l ruby`                          | ~26k+ `.rb` in tree; gate indexes Ruby only                                    |
+| Rust       | `rust/`              | rust-lang/rust (`library/` `compiler/`)                    | `-l rust`                          | ~10k+ `.rs`                                                                    |
+| TypeScript | `vscode/`            | microsoft/vscode (`src/`)                                  | `-l typescript`                    | ~10k+ `.ts`                                                                    |
+| Kotlin     | `kotlin/`            | JetBrains/kotlin (sparse `libraries` `plugins` `analysis`) | `-l kotlin`                        | ~18k `.kt`; gate: `kotlin_cold_discover_within_baseline` (≤ **10 s** +10%)     |
+| Groovy     | `groovy/`            | gradle/gradle (shallow)                                    | `-l groovy`                        | ~6.7k `.groovy`; gate: `groovy_cold_discover_within_baseline` (≤ **5 s** +10%) |
 
 OpenSpec / contributor policy: root [`AGENTS.md`](../AGENTS.md) (pointer: [`openspec/changes/_shared/starting-context.md`](../openspec/changes/_shared/starting-context.md)).
 

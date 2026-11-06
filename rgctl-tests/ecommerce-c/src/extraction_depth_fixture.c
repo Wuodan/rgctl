@@ -8,10 +8,8 @@ typedef struct Cart Cart;
 typedef void (*handler_fn)(void);
 
 void extraction_depth_dispatch(handler_fn handler) {
-    handler();
-    (*handler)();
+  handler();
+  (*handler)();
 }
 
-int extraction_depth_init(void) {
-    return 0;
-}
+int extraction_depth_init(void) { return 0; }

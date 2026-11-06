@@ -10,14 +10,14 @@
 
 ## 1. Goals
 
-| Goal | How |
-|------|-----|
-| Find functions by intent, not exact names | vocab token-table embeddings (256-d default); optional code-daemon ONNX |
-| Keep discover lean | Separate `.rgctl/semantic_index.bin` — built via `semantic index` |
-| Fast retrieval at scale | Sign-quantized vectors + Hamming top-k |
-| Blend structure + semantics | Late fusion re-ranks Hamming pool with graph signals |
-| Agent-ready output | `-f json semantic query` + HTTP `/api/semantic/query` |
-| Incremental rebuilds | Reuse rows when `code_hash` unchanged (toggling `--embed-bodies` changes `model_id`) |
+| Goal                                      | How                                                                                  |
+|-------------------------------------------|--------------------------------------------------------------------------------------|
+| Find functions by intent, not exact names | vocab token-table embeddings (256-d default); optional code-daemon ONNX              |
+| Keep discover lean                        | Separate `.rgctl/semantic_index.bin` — built via `semantic index`                    |
+| Fast retrieval at scale                   | Sign-quantized vectors + Hamming top-k                                               |
+| Blend structure + semantics               | Late fusion re-ranks Hamming pool with graph signals                                 |
+| Agent-ready output                        | `-f json semantic query` + HTTP `/api/semantic/query`                                |
+| Incremental rebuilds                      | Reuse rows when `code_hash` unchanged (toggling `--embed-bodies` changes `model_id`) |
 
 ---
 
@@ -60,12 +60,12 @@ flowchart TB
 
 ## 3. Embedders
 
-| Embedder | CLI | Notes |
-|----------|-----|-------|
-| **vocab** (default) | `--embedder vocab` | Compiled bag-of-tokens (`vocab-accumulate-v1` FNV, or `v2` after `semantic distill`); offline; native **256-d** |
-| **sign-hash** | `--embedder hash` | Deterministic FNV sign-hash — CI / `--no-default-features` |
-| **code-daemon** | `--embedder code-daemon` | Bundled ONNX + SentencePiece in `rgctl-analysis/assets/`; requires `semantic-onnx` feature |
-| **custom ONNX** | `--embedder onnx --model PATH` | Optional `--tokenizer` for SentencePiece |
+| Embedder            | CLI                            | Notes                                                                                                           |
+|---------------------|--------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| **vocab** (default) | `--embedder vocab`             | Compiled bag-of-tokens (`vocab-accumulate-v1` FNV, or `v2` after `semantic distill`); offline; native **256-d** |
+| **sign-hash**       | `--embedder hash`              | Deterministic FNV sign-hash — CI / `--no-default-features`                                                      |
+| **code-daemon**     | `--embedder code-daemon`       | Bundled ONNX + SentencePiece in `rgctl-analysis/assets/`; requires `semantic-onnx` feature                      |
+| **custom ONNX**     | `--embedder onnx --model PATH` | Optional `--tokenizer` for SentencePiece                                                                        |
 
 Default dimensions: **256**. Declaration metadata only unless `--embed-bodies`. `git lfs pull` is needed only for `--embedder code-daemon` (~206 MB weights).
 
@@ -94,29 +94,29 @@ No extra index pass required beyond normal `discover`.
 
 ## 5. Rust implementation map
 
-| Component | Path |
-|-----------|------|
-| Index + Hamming search | `crates/rgctl-analysis/src/semantic_search.rs` |
-| Vocab accumulator | `crates/rgctl-analysis/src/semantic_vocab.rs` |
-| Call-graph diffusion | `crates/rgctl-analysis/src/semantic_diffuse.rs` |
-| Body token extraction | `crates/rgctl-analysis/src/semantic_extract.rs` |
-| Late fusion | `crates/rgctl-analysis/src/semantic_fusion.rs` |
-| Hybrid expansion | `crates/rgctl-analysis/src/semantic_hybrid.rs` |
-| Bundled code-daemon | `crates/rgctl-analysis/src/semantic_embedded.rs` |
-| ONNX runtime path | `crates/rgctl-analysis/src/semantic_onnx.rs` |
-| Token bloom at extract | `crates/rgctl-graph/src/structural_sketch.rs` |
-| CLI | `src/cli/semantic.rs`, `semantic_output.rs` |
-| HTTP API | `src/cli/semantic_api.rs`, `http_serve.rs` |
-| Manifest export | `crates/rgctl-export/src/manifest.rs` |
+| Component              | Path                                             |
+|------------------------|--------------------------------------------------|
+| Index + Hamming search | `crates/rgctl-analysis/src/semantic_search.rs`   |
+| Vocab accumulator      | `crates/rgctl-analysis/src/semantic_vocab.rs`    |
+| Call-graph diffusion   | `crates/rgctl-analysis/src/semantic_diffuse.rs`  |
+| Body token extraction  | `crates/rgctl-analysis/src/semantic_extract.rs`  |
+| Late fusion            | `crates/rgctl-analysis/src/semantic_fusion.rs`   |
+| Hybrid expansion       | `crates/rgctl-analysis/src/semantic_hybrid.rs`   |
+| Bundled code-daemon    | `crates/rgctl-analysis/src/semantic_embedded.rs` |
+| ONNX runtime path      | `crates/rgctl-analysis/src/semantic_onnx.rs`     |
+| Token bloom at extract | `crates/rgctl-graph/src/structural_sketch.rs`    |
+| CLI                    | `src/cli/semantic.rs`, `semantic_output.rs`      |
+| HTTP API               | `src/cli/semantic_api.rs`, `http_serve.rs`       |
+| Manifest export        | `crates/rgctl-export/src/manifest.rs`            |
 
 ---
 
 ## 6. Dashboard implementation
 
-| Piece | Path |
-|-------|------|
-| Tab | `dashboard/src/SearchView.tsx` |
-| HTTP client | `dashboard/src/semanticSearch.ts` |
+| Piece              | Path                                                   |
+|--------------------|--------------------------------------------------------|
+| Tab                | `dashboard/src/SearchView.tsx`                         |
+| HTTP client        | `dashboard/src/semanticSearch.ts`                      |
 | Status + query API | `GET /api/semantic/status`, `POST /api/semantic/query` |
 
 Requires `rgctl serve` (not static `python -m http.server`) so the semantic API is available.
@@ -156,25 +156,25 @@ rgctl semantic index --embed-bodies          # append function-body identifier t
 
 ## 8. On-disk artifacts
 
-| Path | Content |
-|------|---------|
-| `.rgctl/semantic_index.bin` | Quantized embeddings + metadata (schema v2) |
-| `.rgctl/dashboard/manifest.json` | `semantic` section when index present |
+| Path                             | Content                                     |
+|----------------------------------|---------------------------------------------|
+| `.rgctl/semantic_index.bin`      | Quantized embeddings + metadata (schema v2) |
+| `.rgctl/dashboard/manifest.json` | `semantic` section when index present       |
 
 ---
 
 ## 9. Testing
 
-| Layer | Location |
-|-------|----------|
-| Hamming + index roundtrip | `crates/rgctl-analysis/src/semantic_search.rs` tests |
-| Vocab accumulate | `crates/rgctl-analysis/src/semantic_vocab.rs` tests |
-| Call-graph diffusion | `crates/rgctl-analysis/src/semantic_diffuse.rs` tests |
-| Fusion scoring | `crates/rgctl-analysis/src/semantic_fusion.rs` tests |
-| QE oracles | `tests/semantic_search_qe.rs` |
-| Multi-query timing | `tests/semantic_query_timing.rs` (polyglot CI; linux ignored + `RGCTL_LINUX_SEMANTIC=1`, prefer `--release`) |
-| CLI subprocess | `tests/cli_output/subprocess_golden_path.rs` |
-| HTTP semantic API | `src/cli/http_serve.rs` unit tests |
+| Layer                     | Location                                                                                                     |
+|---------------------------|--------------------------------------------------------------------------------------------------------------|
+| Hamming + index roundtrip | `crates/rgctl-analysis/src/semantic_search.rs` tests                                                         |
+| Vocab accumulate          | `crates/rgctl-analysis/src/semantic_vocab.rs` tests                                                          |
+| Call-graph diffusion      | `crates/rgctl-analysis/src/semantic_diffuse.rs` tests                                                        |
+| Fusion scoring            | `crates/rgctl-analysis/src/semantic_fusion.rs` tests                                                         |
+| QE oracles                | `tests/semantic_search_qe.rs`                                                                                |
+| Multi-query timing        | `tests/semantic_query_timing.rs` (polyglot CI; linux ignored + `RGCTL_LINUX_SEMANTIC=1`, prefer `--release`) |
+| CLI subprocess            | `tests/cli_output/subprocess_golden_path.rs`                                                                 |
+| HTTP semantic API         | `src/cli/http_serve.rs` unit tests                                                                           |
 
 Time linux-scale Hamming with a **release** build — debug can be ~100× slower on the scan. Index **load** is dominated by bincode deserialization of per-function string metadata (~tens of seconds at ~1.8M rows); query after load is a few milliseconds in release.
 

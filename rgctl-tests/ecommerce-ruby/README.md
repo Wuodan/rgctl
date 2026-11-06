@@ -13,11 +13,11 @@ cd rgctl-tests/ecommerce-ruby
 
 ## Verification
 
-| Check | Command / test |
-|-------|------------------|
-| GQL smoke | `RGCTL=../../target/release/rgctl ../gql-verification-smoke/verify-extraction-gql-ruby.sh` |
-| Langfeatures | `cargo test --test ruby_langfeatures` |
-| CFG discover | `cargo test --test ruby_cfg_analysis` |
-| Dashboard bundle | `cargo test --test dashboard_ecommerce_ruby` (needs embedded dashboard dist) |
+| Check            | Command / test                                                                             |
+|------------------|--------------------------------------------------------------------------------------------|
+| GQL smoke        | `RGCTL=../../target/release/rgctl ../gql-verification-smoke/verify-extraction-gql-ruby.sh` |
+| Langfeatures     | `cargo test --test ruby_langfeatures`                                                      |
+| CFG discover     | `cargo test --test ruby_cfg_analysis`                                                      |
+| Dashboard bundle | `cargo test --test dashboard_ecommerce_ruby` (needs embedded dashboard dist)               |
 
 Language coverage SSOT: [docs/languages/README.md](../../docs/languages/README.md) · honesty limits: [docs/ruby-extract-honesty.md](../../docs/ruby-extract-honesty.md).

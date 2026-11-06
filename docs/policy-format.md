@@ -8,25 +8,25 @@ JSON policy files gate **blast-radius**, **`check`**, and **`review check`** (co
 
 ## Schema
 
-| Field | Type | Default | Meaning |
-|-------|------|---------|---------|
-| `forbidden_crossings` | `[[string, string], ...]` | `[]` | Pairs of domain names that must not call across each other |
-| `max_impact_nodes` | integer | unlimited | Fail if blast impact zone exceeds this count |
-| `centrality_alert_threshold` | number | unlimited | Fail if betweenness (or related centrality signal) exceeds threshold |
-| `node_domains` | object | `{}` | Map of node UUID string → domain label |
-| `scope.new_violations_only` | boolean | `false` | **`review check` only:** exit 1 only on `new` temporal violations |
-| `scope.fail_on_regression` | boolean | `true` | **`review check` only:** exit 1 on `regression` (reintroduced after ledger resolution) |
-| `scope.strict_diff` | boolean | `false` | **`check`:** treat empty git diff scope as failure |
-| `temporal.effective_from` | ISO date | — | Policy effective date (`YYYY-MM-DD`) |
-| `temporal.grace_period_days` | integer | — | Days after `effective_from` where violations may warn instead of fail |
-| `temporal.severity_during_grace` | `warn` \| `fail` | `warn` | Gate behavior during grace |
-| `temporal.fail_existing_after_grace` | boolean | `false` | Fail `existing` violations after grace elapses |
-| `temporal.violation_sla_days` | integer | — | Max age (days) for `existing` violations when `enforce_sla` is set |
-| `temporal.enforce_sla` | boolean | `false` | Fail `existing` violations older than SLA (ledger `first_seen`) |
-| `temporal.sunset_date` | ISO date | — | Escalate to fail on/after this date |
-| `temporal.sunset_warn_days` | integer | — | Emit `severity: warn` within this many days of `sunset_date` |
-| `size_limits.max_changed_files` | integer | unlimited | **`review check`:** abort if PR touches more files |
-| `size_limits.max_scoped_entities` | integer | unlimited | **`review check`:** abort if scoped entity count exceeds limit |
+| Field                                | Type                      | Default   | Meaning                                                                                |
+|--------------------------------------|---------------------------|-----------|----------------------------------------------------------------------------------------|
+| `forbidden_crossings`                | `[[string, string], ...]` | `[]`      | Pairs of domain names that must not call across each other                             |
+| `max_impact_nodes`                   | integer                   | unlimited | Fail if blast impact zone exceeds this count                                           |
+| `centrality_alert_threshold`         | number                    | unlimited | Fail if betweenness (or related centrality signal) exceeds threshold                   |
+| `node_domains`                       | object                    | `{}`      | Map of node UUID string → domain label                                                 |
+| `scope.new_violations_only`          | boolean                   | `false`   | **`review check` only:** exit 1 only on `new` temporal violations                      |
+| `scope.fail_on_regression`           | boolean                   | `true`    | **`review check` only:** exit 1 on `regression` (reintroduced after ledger resolution) |
+| `scope.strict_diff`                  | boolean                   | `false`   | **`check`:** treat empty git diff scope as failure                                     |
+| `temporal.effective_from`            | ISO date                  | —         | Policy effective date (`YYYY-MM-DD`)                                                   |
+| `temporal.grace_period_days`         | integer                   | —         | Days after `effective_from` where violations may warn instead of fail                  |
+| `temporal.severity_during_grace`     | `warn` \| `fail`          | `warn`    | Gate behavior during grace                                                             |
+| `temporal.fail_existing_after_grace` | boolean                   | `false`   | Fail `existing` violations after grace elapses                                         |
+| `temporal.violation_sla_days`        | integer                   | —         | Max age (days) for `existing` violations when `enforce_sla` is set                     |
+| `temporal.enforce_sla`               | boolean                   | `false`   | Fail `existing` violations older than SLA (ledger `first_seen`)                        |
+| `temporal.sunset_date`               | ISO date                  | —         | Escalate to fail on/after this date                                                    |
+| `temporal.sunset_warn_days`          | integer                   | —         | Emit `severity: warn` within this many days of `sunset_date`                           |
+| `size_limits.max_changed_files`      | integer                   | unlimited | **`review check`:** abort if PR touches more files                                     |
+| `size_limits.max_scoped_entities`    | integer                   | unlimited | **`review check`:** abort if scoped entity count exceeds limit                         |
 
 ### Minimal strict policy (CI fail on any impact)
 

@@ -10,7 +10,10 @@ LIMITS_SPEC="${LIMITS_SPEC:-max-mem-mb=4096,threads=1}"
 RGCTL_BIN="${RGCTL_BIN:-rgctl}"
 
 log() { printf '==> %s\n' "$*"; }
-die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
+die() {
+  printf 'ERROR: %s\n' "$*" >&2
+  exit 1
+}
 
 [[ -x "$(command -v "$RGCTL_BIN")" ]] || die "rgctl binary not found: $RGCTL_BIN"
 [[ -d "$CORPUS" ]] || die "corpus mount missing at $CORPUS (pass -v example/linux:/corpus)"
@@ -26,15 +29,15 @@ log "corpus=$CORPUS scope=$SMOKE_SCOPE limits=$LIMITS_SPEC"
 
 # --- CLI surface ---
 HELP="$($RGCTL_BIN discover --help)"
-echo "$HELP" | grep -q -- '--with-limits' \
-  || die "discover --help missing --with-limits"
+echo "$HELP" | grep -q -- '--with-limits' ||
+  die "discover --help missing --with-limits"
 
 # Invalid spec must fail fast (no discover).
 if $RGCTL_BIN discover "$TARGET" --with-limits 'not-a-spec' >/tmp/bad-limits.out 2>/tmp/bad-limits.err; then
   die "expected invalid --with-limits to fail"
 fi
-grep -qi 'with-limits\|invalid\|unknown\|want key' /tmp/bad-limits.err /tmp/bad-limits.out \
-  || die "invalid --with-limits error message unclear"
+grep -qi 'with-limits\|invalid\|unknown\|want key' /tmp/bad-limits.err /tmp/bad-limits.out ||
+  die "invalid --with-limits error message unclear"
 
 # --- Constrained discover ---
 # Artifacts under the scanned tree (or CORPUS if we cd there with positional .).
@@ -56,12 +59,12 @@ printf '%s\n' "$CLEAN"
 
 [[ $RC -eq 0 ]] || die "discover --with-limits failed (exit $RC)"
 
-printf '%s\n' "$CLEAN" | grep -q 'discover --with-limits active' \
-  || die "missing 'discover --with-limits active' log line"
-printf '%s\n' "$CLEAN" | grep -Eq 'max_mem_mb[= ].*Some\([0-9]+\)|max_mem_mb=Some\(' \
-  || die "limits log missing max_mem_mb"
-printf '%s\n' "$CLEAN" | grep -Eq 'threads[= ].*Some\([0-9]+\)|threads=Some\(' \
-  || die "limits log missing threads"
+printf '%s\n' "$CLEAN" | grep -q 'discover --with-limits active' ||
+  die "missing 'discover --with-limits active' log line"
+printf '%s\n' "$CLEAN" | grep -Eq 'max_mem_mb[= ].*Some\([0-9]+\)|max_mem_mb=Some\(' ||
+  die "limits log missing max_mem_mb"
+printf '%s\n' "$CLEAN" | grep -Eq 'threads[= ].*Some\([0-9]+\)|threads=Some\(' ||
+  die "limits log missing threads"
 
 [[ -f .rgctl/graph.snapshot.bin ]] || die "missing .rgctl/graph.snapshot.bin after discover"
 
@@ -76,7 +79,7 @@ RC2=$?
 set -e
 CLEAN2=$(sed 's/\x1b\[[0-9;]*m//g' "$LOG2")
 [[ $RC2 -eq 0 ]] || die "discover via RGCTL_WITH_LIMITS failed (exit $RC2)"
-printf '%s\n' "$CLEAN2" | grep -q 'discover --with-limits active' \
-  || die "RGCTL_WITH_LIMITS did not activate limits"
+printf '%s\n' "$CLEAN2" | grep -q 'discover --with-limits active' ||
+  die "RGCTL_WITH_LIMITS did not activate limits"
 
 log "PASS: --with-limits smoke on $TARGET"

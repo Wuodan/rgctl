@@ -1,4 +1,4 @@
-# rgctl - Code knowledge graph for LLM agents.
+# rgctl - Code knowledge graph for LLM agents
 
 [![Release](https://img.shields.io/github/v/release/rgctl/rgctl?style=for-the-badge&logo=github&color=0ea5e9)](https://github.com/rgctl/rgctl/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/rgctl/rgctl/total?style=for-the-badge&logo=github&color=22c55e)](https://github.com/rgctl/rgctl/releases)
@@ -45,13 +45,13 @@
 
 ### Without `rgctl` vs with `rgctl`
 
-| Dimension | Without (grep / dump files) | With `rgctl` |
-|-----------|-----------------------------|--------------|
-| **Tool calls for “who calls X transitively?”** | Many greps + ad-hoc file reads | 1–2 (`discover` once, then `callers` / `blast-radius`) |
-| **Context tokens** | Whole files / search dumps into the prompt | Compact `-f json` payloads (`schema_version`) |
-| **Transitive reachability & PR review** | Easy to miss or hallucinate | Precomputed SCC reachability, `blast-radius`, `review paths` |
-| **Control & data flow** | Manual line-by-line tracing | Statement-level `slice`, `cpg flows`, `inspect` (lazy on-demand CFG / PDG / dominance) |
-| **Error recovery for agents** | Raw exit codes or unstructured stderr | Structured JSON error envelope (`error_code`, `candidates`, `recovery_command`) |
+| Dimension                                      | Without (grep / dump files)                | With `rgctl`                                                                           |
+|------------------------------------------------|--------------------------------------------|----------------------------------------------------------------------------------------|
+| **Tool calls for “who calls X transitively?”** | Many greps + ad-hoc file reads             | 1–2 (`discover` once, then `callers` / `blast-radius`)                                 |
+| **Context tokens**                             | Whole files / search dumps into the prompt | Compact `-f json` payloads (`schema_version`)                                          |
+| **Transitive reachability & PR review**        | Easy to miss or hallucinate                | Precomputed SCC reachability, `blast-radius`, `review paths`                           |
+| **Control & data flow**                        | Manual line-by-line tracing                | Statement-level `slice`, `cpg flows`, `inspect` (lazy on-demand CFG / PDG / dominance) |
+| **Error recovery for agents**                  | Raw exit codes or unstructured stderr      | Structured JSON error envelope (`error_code`, `candidates`, `recovery_command`)        |
 
 ### Battle-tested at scale
 
@@ -174,18 +174,18 @@ See the [Agent pack guide](https://rgctl.io/docs/guides/agent-skill/). For *your
 
 Commands are organized into six groups (`rgctl --help`). Full flag tables: **[CLI command reference](https://rgctl.io/docs/guides/cli-command-reference/)**.
 
-| Group | You need… | Command |
-|-------|-----------|---------|
-| **Lifecycle** | Index, incremental refresh, multi-repo merge, Universe UI | `discover` (`--full`, `--with-cfg`, `--with-universe`, `--with-git`, `--scip`, `--with-kantra`), `status`, `update`, `watch`, `merge`, `serve`, `diff` |
-| **Query** | Find symbols, callers, callees, typed edges, GQL | `find`, `inventory`, `callers`, `callees`, `relations` (`-e overrides` / `cochangeswith` / `exposesroute` / `injects` / …), `gql` |
-| **Analysis** | Upstream impact (“what breaks if I edit X?”) | `blast-radius` |
-| **Analysis** | CFG / PDG / dominance / slices (lazy single-function v3 archive) | `slice` (`--with-alias`, `--taint`), `inspect`, `cpg` (`flows` / `calls` / `status` lazy; `mutations` needs `--with-cfg`) |
-| **Analysis** | Exact / bloom / SESE+1-WL fragment clones | `clones` (`--mode exact \| bloom \| fragment`) |
-| **Analysis** | FastPageRank hotspots, Fast-Leiden communities, git churn | `metrics` (`--pagerank`, `--communities`, `--churn`), `communities` (`list`, `label`) |
-| **Analysis** | Natural-language search over functions or docs | `semantic` (`index`, `query`) |
-| **Security** | OSV advisories, lockfile deps, sink-first & on-demand taint | `vuln`, `deps`, `security`, `taint` |
-| **Policy** | PR call-path deltas, composed review & CI blast-radius gates | `review paths`, `review check` (`pr-check` alias), `review export`, `check`, `rules` |
-| **Meta** | Snapshot export, agent pack install, shell completions, help | `export`, `install`, `completions`, `help` |
+| Group         | You need…                                                        | Command                                                                                                                                                |
+|---------------|------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Lifecycle** | Index, incremental refresh, multi-repo merge, Universe UI        | `discover` (`--full`, `--with-cfg`, `--with-universe`, `--with-git`, `--scip`, `--with-kantra`), `status`, `update`, `watch`, `merge`, `serve`, `diff` |
+| **Query**     | Find symbols, callers, callees, typed edges, GQL                 | `find`, `inventory`, `callers`, `callees`, `relations` (`-e overrides` / `cochangeswith` / `exposesroute` / `injects` / …), `gql`                      |
+| **Analysis**  | Upstream impact (“what breaks if I edit X?”)                     | `blast-radius`                                                                                                                                         |
+| **Analysis**  | CFG / PDG / dominance / slices (lazy single-function v3 archive) | `slice` (`--with-alias`, `--taint`), `inspect`, `cpg` (`flows` / `calls` / `status` lazy; `mutations` needs `--with-cfg`)                              |
+| **Analysis**  | Exact / bloom / SESE+1-WL fragment clones                        | `clones` (`--mode exact \| bloom \| fragment`)                                                                                                         |
+| **Analysis**  | FastPageRank hotspots, Fast-Leiden communities, git churn        | `metrics` (`--pagerank`, `--communities`, `--churn`), `communities` (`list`, `label`)                                                                  |
+| **Analysis**  | Natural-language search over functions or docs                   | `semantic` (`index`, `query`)                                                                                                                          |
+| **Security**  | OSV advisories, lockfile deps, sink-first & on-demand taint      | `vuln`, `deps`, `security`, `taint`                                                                                                                    |
+| **Policy**    | PR call-path deltas, composed review & CI blast-radius gates     | `review paths`, `review check` (`pr-check` alias), `review export`, `check`, `rules`                                                                   |
+| **Meta**      | Snapshot export, agent pack install, shell completions, help     | `export`, `install`, `completions`, `help`                                                                                                             |
 
 Highlights: single-pass `KindDispatchTable` + `ScopeStack` AST engine, content-addressed `FileFacts` cache + `rgctl watch`, cross-language C3 MRO (`relations -e overrides`), framework route & DI extraction (`ExposesRoute`, `Injects`), Konveyor Kantra rules (`discover --with-kantra`) & migration roadmaps (`--export-migration-hints`), SCIP overlay (`discover --scip`), git co-change (`discover --with-git` → `metrics --churn` / `relations -e cochangeswith`), park-and-resolve multi-repo merge (`rgctl merge`), Fast-Leiden + $\mu+4\sigma$ hub stripping, pull-based CSR FastPageRank with `NodeRole` filtering, lazy v3 `cfg_pdg.bin` slicing, Type-3/4 fragment clones, and the Universe spatial architecture dashboard (`discover --with-universe` → `rgctl serve --open`).
 
@@ -220,18 +220,18 @@ We welcome contributors across four tracks — see **[CONTRIBUTING.md](CONTRIBUT
 
 ## Docs
 
-| Doc | For |
-|-----|-----|
-| [Installation](docs/installation.md) | One-line install, build from source, PATH setup |
-| [Introduction](docs/Introduction.md) | What / why / capability map |
-| [Guides](https://rgctl.io/docs/guides/) · [CLI reference](https://rgctl.io/docs/guides/cli-command-reference/) | Feature guides + canonical CLI taxonomy |
-| [User Guide](docs/user-guide.md) | `ecommerce-java` + full CLI reference |
-| [JSON API](docs/json-api.md) | `-f json` schemas, `schema_version`, error envelopes |
-| [Tier 1](docs/tier-1-language-support.md) · [Tier 2](docs/tier-2-language-support.md) | Language architecture & coverage contracts |
-| [Docs index](docs/README.md) | Complete documentation map |
-| [AGENTS.md](AGENTS.md) | Performance rules & cold gates for contributing to *this* repo |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Contributor tracks, dev setup, test matrix |
-| [Latest release](docs/releases/v0.4.27-alpha03.md) · [Unreleased](docs/releases/unreleased.md) | Release notes & upcoming changelog |
+| Doc                                                                                                            | For                                                            |
+|----------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| [Installation](docs/installation.md)                                                                           | One-line install, build from source, PATH setup                |
+| [Introduction](docs/Introduction.md)                                                                           | What / why / capability map                                    |
+| [Guides](https://rgctl.io/docs/guides/) · [CLI reference](https://rgctl.io/docs/guides/cli-command-reference/) | Feature guides + canonical CLI taxonomy                        |
+| [User Guide](docs/user-guide.md)                                                                               | `ecommerce-java` + full CLI reference                          |
+| [JSON API](docs/json-api.md)                                                                                   | `-f json` schemas, `schema_version`, error envelopes           |
+| [Tier 1](docs/tier-1-language-support.md) · [Tier 2](docs/tier-2-language-support.md)                          | Language architecture & coverage contracts                     |
+| [Docs index](docs/README.md)                                                                                   | Complete documentation map                                     |
+| [AGENTS.md](AGENTS.md)                                                                                         | Performance rules & cold gates for contributing to *this* repo |
+| [CONTRIBUTING.md](CONTRIBUTING.md)                                                                             | Contributor tracks, dev setup, test matrix                     |
+| [Latest release](docs/releases/v0.4.27-alpha03.md) · [Unreleased](docs/releases/unreleased.md)                 | Release notes & upcoming changelog                             |
 
 ---
 

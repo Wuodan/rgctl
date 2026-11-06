@@ -4,26 +4,26 @@ The `rgctl-graph` crate stores the code knowledge graph: typed nodes and edges, 
 
 ## Layers
 
-| Layer | Module | Role |
-|-------|--------|------|
-| Schema | `schema.rs` | `Node`, `Edge`, `NodeType`, `EdgeType` |
-| Backend | `backend/memory.rs` | `MemoryBackend` — RwLock maps + indexes |
-| Interning | `intern.rs` | `Arc<str>` dedup for index keys |
-| Query | `query.rs` | Filter language (`type:Function`, compound `\|`) |
-| Persistence | `snapshot.rs`, `columnar_snapshot.rs` | v1 bincode / **`RGCL` v2** columnar mmap |
-| Compaction | `graph_compactor.rs` | `DeltaSegment` tombstones + `GraphCompactor` atomic rewrite |
-| API | `code_graph.rs` | `CodeGraph` wrapper |
+| Layer       | Module                                | Role                                                        |
+|-------------|---------------------------------------|-------------------------------------------------------------|
+| Schema      | `schema.rs`                           | `Node`, `Edge`, `NodeType`, `EdgeType`                      |
+| Backend     | `backend/memory.rs`                   | `MemoryBackend` — RwLock maps + indexes                     |
+| Interning   | `intern.rs`                           | `Arc<str>` dedup for index keys                             |
+| Query       | `query.rs`                            | Filter language (`type:Function`, compound `\|`)            |
+| Persistence | `snapshot.rs`, `columnar_snapshot.rs` | v1 bincode / **`RGCL` v2** columnar mmap                    |
+| Compaction  | `graph_compactor.rs`                  | `DeltaSegment` tombstones + `GraphCompactor` atomic rewrite |
+| API         | `code_graph.rs`                       | `CodeGraph` wrapper                                         |
 
 ## Default artifact: `RGCL` v2 columnar snapshot
 
 `discover` / `update` / `watch` / `merge` write **`.rgctl/graph.snapshot.bin`** — an `RGCL` v2 memory-mapped columnar snapshot (`ColumnarGraphMmap`, `SnapshotNodeStore`):
 
-| Component | Layout |
-|-----------|--------|
-| Hot node row | Fixed **64-byte** `NodeRow` |
-| Hot edge row | Fixed **40-byte** `EdgeRow` |
-| CSR | `out_offsets` / `in_offsets` |
-| Strings | Shared string arena |
+| Component    | Layout                                                         |
+|--------------|----------------------------------------------------------------|
+| Hot node row | Fixed **64-byte** `NodeRow`                                    |
+| Hot edge row | Fixed **40-byte** `EdgeRow`                                    |
+| CSR          | `out_offsets` / `in_offsets`                                   |
+| Strings      | Shared string arena                                            |
 | Cold payload | `NodeExtension` via `cold_ext` (deserialized only when needed) |
 
 **Zero-hydration hot accessors** (`node_name_str`, `node_type_at`, `node_file_path_str`, `node_qualified_name_str`) scan name/type/path/FQN columns **without** deserializing `cold_ext`. BLAKE3 `content_digest` in the header drives sidecar invalidation.
@@ -41,18 +41,18 @@ Zero-clone APIs for analysis: `edge_topology_typed()`, `for_each_node`, `find_no
 
 ## Snapshots
 
-| Format | Version | Open cost |
-|--------|---------|-----------|
-| JSON | legacy (`--write-json-graph`) | Full parse |
-| bincode mmap | v1 | Deserialize payload |
-| columnar mmap (`RGCL`) | **v2 (default)** | Header + indexes only |
+| Format                 | Version                       | Open cost             |
+|------------------------|-------------------------------|-----------------------|
+| JSON                   | legacy (`--write-json-graph`) | Full parse            |
+| bincode mmap           | v1                            | Deserialize payload   |
+| columnar mmap (`RGCL`) | **v2 (default)**              | Header + indexes only |
 
 ## Incremental updates & facts
 
-| Artifact | Role |
-|----------|------|
-| `.rgctl/facts/` | Per-file `FileExtractionFacts` cache |
-| `DeltaSegment` | Tombstone bitmap (`invalidated_nodes`) for changed files |
+| Artifact         | Role                                                                                          |
+|------------------|-----------------------------------------------------------------------------------------------|
+| `.rgctl/facts/`  | Per-file `FileExtractionFacts` cache                                                          |
+| `DeltaSegment`   | Tombstone bitmap (`invalidated_nodes`) for changed files                                      |
 | `GraphCompactor` | Stream-compact live nodes/edges → atomic snapshot rename (`update`, `watch`, `serve --watch`) |
 
 ## Multi-repo park-and-resolve

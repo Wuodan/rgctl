@@ -26,11 +26,11 @@ Prefer `rgctl -f json` (`inventory`, `find`, `relations`, `callers`, `blast-radi
 
 ## Choose a track
 
-| Track | When | Lead with |
-|-------|------|-----------|
-| **A — Framework / Runtime / Version** | EE→Quarkus, Spring Boot 2→3, Jakarta namespace, JDK bumps | import census + annotations + DI/routes |
-| **B — API / Package / Library** | Move packages, rename types, swap libraries | `find --package`, callers, CPG mutations, blast-radius |
-| **C — Architectural / Strangler-Fig** | Extract a service / bounded context | `--export-migration-hints`, communities, boundary blast-radius |
+| Track                                 | When                                                      | Lead with                                                      |
+|---------------------------------------|-----------------------------------------------------------|----------------------------------------------------------------|
+| **A — Framework / Runtime / Version** | EE→Quarkus, Spring Boot 2→3, Jakarta namespace, JDK bumps | import census + annotations + DI/routes                        |
+| **B — API / Package / Library**       | Move packages, rename types, swap libraries               | `find --package`, callers, CPG mutations, blast-radius         |
+| **C — Architectural / Strangler-Fig** | Extract a service / bounded context                       | `--export-migration-hints`, communities, boundary blast-radius |
 
 Optional note: if sources are COBOL/PL/I/JCL, add `-l cobol,pli,jcl` on discover — do **not** lead with mainframe flags for mainstream Java/TS/Go work.
 

@@ -1,12 +1,11 @@
 import uuid
 
-from sqlalchemy.orm import Session
-
 from app.exceptions import ConflictError, NotFoundError
 from app.models.review import Review
 from app.repositories.product import ProductRepository
 from app.repositories.review import ReviewRepository
 from app.schemas.review import CreateReviewRequest, ReviewResponse
+from sqlalchemy.orm import Session
 
 
 class ReviewService:
@@ -20,7 +19,9 @@ class ReviewService:
         reviews = self.reviews.list_for_product(product_id)
         return [ReviewResponse.model_validate(r) for r in reviews]
 
-    def create(self, user_id: str, product_id: str, req: CreateReviewRequest) -> ReviewResponse:
+    def create(
+        self, user_id: str, product_id: str, req: CreateReviewRequest
+    ) -> ReviewResponse:
         if not self.products.get(product_id):
             raise NotFoundError("Product not found")
         if self.reviews.find_by_user_and_product(user_id, product_id):

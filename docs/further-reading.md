@@ -14,53 +14,53 @@ Legend: **Implemented** = algorithm or structure in the codebase with tests; **I
 
 ### Classic program analysis
 
-| Work | Status | rgctl | CLI / docs |
-|------|--------|----------|------------|
-| [Ferrante et al. — Program Dependence Graph (TOPLAS 1987)](#14-the-program-dependence-graph-and-its-use-in-optimization-toplas-1987) | **Implemented** | [`pdg.rs`](../crates/rgctl-analysis/src/pdg.rs) — data + control deps | [`inspect`](Introduction.md#cfg-pdg-and-dominance-deep-structure), [`slice`](Introduction.md#program-slicing) |
-| [Weiser — Program slicing (ICSE 1981)](https://dl.acm.org/doi/10.1145/800078.802466) | **Implemented** | [`slicing.rs`](../crates/rgctl-analysis/src/slicing.rs), [`interprocedural_slicing.rs`](../crates/rgctl-analysis/src/interprocedural_slicing.rs) | `rgctl slice` — [User Guide §8](user-guide.md#8-program-slicing-and-taint) |
-| Reaching-definitions dataflow (standard compiler analysis) | **Implemented** | [`dataflow.rs`](../crates/rgctl-analysis/src/dataflow.rs) → lexical `(name, scope_id)` PDG data edges | `discover --with-cfg`, or lazy via `rgctl slice` / `cpg flows` |
-| [Cooper, Harvey & Kennedy — Simple fast dominance (SPE 2001)](https://doi.org/10.1002/spe.3780310304) | **Implemented** | [`dominance.rs`](../crates/rgctl-analysis/src/dominance.rs) (iterative CHK-style) | `rgctl inspect` |
-| Control-flow graphs | **Implemented** | [`cfg.rs`](../crates/rgctl-analysis/src/cfg.rs), [`cfg_builder.rs`](../crates/rgctl-analysis/src/cfg_builder.rs); lazy v3 `cfg_pdg.bin` TOC append | `discover --with-cfg`, `inspect`; `slice` / `cpg flows` build on demand |
-| Forward taint (source → sink + sanitizers) | **Implemented** | [`taint.rs`](../crates/rgctl-analysis/src/taint.rs) | `rgctl slice --taint`; whole-repo `taint --sink` needs `discover --with-cfg` |
-| [Barrett et al. — A monotonic superclass linearization (OOPSLA 1996)](https://doi.org/10.1145/236338.236343) (C3) | **Implemented** | [`mro.rs`](../crates/rgctl-analysis/src/mro.rs) — cross-language MRO → `Overrides` | `rgctl relations --edge overrides` |
-| [Weisfeiler–Lehman / 1-WL color refinement](https://en.wikipedia.org/wiki/Weisfeiler_Leman_graph_isomorphism_test) | **Implemented** | [`fragment_clones.rs`](../crates/rgctl-analysis/src/fragment_clones.rs) — 2-iter 1-WL over SESE hammocks | `rgctl clones --mode fragment --seed …` |
+| Work                                                                                                                                 | Status          | rgctl                                                                                                                                              | CLI / docs                                                                                                    |
+|--------------------------------------------------------------------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| [Ferrante et al. — Program Dependence Graph (TOPLAS 1987)](#14-the-program-dependence-graph-and-its-use-in-optimization-toplas-1987) | **Implemented** | [`pdg.rs`](../crates/rgctl-analysis/src/pdg.rs) — data + control deps                                                                              | [`inspect`](Introduction.md#cfg-pdg-and-dominance-deep-structure), [`slice`](Introduction.md#program-slicing) |
+| [Weiser — Program slicing (ICSE 1981)](https://dl.acm.org/doi/10.1145/800078.802466)                                                 | **Implemented** | [`slicing.rs`](../crates/rgctl-analysis/src/slicing.rs), [`interprocedural_slicing.rs`](../crates/rgctl-analysis/src/interprocedural_slicing.rs)   | `rgctl slice` — [User Guide §8](user-guide.md#8-program-slicing-and-taint)                                    |
+| Reaching-definitions dataflow (standard compiler analysis)                                                                           | **Implemented** | [`dataflow.rs`](../crates/rgctl-analysis/src/dataflow.rs) → lexical `(name, scope_id)` PDG data edges                                              | `discover --with-cfg`, or lazy via `rgctl slice` / `cpg flows`                                                |
+| [Cooper, Harvey & Kennedy — Simple fast dominance (SPE 2001)](https://doi.org/10.1002/spe.3780310304)                                | **Implemented** | [`dominance.rs`](../crates/rgctl-analysis/src/dominance.rs) (iterative CHK-style)                                                                  | `rgctl inspect`                                                                                               |
+| Control-flow graphs                                                                                                                  | **Implemented** | [`cfg.rs`](../crates/rgctl-analysis/src/cfg.rs), [`cfg_builder.rs`](../crates/rgctl-analysis/src/cfg_builder.rs); lazy v3 `cfg_pdg.bin` TOC append | `discover --with-cfg`, `inspect`; `slice` / `cpg flows` build on demand                                       |
+| Forward taint (source → sink + sanitizers)                                                                                           | **Implemented** | [`taint.rs`](../crates/rgctl-analysis/src/taint.rs)                                                                                                | `rgctl slice --taint`; whole-repo `taint --sink` needs `discover --with-cfg`                                  |
+| [Barrett et al. — A monotonic superclass linearization (OOPSLA 1996)](https://doi.org/10.1145/236338.236343) (C3)                    | **Implemented** | [`mro.rs`](../crates/rgctl-analysis/src/mro.rs) — cross-language MRO → `Overrides`                                                                 | `rgctl relations --edge overrides`                                                                            |
+| [Weisfeiler–Lehman / 1-WL color refinement](https://en.wikipedia.org/wiki/Weisfeiler_Leman_graph_isomorphism_test)                   | **Implemented** | [`fragment_clones.rs`](../crates/rgctl-analysis/src/fragment_clones.rs) — 2-iter 1-WL over SESE hammocks                                           | `rgctl clones --mode fragment --seed …`                                                                       |
 
 **Tests:** [`slicing.rs`](../tests/slicing.rs), [`taint_security.rs`](../tests/taint_security.rs) (CWE-oriented taint/security patterns).
 
 ### Graph algorithms & architecture metrics
 
-| Work | Status | rgctl | CLI |
-|------|--------|----------|-----|
-| [Page & Brin — PageRank (1998)](https://doi.org/10.1109/69.681760) | **Implemented** | [`centrality.rs`](../crates/rgctl-analysis/src/centrality.rs) — pull-based CSR `FastPageRank` + `NodeRole` filtering; adaptive gating >500k nodes | `rgctl metrics --pagerank [--include-tests]` |
-| [Brandes — Betweenness centrality (2001)](https://doi.org/10.1080/00207160108942084) | **Implemented** | [`centrality.rs`](../crates/rgctl-analysis/src/centrality.rs), [`centrality_approx.rs`](../crates/rgctl-analysis/src/centrality_approx.rs) — `SampledBetweenness` ($K=256$ degree-stratified pivots) | `rgctl metrics --betweenness` |
-| Boldi & Vigna — HyperANF / HyperBall | **Implemented** | [`centrality_approx.rs`](../crates/rgctl-analysis/src/centrality_approx.rs) — `HyperBallHarmonic` (parallel HLL) | `discover --with-harmonic` / migration harmonic term |
-| [Traag, Waltman & van Eck — From Louvain to Leiden (Sci. Rep. 2019)](https://doi.org/10.1038/s41598-019-41695-z) | **Implemented** | [`community.rs`](../crates/rgctl-analysis/src/community.rs) — **Fast-Leiden** (local moving + BFS connected-subgraph refinement + coarsening) with $\mu+4\sigma$ `HubStripPolicy` | `rgctl metrics --communities`, `rgctl communities list` |
-| [Raghavan et al. — Label propagation (2007)](https://doi.org/10.1103/PhysRevE.76.036106) + Newman modularity | **Reading / historical** | Early community designs referenced LPA; **what ships is Fast-Leiden** (row above), not Raghavan LPA | — |
+| Work                                                                                                             | Status                   | rgctl                                                                                                                                                                                                | CLI                                                     |
+|------------------------------------------------------------------------------------------------------------------|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| [Page & Brin — PageRank (1998)](https://doi.org/10.1109/69.681760)                                               | **Implemented**          | [`centrality.rs`](../crates/rgctl-analysis/src/centrality.rs) — pull-based CSR `FastPageRank` + `NodeRole` filtering; adaptive gating >500k nodes                                                    | `rgctl metrics --pagerank [--include-tests]`            |
+| [Brandes — Betweenness centrality (2001)](https://doi.org/10.1080/00207160108942084)                             | **Implemented**          | [`centrality.rs`](../crates/rgctl-analysis/src/centrality.rs), [`centrality_approx.rs`](../crates/rgctl-analysis/src/centrality_approx.rs) — `SampledBetweenness` ($K=256$ degree-stratified pivots) | `rgctl metrics --betweenness`                           |
+| Boldi & Vigna — HyperANF / HyperBall                                                                             | **Implemented**          | [`centrality_approx.rs`](../crates/rgctl-analysis/src/centrality_approx.rs) — `HyperBallHarmonic` (parallel HLL)                                                                                     | `discover --with-harmonic` / migration harmonic term    |
+| [Traag, Waltman & van Eck — From Louvain to Leiden (Sci. Rep. 2019)](https://doi.org/10.1038/s41598-019-41695-z) | **Implemented**          | [`community.rs`](../crates/rgctl-analysis/src/community.rs) — **Fast-Leiden** (local moving + BFS connected-subgraph refinement + coarsening) with $\mu+4\sigma$ `HubStripPolicy`                    | `rgctl metrics --communities`, `rgctl communities list` |
+| [Raghavan et al. — Label propagation (2007)](https://doi.org/10.1103/PhysRevE.76.036106) + Newman modularity     | **Reading / historical** | Early community designs referenced LPA; **what ships is Fast-Leiden** (row above), not Raghavan LPA                                                                                                  | —                                                       |
 
 **Tests:** [`centrality_audit.rs`](../tests/centrality_audit.rs).
 
 ### Reachability, blast radius, and the “R”
 
-| Idea | Status | rgctl | CLI |
-|------|--------|----------|-----|
+| Idea                                  | Status                              | rgctl                                                                                                    | CLI                                 |
+|---------------------------------------|-------------------------------------|----------------------------------------------------------------------------------------------------------|-------------------------------------|
 | Sparse pre-computed call reachability | **Implemented** (rgctl engineering) | Blast engine + compressed snapshots — see [graph-storage-architecture.md](graph-storage-architecture.md) | `rgctl blast-radius`, `rgctl check` |
-| Rich relation matrix (30+ edge types) | **Implemented** | [`schema.rs`](../crates/rgctl-graph/src/schema.rs), extraction pipeline | `rgctl relations`, `rgctl export` |
+| Rich relation matrix (30+ edge types) | **Implemented**                     | [`schema.rs`](../crates/rgctl-graph/src/schema.rs), extraction pipeline                                  | `rgctl relations`, `rgctl export`   |
 
 This is the core differentiator for **LLM agents**: deterministic reachability answers in compact JSON instead of dumping whole files into context.
 
 ### Modern code graphs & LLM agents
 
-| Work | Status | Overlap with rgctl | Gap / opportunity |
-|------|--------|----------------------|-------------------|
-| [CodexGraph (NAACL 2025)](#2-codexgraph-bridging-large-language-models-and-code-repositories-via-code-graph-databases-naacl-2025) | **Inspired** | Structured query verbs, rich node metadata, `-f json`, [JSON API](json-api.md), export | Dual-agent “write then translate” query planner not implemented — good contribution target |
-| [Codebadger — CPG + LLM (ICSE 2026)](https://arxiv.org/abs/2603.24837) | **Inspired** | CFG + PDG + slice + taint stack (CPG-shaped) | No Joern import; interprocedural taint depth varies — see [TASK_PLAN](../.github/TASK_PLAN.md) Phase 12/13 |
-| [TAILOR / hybrid AST+CFG+DFG](#7-learning-graph-based-code-representations-for-source-code-tailor) | **Reading** | Tree-sitter AST + CFG/PDG layer | Learned embeddings not in scope today |
-| [Reliable Graph-RAG for Codebases (2026)](#5-reliable-graph-rag-for-codebases-ast-derived-graphs-vs-llm-extracted-knowledge-graphs-arxiv-2026) | **Aligned** | AST-derived graph via Tree-sitter, not LLM-extracted KG | Benchmark comparisons welcome |
+| Work                                                                                                                                           | Status       | Overlap with rgctl                                                                     | Gap / opportunity                                                                                          |
+|------------------------------------------------------------------------------------------------------------------------------------------------|--------------|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| [CodexGraph (NAACL 2025)](#2-codexgraph-bridging-large-language-models-and-code-repositories-via-code-graph-databases-naacl-2025)              | **Inspired** | Structured query verbs, rich node metadata, `-f json`, [JSON API](json-api.md), export | Dual-agent “write then translate” query planner not implemented — good contribution target                 |
+| [Codebadger — CPG + LLM (ICSE 2026)](https://arxiv.org/abs/2603.24837)                                                                         | **Inspired** | CFG + PDG + slice + taint stack (CPG-shaped)                                           | No Joern import; interprocedural taint depth varies — see [TASK_PLAN](../.github/TASK_PLAN.md) Phase 12/13 |
+| [TAILOR / hybrid AST+CFG+DFG](#7-learning-graph-based-code-representations-for-source-code-tailor)                                             | **Reading**  | Tree-sitter AST + CFG/PDG layer                                                        | Learned embeddings not in scope today                                                                      |
+| [Reliable Graph-RAG for Codebases (2026)](#5-reliable-graph-rag-for-codebases-ast-derived-graphs-vs-llm-extracted-knowledge-graphs-arxiv-2026) | **Aligned**  | AST-derived graph via Tree-sitter, not LLM-extracted KG                                | Benchmark comparisons welcome                                                                              |
 
 ### Security standards
 
-| Standard | Status | rgctl |
-|----------|--------|----------|
+| Standard                                               | Status                                  | rgctl                                                                                                                                                                  |
+|--------------------------------------------------------|-----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [CWE](https://cwe.mitre.org/) / OWASP-style categories | **Implemented** (pattern + taint hooks) | [`taint.rs`](../crates/rgctl-analysis/src/taint.rs), [`taint_security.rs`](../tests/taint_security.rs) — SQLi (CWE-89), XSS (CWE-79), command injection (CWE-78), etc. |
 
 ---
@@ -102,9 +102,9 @@ Research papers on code graphs, migration, LLM agents, and program analysis — 
    - **rgctl:** [Inspired — see table above](#modern-code-graphs--llm-agents) (structured query JSON; dual-agent planner is a gap)
 
 2b. **Codebadger: Bridging Code Property Graphs and Language Models** (ICSE 2026)
-   - [arXiv](https://arxiv.org/abs/2603.24837)
-   - CPG + MCP + backward slicing for vulnerability analysis; reports large context reduction via slicing
-   - **rgctl:** [Inspired — see table above](#modern-code-graphs--llm-agents) (CFG/PDG/slice/taint; not Joern-compatible)
+- [arXiv](https://arxiv.org/abs/2603.24837)
+- CPG + MCP + backward slicing for vulnerability analysis; reports large context reduction via slicing
+- **rgctl:** [Inspired — see table above](#modern-code-graphs--llm-agents) (CFG/PDG/slice/taint; not Joern-compatible)
 
 3. **Code Graph Model (CGM): A Graph-Integrated Large Language Model** (arXiv 2025, NeurIPS 2025)
    - [arXiv PDF](https://arxiv.org/pdf/2505.16901)

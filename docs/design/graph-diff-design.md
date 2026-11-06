@@ -4,16 +4,16 @@ Structural comparison between two columnar v2 snapshots for PR gates.
 
 ## Layers
 
-| Layer | Module | Role |
-|-------|--------|------|
-| L0 | `snapshot_diff::SnapshotPair` | Parallel open; digest fast path |
-| L1 | `stable_key::StableNodeKey` | BLAKE3(path, name, type) — UUID-independent |
-| L2 | `snapshot_diff` | `DiffSink`, node hash index, edge merge-join on stable keys |
-| L3 | `rgctl_incremental::pr_scope` | Git `name-status` paths + hunk line overlap |
-| L3b | `rgctl_incremental::cascade` | Reverse `Calls` expansion for caller re-extract |
-| L4 | `rgctl review check` CLI (`pr-check` alias) | Temporal policy on scoped head entities |
-| L5 | `policy_diff` | NEW / EXISTING / RESOLVED classification |
-| L6 | `check --base-ref/--head-ref/--strict` | Working-tree / PR diff scoping fixes |
+| Layer | Module                                      | Role                                                        |
+|-------|---------------------------------------------|-------------------------------------------------------------|
+| L0    | `snapshot_diff::SnapshotPair`               | Parallel open; digest fast path                             |
+| L1    | `stable_key::StableNodeKey`                 | BLAKE3(path, name, type) — UUID-independent                 |
+| L2    | `snapshot_diff`                             | `DiffSink`, node hash index, edge merge-join on stable keys |
+| L3    | `rgctl_incremental::pr_scope`               | Git `name-status` paths + hunk line overlap                 |
+| L3b   | `rgctl_incremental::cascade`                | Reverse `Calls` expansion for caller re-extract             |
+| L4    | `rgctl review check` CLI (`pr-check` alias) | Temporal policy on scoped head entities                     |
+| L5    | `policy_diff`                               | NEW / EXISTING / RESOLVED classification                    |
+| L6    | `check --base-ref/--head-ref/--strict`      | Working-tree / PR diff scoping fixes                        |
 
 ## Hot-path rules
 

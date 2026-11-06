@@ -72,13 +72,13 @@ rgctl -f json vuln analyze --osv "${OSV_PATH}" ${JARS_FLAG} \
 
 Read (prefer `jq` projections):
 
-| Field | Meaning |
-|-------|---------|
-| `.deps_verdict` | Deps-layer match |
-| `.exploitability` | `not_affected` \| `not_exploitable` \| `exploitable` \| `under_investigation` |
-| `.openvex.statements[0].status` | OpenVEX status |
-| `.sink_taint.call_sites // []` | `{caller, target_method, file, line}` from graph + parked relations (key omitted when empty) |
-| `.sink_taint.paths[]` | `{from, to, hops}` upstream entry → sink |
+| Field                           | Meaning                                                                                      |
+|---------------------------------|----------------------------------------------------------------------------------------------|
+| `.deps_verdict`                 | Deps-layer match                                                                             |
+| `.exploitability`               | `not_affected` \| `not_exploitable` \| `exploitable` \| `under_investigation`                |
+| `.openvex.statements[0].status` | OpenVEX status                                                                               |
+| `.sink_taint.call_sites // []`  | `{caller, target_method, file, line}` from graph + parked relations (key omitted when empty) |
+| `.sink_taint.paths[]`           | `{from, to, hops}` upstream entry → sink                                                     |
 
 `vuln analyze` already links parked external calls into `.sink_taint.call_sites` / `.paths` (note: `call_sites` uses `skip_serializing_if` and is omitted when 0 sites match — use `.sink_taint.call_sites // []` in `jq`) — do **not** re-run a full `find --package` / `callers --package` chain unless debugging empty sites.
 

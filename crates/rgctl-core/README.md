@@ -19,12 +19,12 @@ Prefer direct dependencies on domain crates (`rgctl-graph`, `rgctl-analysis`) fo
 
 ## Key modules
 
-| Re-export | Crate |
-|-----------|-------|
-| `graph` | `rgctl-graph` |
-| `analysis` | `rgctl-analysis` |
-| `pipeline` | `rgctl-pipeline` |
-| `gql` | `rgctl-gql` |
+| Re-export     | Crate               |
+|---------------|---------------------|
+| `graph`       | `rgctl-graph`       |
+| `analysis`    | `rgctl-analysis`    |
+| `pipeline`    | `rgctl-pipeline`    |
+| `gql`         | `rgctl-gql`         |
 | `incremental` | `rgctl-incremental` |
 
 ## Version

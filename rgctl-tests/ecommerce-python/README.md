@@ -24,32 +24,32 @@ RGCTL_SKIP_EXAMPLE=1 ../gql-verification-smoke/verify-extraction-gql-python.sh  
 
 See [rgctl-tests README — Extraction-depth GQL](../README.md#extraction-depth-gql-verification).
 
-| Metric | Value |
-|--------|------:|
-| Files indexed | 59 |
-| Nodes | 571 |
-| Edges | 1407 |
-| Discover ms | 307 |
-| Cache MB | 1.17 |
+| Metric        | Value |
+|---------------|------:|
+| Files indexed |    59 |
+| Nodes         |   571 |
+| Edges         |  1407 |
+| Discover ms   |   307 |
+| Cache MB      |  1.17 |
 
-| Feature | Status |
-|---------|:------:|
-| discover | ✓ |
-| blast-radius | ✓ |
-| metrics | ✓ |
-| export | ✗ |
-| check | ✓ |
-| slice / taint | ◐ / ✓ |
+| Feature       | Status |
+|---------------|:------:|
+| discover      |   ✓    |
+| blast-radius  |   ✓    |
+| metrics       |   ✓    |
+| export        |   ✗    |
+| check         |   ✓    |
+| slice / taint | ◐ / ✓  |
 
 ### Top symbols
 
-| Symbol | Score | Callers | Impact |
-|--------|------:|--------:|-------:|
-| `get_product_by_item_id` | 40.45 | 2 | 9 |
-| `add` | 40.45 | 8 | 9 |
-| `get_shopping_cart` | 40.25 | 4 | 5 |
-| `price_shopping_cart` | 40.20 | 3 | 4 |
-| `_cart_out` | 40.20 | 4 | 4 |
+| Symbol                   | Score | Callers | Impact |
+|--------------------------|------:|--------:|-------:|
+| `get_product_by_item_id` | 40.45 |       2 |      9 |
+| `add`                    | 40.45 |       8 |      9 |
+| `get_shopping_cart`      | 40.25 |       4 |      5 |
+| `price_shopping_cart`    | 40.20 |       3 |      4 |
+| `_cart_out`              | 40.20 |       4 |      4 |
 
 Second full CFG/PDG language; rich class nodes.
 

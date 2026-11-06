@@ -1,8 +1,7 @@
-from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
-
 from app.models.order import Order, OrderItem
 from app.repositories.base import BaseRepository
+from sqlalchemy import select
+from sqlalchemy.orm import Session, joinedload
 
 
 class OrderRepository(BaseRepository[Order]):

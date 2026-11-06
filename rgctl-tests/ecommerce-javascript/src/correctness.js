@@ -3,20 +3,20 @@
  * Prefer direct function calls so extraction does not depend on DI.
  */
 
-function correctnessLeaf() {
-  return 42;
+function correctnessLeaf () {
+  return 42
 }
 
-function correctnessMid() {
-  return correctnessLeaf() + 1;
+function correctnessMid () {
+  return correctnessLeaf() + 1
 }
 
-function correctnessRoot(flag) {
-  const value = correctnessMid();
+function correctnessRoot (flag) {
+  const value = correctnessMid()
   if (flag) {
-    return value * 2;
+    return value * 2
   }
-  return value;
+  return value
 }
 
-module.exports = { correctnessLeaf, correctnessMid, correctnessRoot };
+module.exports = { correctnessLeaf, correctnessMid, correctnessRoot }

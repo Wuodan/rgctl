@@ -1,8 +1,7 @@
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
 from app.models.user import User
 from app.repositories.base import BaseRepository
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 
 class UserRepository(BaseRepository[User]):

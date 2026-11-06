@@ -18,7 +18,7 @@ assignees: ''
 
 **Does a tree-sitter grammar exist?**
 
-- [ ] Yes - https://github.com/tree-sitter/tree-sitter-LANGUAGE
+- [ ] Yes - <https://github.com/tree-sitter/tree-sitter-LANGUAGE>
 - [ ] No - would need regex-based support
 
 **Grammar Quality:**

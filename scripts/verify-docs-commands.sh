@@ -13,7 +13,10 @@ FAIL=0
 cleanup() { rm -rf "$TMP"; }
 trap cleanup EXIT
 
-die() { echo "ERROR: $*" >&2; exit 1; }
+die() {
+  echo "ERROR: $*" >&2
+  exit 1
+}
 
 need() { command -v "$1" >/dev/null || die "missing required tool: $1"; }
 
@@ -234,7 +237,7 @@ if materialize_coolstore; then
     --export-format json --export-output "$TMP/out/coolstore-fn.json" \
     --query "type:Function"
   if ! grep -qE '152 nodes, 130 edges' \
-      "$TMP/out/coolstore_export_fn.stdout" "$TMP/out/coolstore_export_fn.stderr"; then
+    "$TMP/out/coolstore_export_fn.stdout" "$TMP/out/coolstore_export_fn.stderr"; then
     echo "  coolstore_export_fn count FAIL"
     FAIL=$((FAIL + 1))
   else
@@ -247,7 +250,7 @@ if materialize_coolstore; then
     --export-format json --export-output "$TMP/out/coolstore-all.json" \
     --query all
   if ! grep -qE '608 nodes, 1709 edges' \
-      "$TMP/out/coolstore_export_all.stdout" "$TMP/out/coolstore_export_all.stderr"; then
+    "$TMP/out/coolstore_export_all.stdout" "$TMP/out/coolstore_export_all.stderr"; then
     echo "  coolstore_export_all count FAIL"
     FAIL=$((FAIL + 1))
   else

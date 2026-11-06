@@ -1,7 +1,7 @@
-function createProduct(db, product) {
+function createProduct (db, product) {
   db.prepare(
     `INSERT INTO products (id, category_id, name, slug, description, price_cents, stock, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     product.id,
     product.category_id,
@@ -10,27 +10,27 @@ function createProduct(db, product) {
     product.description,
     product.price_cents,
     product.stock,
-    product.created_at,
-  );
-  return product;
+    product.created_at
+  )
+  return product
 }
 
-function listProducts(db) {
+function listProducts (db) {
   return db
     .prepare(
       `SELECT id, category_id, name, slug, description, price_cents, stock, created_at
-       FROM products ORDER BY name`,
+       FROM products ORDER BY name`
     )
-    .all();
+    .all()
 }
 
-function findProductById(db, id) {
+function findProductById (db, id) {
   return db
     .prepare(
       `SELECT id, category_id, name, slug, description, price_cents, stock, created_at
-       FROM products WHERE id = ?`,
+       FROM products WHERE id = ?`
     )
-    .get(id);
+    .get(id)
 }
 
-module.exports = { createProduct, listProducts, findProductById };
+module.exports = { createProduct, listProducts, findProductById }

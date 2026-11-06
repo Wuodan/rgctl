@@ -5,11 +5,11 @@ namespace ecommerce::coolstore {
 
 class ShippingService {
 public:
-    double calculateShipping(const ShoppingCart& sc) const;
-    double calculateShippingInsurance(const ShoppingCart& sc) const;
+  double calculateShipping(const ShoppingCart &sc) const;
+  double calculateShippingInsurance(const ShoppingCart &sc) const;
 
 private:
-    static double round2(double v);
+  static double round2(double v);
 };
 
-}  // namespace ecommerce::coolstore
+} // namespace ecommerce::coolstore

@@ -158,7 +158,8 @@ def audit_budgets(skills_root: Path) -> list[BudgetResult]:
                 tokens_est=tokens,
                 max_tokens=SLASH_SKILL_MAX_TOKENS,
                 max_bytes=SLASH_SKILL_MAX_BYTES,
-                ok=tokens <= SLASH_SKILL_MAX_TOKENS and len(data) <= SLASH_SKILL_MAX_BYTES,
+                ok=tokens <= SLASH_SKILL_MAX_TOKENS
+                and len(data) <= SLASH_SKILL_MAX_BYTES,
             )
         )
     return results
@@ -223,7 +224,9 @@ def prompt_tax(skill_paths: list[Path], turns: int = 1) -> int:
 
 
 def rel_corpus(corpus: Path) -> str:
-    return str(corpus.relative_to(REPO_ROOT) if corpus.is_relative_to(REPO_ROOT) else corpus)
+    return str(
+        corpus.relative_to(REPO_ROOT) if corpus.is_relative_to(REPO_ROOT) else corpus
+    )
 
 
 def ensure_index(rgctl: Path, corpus: Path, with_cfg: bool = False) -> bool:
@@ -235,7 +238,9 @@ def ensure_index(rgctl: Path, corpus: Path, with_cfg: bool = False) -> bool:
         argv.append("--with-cfg")
     code, _, err, _ = run_cmd(argv, corpus, timeout=600.0)
     if code != 0:
-        sys.stderr.write(f"discover failed in {corpus}: {err.decode(errors='replace')[:400]}\n")
+        sys.stderr.write(
+            f"discover failed in {corpus}: {err.decode(errors='replace')[:400]}\n"
+        )
         return False
     return snap.is_file()
 
@@ -281,7 +286,9 @@ def run_no_skill_rg_and_read(
 ) -> TrajectoryResult:
     rg = find_rg()
     if not rg:
-        return make_result(task, corpus, "no_skill", False, 0.0, 0, 0, [], error="rg not found")
+        return make_result(
+            task, corpus, "no_skill", False, 0.0, 0, 0, [], error="rg not found"
+        )
     t0 = time.perf_counter()
     code_rg, out_rg, err_rg, _ = run_cmd(
         [
@@ -339,7 +346,9 @@ def pick_blast_target(rgctl: Path, corpus: Path) -> tuple[list[str], str]:
     if "kafka" in corpus.name:
         return (["nextInt", "--class", "MockableRandom", "--depth", "2"], "nextInt")
     # Fallback: pick top function from metrics --pagerank or find --type function
-    code, stdout, _, _ = run_cmd([str(rgctl), "-f", "json", "metrics", "--pagerank"], corpus)
+    code, stdout, _, _ = run_cmd(
+        [str(rgctl), "-f", "json", "metrics", "--pagerank"], corpus
+    )
     if code == 0:
         try:
             top = json.loads(stdout).get("pagerank", {}).get("top", [])
@@ -351,7 +360,8 @@ def pick_blast_target(rgctl: Path, corpus: Path) -> tuple[list[str], str]:
         except json.JSONDecodeError:
             pass
     code, stdout, _, _ = run_cmd(
-        [str(rgctl), "-f", "json", "find", "--type", "function", "--limit", "20"], corpus
+        [str(rgctl), "-f", "json", "find", "--type", "function", "--limit", "20"],
+        corpus,
     )
     if code == 0:
         try:
@@ -371,7 +381,15 @@ def trajectory_blast(
     if not ensure_index(rgctl, corpus):
         return [
             make_result(
-                "Blast Radius", corpus, "with_skill", False, 0, 0, 0, skill_paths, error="discover failed"
+                "Blast Radius",
+                corpus,
+                "with_skill",
+                False,
+                0,
+                0,
+                0,
+                skill_paths,
+                error="discover failed",
             )
         ]
     blast_args, sym_name = pick_blast_target(rgctl, corpus)
@@ -448,7 +466,17 @@ def trajectory_vuln(
 
     # Step 2: deps check
     c2, out2, e2, ms2 = run_cmd(
-        [str(rgctl), "-f", "json", "deps", "check", "--osv", str(osv_fixture), *jars_args], corpus
+        [
+            str(rgctl),
+            "-f",
+            "json",
+            "deps",
+            "check",
+            "--osv",
+            str(osv_fixture),
+            *jars_args,
+        ],
+        corpus,
     )
     total_ms += ms2
     total_stdout_tok += estimate_tokens(out2)
@@ -458,7 +486,16 @@ def trajectory_vuln(
 
     # Step 3: vuln analyze (projecting the fields prescribed in skills/rgctl-vuln/SKILL.md)
     c3, out3, e3, ms3 = run_cmd(
-        [str(rgctl), "-f", "json", "vuln", "analyze", "--osv", str(osv_fixture), *jars_args],
+        [
+            str(rgctl),
+            "-f",
+            "json",
+            "vuln",
+            "analyze",
+            "--osv",
+            str(osv_fixture),
+            *jars_args,
+        ],
         corpus,
     )
     total_ms += ms3
@@ -470,9 +507,9 @@ def trajectory_vuln(
                 {
                     "deps_verdict": doc.get("deps_verdict"),
                     "exploitability": doc.get("exploitability"),
-                    "openvex_status": (doc.get("openvex", {}).get("statements") or [{}])[0].get(
-                        "status"
-                    ),
+                    "openvex_status": (
+                        doc.get("openvex", {}).get("statements") or [{}]
+                    )[0].get("status"),
                     "call_sites": st.get("call_sites") or [],
                     "paths": st.get("paths") or [],
                 }
@@ -606,7 +643,15 @@ def trajectory_slice(
     if not ensure_index(rgctl, corpus):
         return [
             make_result(
-                "Program Slicing", corpus, "with_skill", False, 0, 0, 0, skill_paths, error="discover failed"
+                "Program Slicing",
+                corpus,
+                "with_skill",
+                False,
+                0,
+                0,
+                0,
+                skill_paths,
+                error="discover failed",
             )
         ]
     if "coolstore" in corpus.name:
@@ -620,7 +665,9 @@ def trajectory_slice(
     target_fp = corpus / rel_file
     if not target_fp.is_file():
         # Generic fallback: cpg status
-        code, stdout, err, ms = run_cmd([str(rgctl), "-f", "json", "cpg", "status"], corpus)
+        code, stdout, err, ms = run_cmd(
+            [str(rgctl), "-f", "json", "cpg", "status"], corpus
+        )
         with_res = make_result(
             "Program Slicing",
             corpus,
@@ -633,7 +680,9 @@ def trajectory_slice(
             detail="cpg status fallback",
             error="" if code == 0 else err.decode(errors="replace")[:200],
         )
-        no_res = run_no_skill_rg_and_read("Program Slicing", corpus, "class ", max_files=3)
+        no_res = run_no_skill_rg_and_read(
+            "Program Slicing", corpus, "class ", max_files=3
+        )
         return [with_res, no_res]
 
     code, stdout, err, ms = run_cmd(
@@ -705,7 +754,9 @@ def trajectory_migrate(
     if plan_fp.is_file():
         try:
             plan_doc = json.loads(plan_fp.read_bytes())
-            steps = [s for s in (plan_doc.get("steps") or []) if s.get("label") != "root"][:20]
+            steps = [
+                s for s in (plan_doc.get("steps") or []) if s.get("label") != "root"
+            ][:20]
             plan_steps_count = len(steps)
         except json.JSONDecodeError:
             pass
@@ -713,7 +764,9 @@ def trajectory_migrate(
         try:
             doc = json.loads(stdout)
             multi = [
-                c for c in (doc.get("communities") or []) if (c.get("member_count") or 0) > 1
+                c
+                for c in (doc.get("communities") or [])
+                if (c.get("member_count") or 0) > 1
             ][:20]
             compact = {
                 "schema_version": doc.get("schema_version"),
@@ -861,8 +914,12 @@ def prepare_temp_workspace(
     return tmp
 
 
-def rgctl_json(rgctl: Path, cwd: Path, args: list[str], timeout: float = 180.0) -> tuple[int, Any, bytes, float]:
-    code, stdout, err, ms = run_cmd([str(rgctl), "-f", "json", *args], cwd, timeout=timeout)
+def rgctl_json(
+    rgctl: Path, cwd: Path, args: list[str], timeout: float = 180.0
+) -> tuple[int, Any, bytes, float]:
+    code, stdout, err, ms = run_cmd(
+        [str(rgctl), "-f", "json", *args], cwd, timeout=timeout
+    )
     doc: Any = None
     if stdout.strip():
         try:
@@ -958,7 +1015,9 @@ def usecase_u1_javax_to_jakarta(
         err = ""
         ok = True
         c1, doc1, e1, _ = rgctl_json(
-            rgctl, ws, ["find", "import javax.ejb*", "--type", "import", "--limit", "50"]
+            rgctl,
+            ws,
+            ["find", "import javax.ejb*", "--type", "import", "--limit", "50"],
         )
         turns += 1
         tok += estimate_tokens(json.dumps(doc1 or {}).encode())
@@ -973,14 +1032,21 @@ def usecase_u1_javax_to_jakarta(
         if c_up != 0 and ok:
             ok = False
             err = e_up.decode(errors="replace")[:200]
-        c2, doc2, _, _ = rgctl_json(rgctl, ws, ["find", "import javax.ejb*", "--type", "import"])
-        c3, doc3, _, _ = rgctl_json(rgctl, ws, ["find", "import jakarta.ejb*", "--type", "import"])
+        c2, doc2, _, _ = rgctl_json(
+            rgctl, ws, ["find", "import javax.ejb*", "--type", "import"]
+        )
+        c3, doc3, _, _ = rgctl_json(
+            rgctl, ws, ["find", "import jakarta.ejb*", "--type", "import"]
+        )
         turns += 2
         tok += estimate_tokens(json.dumps(doc2 or {}).encode()) + estimate_tokens(
             json.dumps(doc3 or {}).encode()
         )
         checks = [
-            (f"javax.ejb imports == 0 (actual: {(doc2 or {}).get('total')})", (doc2 or {}).get("total") == 0),
+            (
+                f"javax.ejb imports == 0 (actual: {(doc2 or {}).get('total')})",
+                (doc2 or {}).get("total") == 0,
+            ),
             (
                 f"jakarta.ejb imports == 13 (actual: {(doc3 or {}).get('total')})",
                 (doc3 or {}).get("total") == 13,
@@ -1016,7 +1082,19 @@ def usecase_u1_javax_to_jakarta(
         if not rg:
             results.append(
                 make_usecase_result(
-                    "U1", title, corpus_label, "no_skill", False, False, 0.0, [], 0, 0, 0, [], "rg missing"
+                    "U1",
+                    title,
+                    corpus_label,
+                    "no_skill",
+                    False,
+                    False,
+                    0.0,
+                    [],
+                    0,
+                    0,
+                    0,
+                    [],
+                    "rg missing",
                 )
             )
         else:
@@ -1038,7 +1116,13 @@ def usecase_u1_javax_to_jakarta(
             c_rg2, out_rg2, _, _ = run_cmd(
                 [rg, "-n", *RG_EXCLUDE_GLOBS, r"javax\.ejb", "-g", "*.java", "."], ws
             )
-            leftover = len([ln for ln in out_rg2.decode(errors="replace").splitlines() if "import javax.ejb" in ln])
+            leftover = len(
+                [
+                    ln
+                    for ln in out_rg2.decode(errors="replace").splitlines()
+                    if "import javax.ejb" in ln
+                ]
+            )
             oracle_ok = leftover == 0
             tok = estimate_tokens(out_rg) + (read_b // 4) + estimate_tokens(out_rg2)
             results.append(
@@ -1118,36 +1202,50 @@ def usecase_u2_javax_json_to_jackson(
         turns = 0
         err = ""
         ok = True
-        c1, doc1, e1, _ = rgctl_json(rgctl, ws, ["find", "import javax.json*", "--type", "import"])
+        c1, doc1, e1, _ = rgctl_json(
+            rgctl, ws, ["find", "import javax.json*", "--type", "import"]
+        )
         turns += 1
         tok += estimate_tokens(json.dumps(doc1 or {}).encode())
         if c1 != 0 or (doc1 or {}).get("total") != 6:
             ok = False
             err = f"pre javax.json total={(doc1 or {}).get('total')}"
-        c2, doc2, e2, _ = rgctl_json(rgctl, ws, ["callers", "jsonToOrder", "--depth", "1"])
+        c2, doc2, e2, _ = rgctl_json(
+            rgctl, ws, ["callers", "jsonToOrder", "--depth", "1"]
+        )
         turns += 1
         tok += estimate_tokens(json.dumps(doc2 or {}).encode())
         if c2 != 0 or (doc2 or {}).get("total") != 1:
             ok = False
-            err = (err + "; " if err else "") + f"callers jsonToOrder total={(doc2 or {}).get('total')}"
+            err = (
+                err + "; " if err else ""
+            ) + f"callers jsonToOrder total={(doc2 or {}).get('total')}"
         tf = ws / rel_tf
         _migrate_transformers_to_jackson(tf)
-        c_up, _, e_up, _ = run_cmd(
-            [str(rgctl), "update", "--force"], ws, timeout=180.0
-        )
+        c_up, _, e_up, _ = run_cmd([str(rgctl), "update", "--force"], ws, timeout=180.0)
         turns += 1
         if c_up != 0 and ok:
             ok = False
             err = e_up.decode(errors="replace")[:200]
-        c3, doc3, _, _ = rgctl_json(rgctl, ws, ["find", "import javax.json*", "--type", "import"])
-        c4, doc4, _, _ = rgctl_json(rgctl, ws, ["callers", "jsonToOrder", "--depth", "1"])
+        c3, doc3, _, _ = rgctl_json(
+            rgctl, ws, ["find", "import javax.json*", "--type", "import"]
+        )
+        c4, doc4, _, _ = rgctl_json(
+            rgctl, ws, ["callers", "jsonToOrder", "--depth", "1"]
+        )
         turns += 2
         tok += estimate_tokens(json.dumps(doc3 or {}).encode()) + estimate_tokens(
             json.dumps(doc4 or {}).encode()
         )
         checks = [
-            (f"javax.json imports == 0 (actual: {(doc3 or {}).get('total')})", (doc3 or {}).get("total") == 0),
-            (f"callers jsonToOrder == 1 (actual: {(doc4 or {}).get('total')})", (doc4 or {}).get("total") == 1),
+            (
+                f"javax.json imports == 0 (actual: {(doc3 or {}).get('total')})",
+                (doc3 or {}).get("total") == 0,
+            ),
+            (
+                f"callers jsonToOrder == 1 (actual: {(doc4 or {}).get('total')})",
+                (doc4 or {}).get("total") == 1,
+            ),
         ]
         score, labels, oracle_ok = _score_checks(checks)
         results.append(
@@ -1176,7 +1274,8 @@ def usecase_u2_javax_json_to_jackson(
         t0 = time.perf_counter()
         extras = [
             ws / rel_tf,
-            ws / "src/main/java/com/redhat/coolstore/service/InventoryNotificationMDB.java",
+            ws
+            / "src/main/java/com/redhat/coolstore/service/InventoryNotificationMDB.java",
             ws / "src/main/java/com/redhat/coolstore/service/OrderServiceMDB.java",
             ws / "pom.xml",
         ]
@@ -1192,7 +1291,16 @@ def usecase_u2_javax_json_to_jackson(
         leftover = 1
         if rg:
             _, out2, _, _ = run_cmd(
-                [rg, "-n", *RG_EXCLUDE_GLOBS, r"import javax\.json", "-g", "*.java", "."], ws
+                [
+                    rg,
+                    "-n",
+                    *RG_EXCLUDE_GLOBS,
+                    r"import javax\.json",
+                    "-g",
+                    "*.java",
+                    ".",
+                ],
+                ws,
             )
             leftover = len(out2.splitlines())
         oracle_ok = leftover == 0
@@ -1247,7 +1355,9 @@ def usecase_u3_rename_across_blast_radius(
         for rel in targets:
             fp = ws / rel
             fp.write_text(
-                fp.read_text(encoding="utf-8").replace("priceShoppingCart", "recalculateCartPricing"),
+                fp.read_text(encoding="utf-8").replace(
+                    "priceShoppingCart", "recalculateCartPricing"
+                ),
                 encoding="utf-8",
             )
         c_up, _, e_up, _ = run_cmd([str(rgctl), "update", "--force"], ws, timeout=180.0)
@@ -1297,7 +1407,10 @@ def usecase_u3_rename_across_blast_radius(
         n_syms = len((doc4 or {}).get("symbols") or [])
         review_ok = c4 == 0 and (changed >= 1 or files_in_scope >= 1 or n_syms >= 1)
         checks = [
-            (f"find priceShoppingCart == 0 (actual: {(doc2 or {}).get('total')})", (doc2 or {}).get("total") == 0),
+            (
+                f"find priceShoppingCart == 0 (actual: {(doc2 or {}).get('total')})",
+                (doc2 or {}).get("total") == 0,
+            ),
             (
                 f"callers recalculateCartPricing == 4 (actual: {(doc3 or {}).get('total')})",
                 (doc3 or {}).get("total") == 4,
@@ -1341,14 +1454,17 @@ def usecase_u3_rename_across_blast_radius(
         for rel in targets:
             fp = ws / rel
             fp.write_text(
-                fp.read_text(encoding="utf-8").replace("priceShoppingCart", "recalculateCartPricing"),
+                fp.read_text(encoding="utf-8").replace(
+                    "priceShoppingCart", "recalculateCartPricing"
+                ),
                 encoding="utf-8",
             )
         rg = find_rg()
         leftover = 1
         if rg:
             _, out2, _, _ = run_cmd(
-                [rg, "-n", *RG_EXCLUDE_GLOBS, "priceShoppingCart", "-g", "*.java", "."], ws
+                [rg, "-n", *RG_EXCLUDE_GLOBS, "priceShoppingCart", "-g", "*.java", "."],
+                ws,
             )
             leftover = len(out2.splitlines())
         oracle_ok = leftover == 0
@@ -1378,7 +1494,10 @@ def _seed_shipping_concrete_field(scs: Path) -> None:
     if "ShippingService ss;" in text or "ShippingServiceRemote ss;" in text:
         return
     needle = "    @Inject\n    PromoService ps;\n"
-    insert = needle + "\n    @Inject\n    ShippingService ss; // EVAL seed: concrete type to decouple\n"
+    insert = (
+        needle
+        + "\n    @Inject\n    ShippingService ss; // EVAL seed: concrete type to decouple\n"
+    )
     if needle not in text:
         raise RuntimeError("PromoService inject site missing for U4 seed")
     scs.write_text(text.replace(needle, insert, 1), encoding="utf-8")
@@ -1427,7 +1546,14 @@ def usecase_u4_decouple_shipping_interface(
         c2, doc2, e2, _ = rgctl_json(
             rgctl,
             ws,
-            ["blast-radius", "calculateShipping", "--class", "ShippingService", "--depth", "2"],
+            [
+                "blast-radius",
+                "calculateShipping",
+                "--class",
+                "ShippingService",
+                "--depth",
+                "2",
+            ],
         )
         turns += 1
         tok += estimate_tokens(json.dumps(doc2 or {}).encode())
@@ -1482,7 +1608,10 @@ def usecase_u4_decouple_shipping_interface(
         shipping_src = (
             ws / "src/main/java/com/redhat/coolstore/service/ShippingService.java"
         ).read_text(encoding="utf-8")
-        implements_ok = int(returned or 0) >= 1 or "implements ShippingServiceRemote" in shipping_src
+        implements_ok = (
+            int(returned or 0) >= 1
+            or "implements ShippingServiceRemote" in shipping_src
+        )
         checks = [
             (f"index_current/ready (actual: {index_current})", index_current),
             ("ShippingServiceRemote ss; present", has_remote),
@@ -1517,7 +1646,8 @@ def usecase_u4_decouple_shipping_interface(
         t0 = time.perf_counter()
         extras = [
             ws / "src/main/java/com/redhat/coolstore/service/ShippingService.java",
-            ws / "src/main/java/com/redhat/coolstore/service/ShippingServiceRemote.java",
+            ws
+            / "src/main/java/com/redhat/coolstore/service/ShippingServiceRemote.java",
             scs,
             ws / "src/main/java/com/redhat/coolstore/service/PromoService.java",
         ]
@@ -1526,7 +1656,8 @@ def usecase_u4_decouple_shipping_interface(
         )
         text = scs.read_text(encoding="utf-8")
         scs.write_text(
-            text.replace("ShippingService ss;", "ShippingServiceRemote ss;", 1), encoding="utf-8"
+            text.replace("ShippingService ss;", "ShippingServiceRemote ss;", 1),
+            encoding="utf-8",
         )
         oracle_ok = "ShippingServiceRemote ss;" in scs.read_text(encoding="utf-8")
         results.append(
@@ -1605,13 +1736,24 @@ def usecase_u5_deduplicate_exact_clones(
                     _delegate_normalize_payload(fp)
         # Always ensure CloneB is delegated even if path resolution failed above.
         clone_b = ws / "src" / "CloneB.java"
-        if clone_b.is_file() and "return CloneA.normalizePayload" not in clone_b.read_text(
-            encoding="utf-8"
+        if (
+            clone_b.is_file()
+            and "return CloneA.normalizePayload"
+            not in clone_b.read_text(encoding="utf-8")
         ):
             _delegate_normalize_payload(clone_b)
-        for extra in (ws / "src" / "test").glob("*.java") if (ws / "src" / "test").is_dir() else []:
-            if "normalizePayload" in extra.read_text(encoding="utf-8") and "CloneA" not in extra.name:
-                if "return CloneA.normalizePayload" not in extra.read_text(encoding="utf-8"):
+        for extra in (
+            (ws / "src" / "test").glob("*.java")
+            if (ws / "src" / "test").is_dir()
+            else []
+        ):
+            if (
+                "normalizePayload" in extra.read_text(encoding="utf-8")
+                and "CloneA" not in extra.name
+            ):
+                if "return CloneA.normalizePayload" not in extra.read_text(
+                    encoding="utf-8"
+                ):
                     _delegate_normalize_payload(extra)
         c_disc, _, e_disc, _ = run_cmd([str(rgctl), "discover", "."], ws, timeout=180.0)
         turns += 1
@@ -1637,7 +1779,10 @@ def usecase_u5_deduplicate_exact_clones(
         # collapses overloaded normalizePayload symbols (known clone-exact quirk).
         callers_ok = callers_n >= 1 or delegates
         checks = [
-            (f"clones group_count == 0 (actual: {(doc2 or {}).get('group_count')})", (doc2 or {}).get("group_count") == 0),
+            (
+                f"clones group_count == 0 (actual: {(doc2 or {}).get('group_count')})",
+                (doc2 or {}).get("group_count") == 0,
+            ),
             (f"CloneB→CloneA callers/delegation (callers={callers_n})", callers_ok),
         ]
         score, labels, oracle_ok = _score_checks(checks)
@@ -1672,9 +1817,9 @@ def usecase_u5_deduplicate_exact_clones(
                 continue
             if "normalizePayload" in fp.read_text(encoding="utf-8"):
                 _delegate_normalize_payload(fp)
-        oracle_ok = "return CloneA.normalizePayload" in (ws / "src" / "CloneB.java").read_text(
-            encoding="utf-8"
-        )
+        oracle_ok = "return CloneA.normalizePayload" in (
+            ws / "src" / "CloneB.java"
+        ).read_text(encoding="utf-8")
         results.append(
             make_usecase_result(
                 "U5",
@@ -1777,7 +1922,10 @@ def usecase_u6_remediate_cve_sink(
         ok = True
         jars = ["--include-jars", "lib"] if (ws / "lib").is_dir() else []
         c1, doc1, e1, _ = rgctl_json(
-            rgctl, ws, ["vuln", "analyze", "--osv", str(osv_fixture), *jars], timeout=180.0
+            rgctl,
+            ws,
+            ["vuln", "analyze", "--osv", str(osv_fixture), *jars],
+            timeout=180.0,
         )
         turns += 1
         tok += estimate_tokens(json.dumps(doc1 or {}).encode())
@@ -1794,7 +1942,10 @@ def usecase_u6_remediate_cve_sink(
             ok = False
             err = e_disc.decode(errors="replace")[:200]
         c2, doc2, _, _ = rgctl_json(
-            rgctl, ws, ["vuln", "analyze", "--osv", str(osv_fixture), *jars], timeout=180.0
+            rgctl,
+            ws,
+            ["vuln", "analyze", "--osv", str(osv_fixture), *jars],
+            timeout=180.0,
         )
         turns += 1
         tok += estimate_tokens(json.dumps(doc2 or {}).encode())
@@ -1862,11 +2013,15 @@ def usecase_u6_remediate_cve_sink(
     return results
 
 
-def run_usecases(args: argparse.Namespace, rgctl: Path, skills_root: Path) -> list[UseCaseResult]:
+def run_usecases(
+    args: argparse.Namespace, rgctl: Path, skills_root: Path
+) -> list[UseCaseResult]:
     wanted = parse_usecase_filter(getattr(args, "usecase", "all"))
     coolstore = REPO_ROOT / args.coolstore
     clone_exact = REPO_ROOT / "rgctl-tests" / "clone-exact"
-    osv_fixture = REPO_ROOT / "tests" / "fixtures" / "osv" / "jackson-CVE-2022-42004.json"
+    osv_fixture = (
+        REPO_ROOT / "tests" / "fixtures" / "osv" / "jackson-CVE-2022-42004.json"
+    )
     meta = skills_root / "rgctl" / "SKILL.md"
     migrate = skills_root / "rgctl-migrate" / "SKILL.md"
     vuln = skills_root / "rgctl-vuln" / "SKILL.md"
@@ -1877,9 +2032,13 @@ def run_usecases(args: argparse.Namespace, rgctl: Path, skills_root: Path) -> li
     if "U2" in wanted and coolstore.is_dir():
         out.extend(usecase_u2_javax_json_to_jackson(rgctl, coolstore, [meta]))
     if "U3" in wanted and coolstore.is_dir():
-        out.extend(usecase_u3_rename_across_blast_radius(rgctl, coolstore, [meta, review]))
+        out.extend(
+            usecase_u3_rename_across_blast_radius(rgctl, coolstore, [meta, review])
+        )
     if "U4" in wanted and coolstore.is_dir():
-        out.extend(usecase_u4_decouple_shipping_interface(rgctl, coolstore, [migrate, meta]))
+        out.extend(
+            usecase_u4_decouple_shipping_interface(rgctl, coolstore, [migrate, meta])
+        )
     if "U5" in wanted and clone_exact.is_dir():
         out.extend(usecase_u5_deduplicate_exact_clones(rgctl, clone_exact, [meta]))
     if "U6" in wanted and coolstore.is_dir() and osv_fixture.is_file():
@@ -1911,7 +2070,9 @@ def run_offline(args: argparse.Namespace) -> Report:
     review_skill = skills_root / "rgctl-review" / "SKILL.md"
     vuln_skill = skills_root / "rgctl-vuln" / "SKILL.md"
     migrate_skill = skills_root / "rgctl-migrate" / "SKILL.md"
-    osv_fixture = REPO_ROOT / "tests" / "fixtures" / "osv" / "jackson-CVE-2022-42004.json"
+    osv_fixture = (
+        REPO_ROOT / "tests" / "fixtures" / "osv" / "jackson-CVE-2022-42004.json"
+    )
 
     if suite in ("queries", "all"):
         if not corpora:
@@ -1927,7 +2088,9 @@ def run_offline(args: argparse.Namespace) -> Report:
                 )
             report.trajectories.extend(trajectory_review(rgctl, corpus, [review_skill]))
             report.trajectories.extend(trajectory_slice(rgctl, corpus, [meta_skill]))
-            report.trajectories.extend(trajectory_migrate(rgctl, corpus, [migrate_skill]))
+            report.trajectories.extend(
+                trajectory_migrate(rgctl, corpus, [migrate_skill])
+            )
             report.trajectories.extend(trajectory_hotspots(rgctl, corpus, [meta_skill]))
 
     if suite in ("usecases", "all"):
@@ -1958,8 +2121,12 @@ def grade_usecase_workspace(
         return passed, score, labels
 
     if usecase_id == "U1":
-        _, doc2, _, _ = rgctl_json(rgctl, ws, ["find", "import javax.ejb*", "--type", "import"])
-        _, doc3, _, _ = rgctl_json(rgctl, ws, ["find", "import jakarta.ejb*", "--type", "import"])
+        _, doc2, _, _ = rgctl_json(
+            rgctl, ws, ["find", "import javax.ejb*", "--type", "import"]
+        )
+        _, doc3, _, _ = rgctl_json(
+            rgctl, ws, ["find", "import jakarta.ejb*", "--type", "import"]
+        )
         return _pack(
             [
                 (
@@ -1973,8 +2140,12 @@ def grade_usecase_workspace(
             ]
         )
     if usecase_id == "U2":
-        _, doc3, _, _ = rgctl_json(rgctl, ws, ["find", "import javax.json*", "--type", "import"])
-        _, doc4, _, _ = rgctl_json(rgctl, ws, ["callers", "jsonToOrder", "--depth", "1"])
+        _, doc3, _, _ = rgctl_json(
+            rgctl, ws, ["find", "import javax.json*", "--type", "import"]
+        )
+        _, doc4, _, _ = rgctl_json(
+            rgctl, ws, ["callers", "jsonToOrder", "--depth", "1"]
+        )
         return _pack(
             [
                 (
@@ -1995,7 +2166,9 @@ def grade_usecase_workspace(
             rgctl, ws, ["callers", "recalculateCartPricing", "--depth", "1"]
         )
         c4, doc4, _, _ = rgctl_json(
-            rgctl, ws, ["review", "paths", "--synthetic-head", "worktree", "--max-symbols", "25"]
+            rgctl,
+            ws,
+            ["review", "paths", "--synthetic-head", "worktree", "--max-symbols", "25"],
         )
         cs = (doc4 or {}).get("change_summary") or {}
         changed = cs.get("changed_symbols") or 0
@@ -2020,7 +2193,9 @@ def grade_usecase_workspace(
         )
     if usecase_id == "U4":
         scs = ws / "src/main/java/com/redhat/coolstore/service/ShoppingCartService.java"
-        has_remote = scs.is_file() and "ShippingServiceRemote ss;" in scs.read_text(encoding="utf-8")
+        has_remote = scs.is_file() and "ShippingServiceRemote ss;" in scs.read_text(
+            encoding="utf-8"
+        )
         _, doc3, _, _ = rgctl_json(rgctl, ws, ["status"])
         index_current = bool((doc3 or {}).get("index_current"))
         if "index_current" not in (doc3 or {}):
@@ -2043,12 +2218,18 @@ def grade_usecase_workspace(
         shipping_src = (
             ws / "src/main/java/com/redhat/coolstore/service/ShippingService.java"
         ).read_text(encoding="utf-8")
-        implements_ok = int(returned or 0) >= 1 or "implements ShippingServiceRemote" in shipping_src
+        implements_ok = (
+            int(returned or 0) >= 1
+            or "implements ShippingServiceRemote" in shipping_src
+        )
         return _pack(
             [
                 (f"index ready (actual: {index_current})", index_current),
                 ("ShippingServiceRemote ss; present", has_remote),
-                (f"implements ShippingServiceRemote (returned={returned})", implements_ok),
+                (
+                    f"implements ShippingServiceRemote (returned={returned})",
+                    implements_ok,
+                ),
             ]
         )
     if usecase_id == "U5":
@@ -2061,8 +2242,9 @@ def grade_usecase_workspace(
             ["callers", "normalizePayload", "--depth", "1"],
         )
         clone_b = ws / "src" / "CloneB.java"
-        delegates = clone_b.is_file() and "CloneA.normalizePayload" in clone_b.read_text(
-            encoding="utf-8"
+        delegates = (
+            clone_b.is_file()
+            and "CloneA.normalizePayload" in clone_b.read_text(encoding="utf-8")
         )
         callers_n = int((doc3 or {}).get("total") or 0)
         return _pack(
@@ -2086,8 +2268,14 @@ def grade_usecase_workspace(
         exp = (doc2 or {}).get("exploitability")
         return _pack(
             [
-                (f"post call_sites == 0 (actual: {len(sites_post)})", len(sites_post) == 0),
-                (f"exploitability != exploitable (actual: {exp})", exp != "exploitable"),
+                (
+                    f"post call_sites == 0 (actual: {len(sites_post)})",
+                    len(sites_post) == 0,
+                ),
+                (
+                    f"exploitability != exploitable (actual: {exp})",
+                    exp != "exploitable",
+                ),
             ]
         )
     return False, 0.0, [f"unknown usecase {usecase_id}"]
@@ -2118,7 +2306,9 @@ def run_agent(args: argparse.Namespace) -> Report:
     rgctl = find_rgctl()
     suite = getattr(args, "suite", "all")
     wanted = parse_usecase_filter(getattr(args, "usecase", "all"))
-    osv_fixture = REPO_ROOT / "tests" / "fixtures" / "osv" / "jackson-CVE-2022-42004.json"
+    osv_fixture = (
+        REPO_ROOT / "tests" / "fixtures" / "osv" / "jackson-CVE-2022-42004.json"
+    )
     coolstore = REPO_ROOT / args.coolstore
     clone_exact = REPO_ROOT / "rgctl-tests" / "clone-exact"
 
@@ -2134,12 +2324,15 @@ def run_agent(args: argparse.Namespace) -> Report:
             prompt = USECASE_PROMPTS[uid]
             for arm in arms:
                 with_cfg = uid == "U6"
-                tmp = prepare_temp_workspace(rgctl, src, init_git=True, with_cfg=with_cfg)
+                tmp = prepare_temp_workspace(
+                    rgctl, src, init_git=True, with_cfg=with_cfg
+                )
                 try:
                     ws: Path = getattr(tmp, "workspace")
                     if uid == "U4":
                         _seed_shipping_concrete_field(
-                            ws / "src/main/java/com/redhat/coolstore/service/ShoppingCartService.java"
+                            ws
+                            / "src/main/java/com/redhat/coolstore/service/ShoppingCartService.java"
                         )
                         run_cmd(
                             [
@@ -2152,9 +2345,14 @@ def run_agent(args: argparse.Namespace) -> Report:
                         )
                     if uid == "U6":
                         _seed_objectmapper_json_to_order(
-                            ws / "src/main/java/com/redhat/coolstore/utils/Transformers.java"
+                            ws
+                            / "src/main/java/com/redhat/coolstore/utils/Transformers.java"
                         )
-                        run_cmd([str(rgctl), "discover", ".", "--with-cfg"], ws, timeout=300.0)
+                        run_cmd(
+                            [str(rgctl), "discover", ".", "--with-cfg"],
+                            ws,
+                            timeout=300.0,
+                        )
                     t0 = time.perf_counter()
                     code, stdout, err, ms = run_cmd(
                         args.agent_cmd.split()
@@ -2178,8 +2376,8 @@ def run_agent(args: argparse.Namespace) -> Report:
                         if uid == "U6":
                             disc.append("--with-cfg")
                         run_cmd(disc, ws, timeout=300.0)
-                    oracle_passed, oracle_score, oracle_checks = grade_usecase_workspace(
-                        uid, rgctl, ws, osv_fixture
+                    oracle_passed, oracle_score, oracle_checks = (
+                        grade_usecase_workspace(uid, rgctl, ws, osv_fixture)
                     )
                     agent_rows.append(
                         {
@@ -2239,9 +2437,9 @@ def run_agent(args: argparse.Namespace) -> Report:
         return report
 
     report.agent = {"status": "ok", "rows": agent_rows}
-    usecase_ok = all(u.oracle_passed for u in report.usecases if u.arm != "no_skill") or all(
-        r.get("oracle_passed") for r in agent_rows
-    )
+    usecase_ok = all(
+        u.oracle_passed for u in report.usecases if u.arm != "no_skill"
+    ) or all(r.get("oracle_passed") for r in agent_rows)
     # Require at least ambient/slash arms to pass oracle when present.
     graded = [r for r in agent_rows if r["arm"] in ("ambient_rgctl", "slash_commands")]
     if graded:
@@ -2298,7 +2496,14 @@ def emit_markdown(report: Report) -> str:
                 f"{u.tool_turns} | {u.net_tokens_5turn_cached} | {checks or u.error} |"
             )
     if report.agent:
-        lines += ["", "## Agent A/B", "", "```json", json.dumps(report.agent, indent=2), "```"]
+        lines += [
+            "",
+            "## Agent A/B",
+            "",
+            "```json",
+            json.dumps(report.agent, indent=2),
+            "```",
+        ]
     lines.append("")
     return "\n".join(lines)
 

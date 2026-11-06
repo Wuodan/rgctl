@@ -16,14 +16,8 @@
       "sink_line": 3,
       "source_text": "q = request.GET[\"id\"]",
       "sink_text": "cursor.execute(q)",
-      "path_lines": [
-        2,
-        3
-      ],
-      "path_statements": [
-        "q = request.GET[\"id\"]",
-        "cursor.execute(q)"
-      ]
+      "path_lines": [2, 3],
+      "path_statements": ["q = request.GET[\"id\"]", "cursor.execute(q)"]
     }
   ]
 }

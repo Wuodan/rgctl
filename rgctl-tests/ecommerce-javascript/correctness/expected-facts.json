@@ -19,61 +19,34 @@
         "canonical_fqn": "correctnessRoot",
         "file_suffix": "correctness.js"
       },
-      "exact_callees": [
-        "correctnessMid"
-      ],
+      "exact_callees": ["correctnessMid"],
       "exact_callers": [],
       "blast": {
         "exact_direct_callers": [],
         "exact_impact_zone": []
       },
       "ast": {
-        "must_call": [
-          "correctnessMid"
-        ],
-        "statements_contain": [
-          "const value = correctnessMid();",
-          "flag"
-        ],
-        "statement_kinds_any": [
-          "Expression",
-          "Branch",
-          "Return"
-        ]
+        "must_call": ["correctnessMid"],
+        "statements_contain": ["const value = correctnessMid();", "flag"],
+        "statement_kinds_any": ["Expression", "Branch", "Return"]
       },
       "cfg": {
         "exact_block_count": 6,
         "exact_edge_count": 5,
-        "exact_edge_kinds": [
-          "iffalse",
-          "iftrue",
-          "next",
-          "return",
-          "return"
-        ],
-        "statements_contain": [
-          "correctnessMid()"
-        ]
+        "exact_edge_kinds": ["iffalse", "iftrue", "next", "return", "return"],
+        "statements_contain": ["correctnessMid()"]
       },
       "pdg": {
         "exact_data_deps": 2,
         "exact_control_deps": 2,
         "exact_node_count": 4,
-        "exact_node_kinds": [
-          "Branch",
-          "Expression",
-          "Return",
-          "Return"
-        ],
+        "exact_node_kinds": ["Branch", "Expression", "Return", "Return"],
         "data_edges": [
           {
             "variable": "value"
           }
         ],
-        "node_labels_contain": [
-          "correctnessMid()",
-          "value * 2"
-        ]
+        "node_labels_contain": ["correctnessMid()", "value * 2"]
       },
       "dom": {
         "exact_block_count": 6,
@@ -100,46 +73,28 @@
         "canonical_fqn": "correctnessMid",
         "file_suffix": "correctness.js"
       },
-      "exact_callees": [
-        "correctnessLeaf"
-      ],
-      "exact_callers": [
-        "correctnessRoot"
-      ],
+      "exact_callees": ["correctnessLeaf"],
+      "exact_callers": ["correctnessRoot"],
       "blast": {
-        "exact_direct_callers": [
-          "correctnessRoot"
-        ],
-        "exact_impact_zone": [
-          "correctnessRoot"
-        ],
+        "exact_direct_callers": ["correctnessRoot"],
+        "exact_impact_zone": ["correctnessRoot"],
         "min_score": 0.1
       },
       "ast": {
-        "must_call": [
-          "correctnessLeaf"
-        ],
-        "statements_contain": [
-          "return correctnessLeaf() + 1;"
-        ],
-        "exact_statement_kinds": [
-          "Return"
-        ]
+        "must_call": ["correctnessLeaf"],
+        "statements_contain": ["return correctnessLeaf() + 1;"],
+        "exact_statement_kinds": ["Return"]
       },
       "cfg": {
         "exact_block_count": 2,
         "exact_edge_count": 1,
-        "exact_edge_kinds": [
-          "return"
-        ]
+        "exact_edge_kinds": ["return"]
       },
       "pdg": {
         "exact_data_deps": 0,
         "exact_control_deps": 0,
         "exact_node_count": 1,
-        "exact_node_kinds": [
-          "Return"
-        ]
+        "exact_node_kinds": ["Return"]
       },
       "dom": {
         "exact_block_count": 2,
@@ -167,41 +122,26 @@
         "file_suffix": "correctness.js"
       },
       "exact_callees": [],
-      "exact_callers": [
-        "correctnessMid"
-      ],
+      "exact_callers": ["correctnessMid"],
       "blast": {
-        "exact_direct_callers": [
-          "correctnessMid"
-        ],
-        "exact_impact_zone": [
-          "correctnessMid",
-          "correctnessRoot"
-        ],
+        "exact_direct_callers": ["correctnessMid"],
+        "exact_impact_zone": ["correctnessMid", "correctnessRoot"],
         "min_score": 0.1
       },
       "ast": {
-        "statements_contain": [
-          "return 42;"
-        ],
-        "exact_statement_kinds": [
-          "Return"
-        ]
+        "statements_contain": ["return 42;"],
+        "exact_statement_kinds": ["Return"]
       },
       "cfg": {
         "exact_block_count": 2,
         "exact_edge_count": 1,
-        "exact_edge_kinds": [
-          "return"
-        ]
+        "exact_edge_kinds": ["return"]
       },
       "pdg": {
         "exact_data_deps": 0,
         "exact_control_deps": 0,
         "exact_node_count": 1,
-        "exact_node_kinds": [
-          "Return"
-        ]
+        "exact_node_kinds": ["Return"]
       },
       "dom": {
         "exact_block_count": 2
@@ -231,10 +171,7 @@
       },
       "cfg": {
         "min_blocks": 6,
-        "statements_contain": [
-          "a",
-          "b"
-        ]
+        "statements_contain": ["a", "b"]
       }
     },
     "cfgForLoop": {
@@ -307,9 +244,7 @@
         "exact_name": "uniqueOne",
         "file_suffix": "caseB_one.js"
       },
-      "exact_callees": [
-        "dup"
-      ],
+      "exact_callees": ["dup"],
       "cfg": {
         "min_blocks": 2
       }
@@ -361,10 +296,7 @@
     "B1_blast_vs_calls": {
       "enabled": true,
       "severity": "required",
-      "symbols": [
-        "correctnessLeaf",
-        "correctnessMid"
-      ]
+      "symbols": ["correctnessLeaf", "correctnessMid"]
     },
     "B2_gql_calls_nonzero": {
       "enabled": true,
@@ -385,37 +317,22 @@
     "B6_cfg_calls_subset_of_calls_edges": {
       "enabled": true,
       "severity": "required",
-      "symbols": [
-        "correctnessRoot",
-        "correctnessMid"
-      ]
+      "symbols": ["correctnessRoot", "correctnessMid"]
     },
     "B7_pdg_lines_subset_cfg": {
       "enabled": true,
       "severity": "required",
-      "symbols": [
-        "correctnessRoot",
-        "correctnessMid",
-        "correctnessLeaf"
-      ]
+      "symbols": ["correctnessRoot", "correctnessMid", "correctnessLeaf"]
     },
     "B8_dom_blocks_match_cfg": {
       "enabled": true,
       "severity": "required",
-      "symbols": [
-        "correctnessRoot",
-        "correctnessMid",
-        "correctnessLeaf"
-      ]
+      "symbols": ["correctnessRoot", "correctnessMid", "correctnessLeaf"]
     },
     "B9_blast_target_name": {
       "enabled": true,
       "severity": "required",
-      "symbols": [
-        "correctnessRoot",
-        "correctnessMid",
-        "correctnessLeaf"
-      ]
+      "symbols": ["correctnessRoot", "correctnessMid", "correctnessLeaf"]
     }
   }
 }

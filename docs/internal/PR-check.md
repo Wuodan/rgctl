@@ -116,11 +116,11 @@ Recommended command pattern:
 
 Evidence table:
 
-| Case | Baseline median wall | PR median wall | Delta | Decision |
-|---|---:|---:|---:|---|
-| linux |  |  |  |  |
-| k8s markdown |  |  |  |  |
-| mixed fixture |  |  |  |  |
+| Case          | Baseline median wall | PR median wall | Delta | Decision |
+|---------------|---------------------:|---------------:|------:|----------|
+| linux         |                      |                |       |          |
+| k8s markdown  |                      |                |       |          |
+| mixed fixture |                      |                |       |          |
 
 ## 8) Gate checks
 

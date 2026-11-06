@@ -9,13 +9,13 @@ namespace ecommerce::coolstore {
 
 class CoolstoreOrderService {
 public:
-    CoolstoreOrder process(ShoppingCart& cart);
-    std::vector<CoolstoreOrder> getOrders() const;
-    std::optional<CoolstoreOrder> getOrderById(long orderId) const;
+  CoolstoreOrder process(ShoppingCart &cart);
+  std::vector<CoolstoreOrder> getOrders() const;
+  std::optional<CoolstoreOrder> getOrderById(long orderId) const;
 
 private:
-    long seq_{1};
-    std::unordered_map<long, CoolstoreOrder> orders_;
+  long seq_{1};
+  std::unordered_map<long, CoolstoreOrder> orders_;
 };
 
-}  // namespace ecommerce::coolstore
+} // namespace ecommerce::coolstore

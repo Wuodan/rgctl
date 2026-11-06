@@ -320,8 +320,7 @@ def write_crate(lang: dict) -> None:
     (crate_dir / "src").mkdir(parents=True, exist_ok=True)
     (crate_dir / "queries").mkdir(parents=True, exist_ok=True)
 
-    (crate_dir / "Cargo.toml").write_text(
-        f"""[package]
+    (crate_dir / "Cargo.toml").write_text(f"""[package]
 name = "{crate}"
 version.workspace = true
 edition.workspace = true
@@ -339,8 +338,7 @@ tree-sitter = {{ workspace = true }}
 
 [lints]
 workspace = true
-"""
-    )
+""")
     (crate_dir / "queries" / "tags.scm").write_text(lang["tags"].lstrip() + "\n")
 
     (crate_dir / "src" / "config.rs").write_text(

@@ -1,8 +1,9 @@
 package com.example.ecommerce
 
-trait Trackable {}
+trait Trackable { }
 
 class OrderDTO implements Trackable {
+
     String status
 
     OrderDTO(String status) {
@@ -10,6 +11,7 @@ class OrderDTO implements Trackable {
     }
 
     void markProcessed() {
-        this.status = "PROCESSED"
+        this.status = 'PROCESSED'
     }
+
 }

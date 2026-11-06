@@ -23,32 +23,32 @@ RGCTL=../../target/release/rgctl ../gql-verification-smoke/verify-extraction-gql
 
 Details: [rgctl-tests README](../README.md#extraction-depth-gql-verification).
 
-| Metric | Value |
-|--------|------:|
-| Files indexed | 66 |
-| Nodes | 993 |
-| Edges | 2211 |
-| Discover ms | 307 |
-| Cache MB | 1.89 |
+| Metric        | Value |
+|---------------|------:|
+| Files indexed |    66 |
+| Nodes         |   993 |
+| Edges         |  2211 |
+| Discover ms   |   307 |
+| Cache MB      |  1.89 |
 
-| Feature | Status |
-|---------|:------:|
-| discover | ✓ |
-| blast-radius | ✓ |
-| metrics | ✓ |
-| export | ✗ |
-| check | ✓ |
-| slice / taint | ◐ / ✓ |
+| Feature       | Status |
+|---------------|:------:|
+| discover      |   ✓    |
+| blast-radius  |   ✓    |
+| metrics       |   ✓    |
+| export        |   ✗    |
+| check         |   ✓    |
+| slice / taint | ◐ / ✓  |
 
 ### Top symbols
 
-| Symbol | Score | Callers | Impact |
-|--------|------:|--------:|-------:|
-| `findByEmail` | 40.85 | 3 | 17 |
-| `currentUser` | 40.70 | 7 | 14 |
-| `getProductByItemId` | 40.45 | 2 | 9 |
-| `getRole` | 40.35 | 6 | 7 |
-| `getUserCart` | 40.30 | 5 | 6 |
+| Symbol               | Score | Callers | Impact |
+|----------------------|------:|--------:|-------:|
+| `findByEmail`        | 40.85 |       3 |     17 |
+| `currentUser`        | 40.70 |       7 |     14 |
+| `getProductByItemId` | 40.45 |       2 |      9 |
+| `getRole`            | 40.35 |       6 |      7 |
+| `getUserCart`        | 40.30 |       5 |      6 |
 
 Strongest CALLS graph and community modularity in this suite.
 

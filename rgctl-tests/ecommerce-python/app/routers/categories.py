@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-
 from app.database import get_db
 from app.middleware.auth import require_auth
 from app.schemas.category import CategoryResponse, CreateCategoryRequest
 from app.services.category import CategoryService
 from app.utils.dependencies import AuthUser
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/api/categories", tags=["categories"])
 

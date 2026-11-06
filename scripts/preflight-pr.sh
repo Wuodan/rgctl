@@ -66,7 +66,7 @@ enable_custom_tiers() {
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --lint|--quick)
+    --lint | --quick)
       enable_custom_tiers
       RUN_LINT=1
       shift
@@ -77,7 +77,7 @@ while [[ $# -gt 0 ]]; do
       RUN_TEST=1
       shift
       ;;
-    --tier2|--only-test)
+    --tier2 | --only-test)
       enable_custom_tiers
       RUN_TEST=1
       shift
@@ -112,7 +112,7 @@ while [[ $# -gt 0 ]]; do
       FEATURES="${2:-}"
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       usage
       exit 0
       ;;

@@ -17,9 +17,9 @@ INSTALL_DIR="${RGCTL_INSTALL_DIR:-$ROOT/.rgctl-bin}"
 
 if [[ -z "$TARGET" ]]; then
   case "$(uname -s)-$(uname -m)" in
-    Linux-x86_64)  TARGET=x86_64-unknown-linux-gnu ;;
-    Linux-aarch64|Linux-arm64) TARGET=aarch64-unknown-linux-gnu ;;
-    Darwin-arm64)  TARGET=aarch64-apple-darwin ;;
+    Linux-x86_64) TARGET=x86_64-unknown-linux-gnu ;;
+    Linux-aarch64 | Linux-arm64) TARGET=aarch64-unknown-linux-gnu ;;
+    Darwin-arm64) TARGET=aarch64-apple-darwin ;;
     Darwin-x86_64) TARGET=x86_64-apple-darwin ;;
     *)
       echo "Unsupported platform: $(uname -s)-$(uname -m). Set RGCTL_TARGET explicitly." >&2
@@ -46,7 +46,8 @@ fi
 echo "Fetching release from ${REPO} (${TAG:-latest}) …" >&2
 RELEASE_JSON="$(curl -fsSL "${AUTH[@]}" "$RELEASE_URL")"
 
-read -r TAG_NAME VERSION <<< "$(python3 - <<'PY' "$RELEASE_JSON"
+read -r TAG_NAME VERSION <<<"$(
+  python3 - "$RELEASE_JSON" <<'PY'
 import json, sys
 r = json.loads(sys.argv[1])
 tag = r.get("tag_name") or ""
@@ -61,7 +62,8 @@ if [[ -z "$VERSION" ]]; then
 fi
 
 ASSET="rgctl-${VERSION}-${TARGET}.tar.gz"
-URL="$(python3 - <<'PY' "$RELEASE_JSON" "$ASSET"
+URL="$(
+  python3 - "$RELEASE_JSON" "$ASSET" <<'PY'
 import json, sys
 r = json.loads(sys.argv[1])
 want = sys.argv[2]
@@ -75,7 +77,7 @@ PY
 if [[ -z "$URL" ]]; then
   echo "Asset not found: ${ASSET} in release ${TAG_NAME}" >&2
   echo "Available assets:" >&2
-  python3 - <<'PY' "$RELEASE_JSON" >&2
+  python3 - "$RELEASE_JSON" <<'PY' >&2
 import json, sys
 for a in json.loads(sys.argv[1]).get("assets", []):
     print(" ", a.get("name"))
@@ -101,7 +103,7 @@ if [[ -n "${GITHUB_ENV:-}" && -w "${GITHUB_ENV}" ]]; then
     echo "RGCTL=${INSTALL_DIR}/rgctl"
     echo "RGCTL_VERSION=${TAG_NAME}"
     echo "RGCTL_TARGET=${TARGET}"
-  } >> "$GITHUB_ENV"
+  } >>"$GITHUB_ENV"
 fi
 
 echo "$INSTALL_DIR"

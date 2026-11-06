@@ -85,19 +85,19 @@ Legacy daemon cache under `~/.rgctl/cache/` is obsolete; run `rgctl discover .` 
 
 **When:** First use, or after major changes
 
-| User Intent | CLI Command |
-|-------------|-------------|
-| Build graph index | `cd repo && discover .` or `rgctl -r PATH discover` |
-| SCIP compiler overlay | `discover . --scip index.scip` |
-| Git churn / co-change | `discover . --with-git [--git-since 90.days]` → `metrics --churn` / `relations -e cochangeswith` |
-| Multi-repo merge | `merge repoA repoB --output-dir OUT` |
-| Patch graph after edits | `rgctl update` (or `update --files path1,path2`) — structural only |
-| Keep graph fresh while serving | `serve --watch` (debounced FS updates); still run `update` to enqueue if needed |
-| Prefer canonical verbs | `find`/`callers`/`slice`/`vuln analyze` (see encyclopedia map); `query`/`cpg`/`security` are façades |
-| Build semantic index | `semantic index` |
-| Check CFG readiness | `cpg status` |
-| Full staged pipeline | `discover . --full` |
-| Markdown + code context graph | `discover . -l markdown,<lang>` then `find '<Heading>*' --type module` → `relations <MODULE_ID_OR_HEADING> --edge references --direction out` |
+| User Intent                    | CLI Command                                                                                                                                   |
+|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| Build graph index              | `cd repo && discover .` or `rgctl -r PATH discover`                                                                                           |
+| SCIP compiler overlay          | `discover . --scip index.scip`                                                                                                                |
+| Git churn / co-change          | `discover . --with-git [--git-since 90.days]` → `metrics --churn` / `relations -e cochangeswith`                                              |
+| Multi-repo merge               | `merge repoA repoB --output-dir OUT`                                                                                                          |
+| Patch graph after edits        | `rgctl update` (or `update --files path1,path2`) — structural only                                                                            |
+| Keep graph fresh while serving | `serve --watch` (debounced FS updates); still run `update` to enqueue if needed                                                               |
+| Prefer canonical verbs         | `find`/`callers`/`slice`/`vuln analyze` (see encyclopedia map); `query`/`cpg`/`security` are façades                                          |
+| Build semantic index           | `semantic index`                                                                                                                              |
+| Check CFG readiness            | `cpg status`                                                                                                                                  |
+| Full staged pipeline           | `discover . --full`                                                                                                                           |
+| Markdown + code context graph  | `discover . -l markdown,<lang>` then `find '<Heading>*' --type module` → `relations <MODULE_ID_OR_HEADING> --edge references --direction out` |
 
 **Common flags:**
 - `--with-cfg` — Pre-build whole-repo CFG/PDG archive (taint/mutations/batch inspect; not required for lazy `slice`)
@@ -115,15 +115,15 @@ Legacy daemon cache under `~/.rgctl/cache/` is obsolete; run `rgctl discover .` 
 
 **Prefer slash command `/rgctl:migrate`** (skill `rgctl-migrate`) for framework upgrades, API/package refactors, and Strangler-Fig extraction. Core probes without the migrate skill:
 
-| User Intent | CLI Command |
-|-------------|-------------|
-| **Any migration / modernization** | **`/rgctl:migrate`** → skill `rgctl-migrate` |
-| Import census | `inventory --by import-prefix --limit 50` (optional `--prefix javax.`) |
-| Annotation surface | `find --annotation "@PersistenceContext,@Inject,@ConfigProperty" --show-attributes` |
-| Package / DI edges | `find --package <coords>` · `relations --edge injects` |
-| Wave ordering | `callers <sym> --depth 2` · `blast-radius <sym> --summary` |
-| Strangler-Fig plan | `discover . --export-migration-hints --with-harmonic` → `.rgctl/migration_plan.json` (`.steps[]`) |
-| Optional Kantra overlay | `discover . --with-kantra` then `rules findings --target quarkus` (or `rules run --target quarkus`) |
+| User Intent                       | CLI Command                                                                                         |
+|-----------------------------------|-----------------------------------------------------------------------------------------------------|
+| **Any migration / modernization** | **`/rgctl:migrate`** → skill `rgctl-migrate`                                                        |
+| Import census                     | `inventory --by import-prefix --limit 50` (optional `--prefix javax.`)                              |
+| Annotation surface                | `find --annotation "@PersistenceContext,@Inject,@ConfigProperty" --show-attributes`                 |
+| Package / DI edges                | `find --package <coords>` · `relations --edge injects`                                              |
+| Wave ordering                     | `callers <sym> --depth 2` · `blast-radius <sym> --summary`                                          |
+| Strangler-Fig plan                | `discover . --export-migration-hints --with-harmonic` → `.rgctl/migration_plan.json` (`.steps[]`)   |
+| Optional Kantra overlay           | `discover . --with-kantra` then `rules findings --target quarkus` (or `rules run --target quarkus`) |
 
 **See:** migrate skill + [references/workflows.md](references/workflows.md)
 
@@ -131,29 +131,29 @@ Legacy daemon cache under `~/.rgctl/cache/` is obsolete; run `rgctl discover .` 
 
 **Prefer structured verbs** (mmap; no Cypher). Parse `-f json` from **stdout** (`schema_version`); never `2>/dev/null`.
 
-| User Intent | CLI Command |
-|-------------|-------------|
-| Session / index freshness | `status` (`index_current`, dirty counts) |
-| Schema / counts (incl. zeros) | `inventory --by type` or `inventory --by edge` |
-| Import prefix census | `inventory --by import-prefix [--prefix javax.] [--limit 50]` |
-| Count functions | `find --type function --count-only` |
-| Find by name/type | `find "User*" --type class --limit 50` |
-| Suffix scan (MDB / Remote) | `find '*MDB*' --type class` |
-| Classes with annotation | `find --annotation @MessageDriven --type class` |
-| javax import worklist | `find "import javax*" --type import --scope <pkg>` |
-| Annotation pairs (seedless) | `relations --edge annotatedwith --from-type function --to-type annotation --scope <pkg>` |
-| Find callers/callees | `callers <Symbol> --depth 1` / `callees <Symbol>` |
-| Outside callers of a module | `callers <Symbol> --scope <pkg> --scope-mode outside` |
-| EXTENDS / IMPLEMENTS inventory | `relations --edge extends --from-type class` (omit SYMBOL) |
-| MRO overrides | `relations <SYM> --edge overrides --direction both` |
-| Git co-change files | `relations <FILE> --edge cochangeswith` (needs `discover --with-git`) |
-| Framework routes / DI | `relations --edge exposesroute` / `relations --edge injects` |
-| Natural-language search | `semantic query "checkout flow"` |
-| List communities | `communities list` (filter `member_count > 1`; skip unlabeled `"Community N"` singletons) |
-| Subsystem ownership | `semantic query "X" --scope community` (prefer named clusters) |
-| Refresh community labels | `communities label --write` |
-| Community census | `inventory --by community` |
-| Markdown heading → code | `find 'Checkout*' --type module`; `relations <MODULE_ID_OR_HEADING> --edge references --direction out` (use `.entities[0].id` from `find` when link nodes share the heading name) |
+| User Intent                    | CLI Command                                                                                                                                                                       |
+|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Session / index freshness      | `status` (`index_current`, dirty counts)                                                                                                                                          |
+| Schema / counts (incl. zeros)  | `inventory --by type` or `inventory --by edge`                                                                                                                                    |
+| Import prefix census           | `inventory --by import-prefix [--prefix javax.] [--limit 50]`                                                                                                                     |
+| Count functions                | `find --type function --count-only`                                                                                                                                               |
+| Find by name/type              | `find "User*" --type class --limit 50`                                                                                                                                            |
+| Suffix scan (MDB / Remote)     | `find '*MDB*' --type class`                                                                                                                                                       |
+| Classes with annotation        | `find --annotation @MessageDriven --type class`                                                                                                                                   |
+| javax import worklist          | `find "import javax*" --type import --scope <pkg>`                                                                                                                                |
+| Annotation pairs (seedless)    | `relations --edge annotatedwith --from-type function --to-type annotation --scope <pkg>`                                                                                          |
+| Find callers/callees           | `callers <Symbol> --depth 1` / `callees <Symbol>`                                                                                                                                 |
+| Outside callers of a module    | `callers <Symbol> --scope <pkg> --scope-mode outside`                                                                                                                             |
+| EXTENDS / IMPLEMENTS inventory | `relations --edge extends --from-type class` (omit SYMBOL)                                                                                                                        |
+| MRO overrides                  | `relations <SYM> --edge overrides --direction both`                                                                                                                               |
+| Git co-change files            | `relations <FILE> --edge cochangeswith` (needs `discover --with-git`)                                                                                                             |
+| Framework routes / DI          | `relations --edge exposesroute` / `relations --edge injects`                                                                                                                      |
+| Natural-language search        | `semantic query "checkout flow"`                                                                                                                                                  |
+| List communities               | `communities list` (filter `member_count > 1`; skip unlabeled `"Community N"` singletons)                                                                                         |
+| Subsystem ownership            | `semantic query "X" --scope community` (prefer named clusters)                                                                                                                    |
+| Refresh community labels       | `communities label --write`                                                                                                                                                       |
+| Community census               | `inventory --by community`                                                                                                                                                        |
+| Markdown heading → code        | `find 'Checkout*' --type module`; `relations <MODULE_ID_OR_HEADING> --edge references --direction out` (use `.entities[0].id` from `find` when link nodes share the heading name) |
 
 **Migration:** prefer **`/rgctl:migrate`** or `--export-migration-hints` → `migration_plan.json` v2 `.steps[]`. Optional probes: `communities list` (filter via `jq`) / `blast-radius` (keep `--depth` small).
 
@@ -162,17 +162,17 @@ Legacy daemon cache under `~/.rgctl/cache/` is obsolete; run `rgctl discover .` 
 
 ### 3. Impact & Safety
 
-| User Intent | CLI Command |
-|-------------|-------------|
-| Blast radius | `blast-radius <Symbol> --depth N` (prefer `--depth 2`/`3`; use `--summary` for compact score + top files) |
-| **Review a PR / branch** (report + verdict) | **`/rgctl:review`** → skill `rgctl-review` (writes `REVIEW_REPORT.md`) |
-| Review uncommitted local edits | `review paths --synthetic-head worktree` (via **`/rgctl:review`** Step 0a) |
-| Call paths before/after (CLI only) | `review paths --base-ref ORIGIN --head-ref HEAD` |
-| Temporal PR policy / CI gate | `review check --policy-file policy.json` (alias: `pr-check`) |
-| Policy check (full codebase) | `check --policy-file policy.json` |
-| Policy check (one symbol) | `blast-radius <Symbol> --policy-file policy.json` |
-| **OSV / CVE / OpenVEX triage** | **`/rgctl:vuln`** → skill `rgctl-vuln` |
-| OSV CLI-only | `discover . --with-cfg` then `vuln triage` → `deps check` → `vuln analyze` |
+| User Intent                                 | CLI Command                                                                                               |
+|---------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| Blast radius                                | `blast-radius <Symbol> --depth N` (prefer `--depth 2`/`3`; use `--summary` for compact score + top files) |
+| **Review a PR / branch** (report + verdict) | **`/rgctl:review`** → skill `rgctl-review` (writes `REVIEW_REPORT.md`)                                    |
+| Review uncommitted local edits              | `review paths --synthetic-head worktree` (via **`/rgctl:review`** Step 0a)                                |
+| Call paths before/after (CLI only)          | `review paths --base-ref ORIGIN --head-ref HEAD`                                                          |
+| Temporal PR policy / CI gate                | `review check --policy-file policy.json` (alias: `pr-check`)                                              |
+| Policy check (full codebase)                | `check --policy-file policy.json`                                                                         |
+| Policy check (one symbol)                   | `blast-radius <Symbol> --policy-file policy.json`                                                         |
+| **OSV / CVE / OpenVEX triage**              | **`/rgctl:vuln`** → skill `rgctl-vuln`                                                                    |
+| OSV CLI-only                                | `discover . --with-cfg` then `vuln triage` → `deps check` → `vuln analyze`                                |
 
 **High-ceremony slash commands** (keep palette ≤3): **`/rgctl:review`**, **`/rgctl:vuln`**, **`/rgctl:migrate`**. Atomic lookups (`find`, `callers`, `blast-radius`, `slice`, …) stay in this meta-skill — never as slash commands.
 
@@ -186,96 +186,96 @@ Legacy daemon cache under `~/.rgctl/cache/` is obsolete; run `rgctl discover .` 
 
 ### 4. Metrics & Analysis
 
-| User Intent | CLI Command |
-|-------------|-------------|
-| PageRank hotspots (names + paths in JSON) | `metrics --pagerank -f json` |
-| Betweenness bridges | `metrics --betweenness -f json` |
-| Community stats (Fast-Leiden) | `metrics --communities` |
-| Git churn hotspots | `metrics --churn` (after `discover --with-git`) |
-| Fragment / exact / bloom clones | `clones --mode fragment --seed <SYM\|FILE:LINES>` (or `exact` / `bloom`) |
+| User Intent                               | CLI Command                                                              |
+|-------------------------------------------|--------------------------------------------------------------------------|
+| PageRank hotspots (names + paths in JSON) | `metrics --pagerank -f json`                                             |
+| Betweenness bridges                       | `metrics --betweenness -f json`                                          |
+| Community stats (Fast-Leiden)             | `metrics --communities`                                                  |
+| Git churn hotspots                        | `metrics --churn` (after `discover --with-git`)                          |
+| Fragment / exact / bloom clones           | `clones --mode fragment --seed <SYM\|FILE:LINES>` (or `exact` / `bloom`) |
 
 `top[]` entries include `name`, `qualified_name`, `kind`, `file_path` alongside `node` (UUID) — no follow-up `cpg function` needed.
 
 ### 5. Code Analysis (CFG/PDG/Slicing)
 
-| User Intent | CLI Command |
-|-------------|-------------|
-| CFG/PDG status | `cpg status` |
-| Field mutations | `cpg mutations --type Foo` (needs `discover --with-cfg`) |
+| User Intent     | CLI Command                                                                              |
+|-----------------|------------------------------------------------------------------------------------------|
+| CFG/PDG status  | `cpg status`                                                                             |
+| Field mutations | `cpg mutations --type Foo` (needs `discover --with-cfg`)                                 |
 | Data flow trace | `cpg flows FILE --line N --variable V` (optional `--function`, `--with-alias`; lazy CFG) |
-| Program slice | `slice FILE --line N --variable V` (optional `--function`, `--with-alias`; lazy CFG) |
-| CFG inspection | `inspect <Symbol> cfg [--file PATH] [--class C] [--line N]` |
-| PDG inspection | `inspect <Symbol> pdg --edge-layer data` |
+| Program slice   | `slice FILE --line N --variable V` (optional `--function`, `--with-alias`; lazy CFG)     |
+| CFG inspection  | `inspect <Symbol> cfg [--file PATH] [--class C] [--line N]`                              |
+| PDG inspection  | `inspect <Symbol> pdg --edge-layer data`                                                 |
 
 `slice` / `cpg flows` do **not** need upfront `--with-cfg`. Prefer `discover --with-cfg` for `cpg mutations`, sink-first `taint`, and batch `inspect`. Disambiguate overloaded symbols with `--file` / `--class` / `--line` on `inspect`, `cpg function|calls|ast|pdg`, and `blast-radius`.
 
 ### 5b. Diff & Konveyor rules
 
-| User Intent | CLI Command |
-|-------------|-------------|
-| Snapshot / graph diff | `diff --base <A> --head <B>` (or prepared refs; see encyclopedia) |
-| Multi-repo merge | `merge <REPOS>... --output-dir <DIR>` |
-| Kantra / migration rules during discover | `discover . --with-kantra` |
-| List / query installed rules | `rules` (and related subcommands) |
+| User Intent                              | CLI Command                                                       |
+|------------------------------------------|-------------------------------------------------------------------|
+| Snapshot / graph diff                    | `diff --base <A> --head <B>` (or prepared refs; see encyclopedia) |
+| Multi-repo merge                         | `merge <REPOS>... --output-dir <DIR>`                             |
+| Kantra / migration rules during discover | `discover . --with-kantra`                                        |
+| List / query installed rules             | `rules` (and related subcommands)                                 |
 
 ### 6. Export & Visualization
 
-| User Intent | CLI Command |
-|-------------|-------------|
-| Export graph | `export --export-format graphviz --export-output OUT` |
-| CPG export | `cpg export --format graphson --output cpg.json` |
-| HTTP dashboard | `serve --open` |
+| User Intent    | CLI Command                                           |
+|----------------|-------------------------------------------------------|
+| Export graph   | `export --export-format graphviz --export-output OUT` |
+| CPG export     | `cpg export --format graphson --output cpg.json`      |
+| HTTP dashboard | `serve --open`                                        |
 
 ## Natural Language → Command Routing
 
-| User Says | Command |
-|-----------|---------|
-| "Generate migration plan" / "What should we extract first?" | **`/rgctl:migrate`** (or `discover . --export-migration-hints` → `.steps[]`) |
-| "Bottlenecks / hotspots" | `metrics --pagerank` |
-| "Where is checkout flow?" | `semantic query "checkout flow" --limit 10` |
-| "How does this doc map to code?" | `discover . -l markdown,<lang>` → `find 'Heading*' --type module` → `relations … --edge references --direction out` |
-| "Impact if I change X" | `blast-radius X --depth 2 --summary` |
-| "Are we affected by this CVE / OSV?" | **`/rgctl:vuln`** (or vuln workflow in references) |
-| "Validate against policy" | `check --policy-file policy.json` |
-| "Review my uncommitted changes" | **`/rgctl:review`** → `review paths --synthetic-head worktree` |
-| "How did call paths change on this PR?" | **`/rgctl:review`** or `review paths --base-ref origin/main --head-ref HEAD` |
-| "PR policy gate / new violations vs main" | `review check --policy-file …` (alias `pr-check`) |
-| "Who calls X" | `callers X --depth 2` (impact → `blast-radius X`) |
-| "javax imports / annotations" | `find "import javax*" --type import`; `find --annotation "@Stateless,@Stateful,@Singleton,@PersistenceContext,@Inject,@EJB" --show-attributes` |
-| "Where is X mutated?" | `cpg mutations --type X --exclude-ctors` (needs `--with-cfg`) |
-| "Slice / data flow for this line" | `slice FILE --line N --variable V` (lazy; optional `--with-alias`) |
-| "Duplicate code / copy-pasted loop or snippet" | `clones --mode fragment --seed <fn\|FILE:LINES>` (or `--mode exact` / `--mode bloom`) |
-| "What co-changes with this file?" | `discover --with-git` then `relations FILE --edge cochangeswith` / `metrics --churn` |
-| "Override hierarchy for this method" | `relations <SYM> --edge overrides --direction both` |
+| User Says                                                   | Command                                                                                                                                        |
+|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| "Generate migration plan" / "What should we extract first?" | **`/rgctl:migrate`** (or `discover . --export-migration-hints` → `.steps[]`)                                                                   |
+| "Bottlenecks / hotspots"                                    | `metrics --pagerank`                                                                                                                           |
+| "Where is checkout flow?"                                   | `semantic query "checkout flow" --limit 10`                                                                                                    |
+| "How does this doc map to code?"                            | `discover . -l markdown,<lang>` → `find 'Heading*' --type module` → `relations … --edge references --direction out`                            |
+| "Impact if I change X"                                      | `blast-radius X --depth 2 --summary`                                                                                                           |
+| "Are we affected by this CVE / OSV?"                        | **`/rgctl:vuln`** (or vuln workflow in references)                                                                                             |
+| "Validate against policy"                                   | `check --policy-file policy.json`                                                                                                              |
+| "Review my uncommitted changes"                             | **`/rgctl:review`** → `review paths --synthetic-head worktree`                                                                                 |
+| "How did call paths change on this PR?"                     | **`/rgctl:review`** or `review paths --base-ref origin/main --head-ref HEAD`                                                                   |
+| "PR policy gate / new violations vs main"                   | `review check --policy-file …` (alias `pr-check`)                                                                                              |
+| "Who calls X"                                               | `callers X --depth 2` (impact → `blast-radius X`)                                                                                              |
+| "javax imports / annotations"                               | `find "import javax*" --type import`; `find --annotation "@Stateless,@Stateful,@Singleton,@PersistenceContext,@Inject,@EJB" --show-attributes` |
+| "Where is X mutated?"                                       | `cpg mutations --type X --exclude-ctors` (needs `--with-cfg`)                                                                                  |
+| "Slice / data flow for this line"                           | `slice FILE --line N --variable V` (lazy; optional `--with-alias`)                                                                             |
+| "Duplicate code / copy-pasted loop or snippet"              | `clones --mode fragment --seed <fn\|FILE:LINES>` (or `--mode exact` / `--mode bloom`)                                                          |
+| "What co-changes with this file?"                           | `discover --with-git` then `relations FILE --edge cochangeswith` / `metrics --churn`                                                           |
+| "Override hierarchy for this method"                        | `relations <SYM> --edge overrides --direction both`                                                                                            |
 
 ## Failure Playbook
 
-| Symptom | Fix |
-|---------|-----|
-| No `.rgctl/` in repo | Run `cd repo && rgctl discover .` |
-| `status` shows `index_current=false` | Run `rgctl update` once (works under `serve --watch` via queue); do **not** full rediscover |
-| blast-radius / callers empty for a file that exists on disk | `rgctl update --files <path>` once, retry query; then fall back to reading source |
-| `slice` / `cpg flows` fails | Confirm `--line` is inside a function body; retry (lazy append). Reserve rediscover `--with-cfg` for mutations/taint/inspect |
-| inspect / `cpg mutations` / sink-first taint fails | Re-discover with `--with-cfg` |
-| vuln analyze / sink-first taint weak (`cfg_available=false`) | Re-discover with `--with-cfg` (add `--with-taint` for PDG confidence) |
-| semantic query fails | `semantic index` |
-| Ambiguous symbol | Add `--file` / `--class` / `--line` (inspect/cpg/blast-radius/find/callers); read `candidates` + `recovery_command` under `-f json` |
-| `check` exit 1 | Report violations (JSON still on stdout) |
-| find/relations empty | Run `inventory --by type` / `--by edge` (zeros mean unpopulated schema); check `--scope` |
-| Name glob returns 0 | Try `semantic query` / `communities list` / broader `find '*X*'` types |
+| Symptom                                                      | Fix                                                                                                                                 |
+|--------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| No `.rgctl/` in repo                                         | Run `cd repo && rgctl discover .`                                                                                                   |
+| `status` shows `index_current=false`                         | Run `rgctl update` once (works under `serve --watch` via queue); do **not** full rediscover                                         |
+| blast-radius / callers empty for a file that exists on disk  | `rgctl update --files <path>` once, retry query; then fall back to reading source                                                   |
+| `slice` / `cpg flows` fails                                  | Confirm `--line` is inside a function body; retry (lazy append). Reserve rediscover `--with-cfg` for mutations/taint/inspect        |
+| inspect / `cpg mutations` / sink-first taint fails           | Re-discover with `--with-cfg`                                                                                                       |
+| vuln analyze / sink-first taint weak (`cfg_available=false`) | Re-discover with `--with-cfg` (add `--with-taint` for PDG confidence)                                                               |
+| semantic query fails                                         | `semantic index`                                                                                                                    |
+| Ambiguous symbol                                             | Add `--file` / `--class` / `--line` (inspect/cpg/blast-radius/find/callers); read `candidates` + `recovery_command` under `-f json` |
+| `check` exit 1                                               | Report violations (JSON still on stdout)                                                                                            |
+| find/relations empty                                         | Run `inventory --by type` / `--by edge` (zeros mean unpopulated schema); check `--scope`                                            |
+| Name glob returns 0                                          | Try `semantic query` / `communities list` / broader `find '*X*'` types                                                              |
 
 ## Artifacts
 
 All paths under **`{repo}/.rgctl/`**:
 
-| Path | Content |
-|------|---------|
-| `graph.snapshot.bin` | Main graph snapshot |
-| `semantic_index.bin` | Semantic index |
-| `migration_plan.json` | Migration roadmap (`--export-migration-hints`) |
-| `dashboard/` | Dashboard bundle |
-| `analysis/` | CFG/PDG archives |
-| `clones*.json` | Clone group sidecar caches (`clones.json`, `clones.bloom.json`, `clones.fragment.json`) |
+| Path                  | Content                                                                                 |
+|-----------------------|-----------------------------------------------------------------------------------------|
+| `graph.snapshot.bin`  | Main graph snapshot                                                                     |
+| `semantic_index.bin`  | Semantic index                                                                          |
+| `migration_plan.json` | Migration roadmap (`--export-migration-hints`)                                          |
+| `dashboard/`          | Dashboard bundle                                                                        |
+| `analysis/`           | CFG/PDG archives                                                                        |
+| `clones*.json`        | Clone group sidecar caches (`clones.json`, `clones.bloom.json`, `clones.fragment.json`) |
 
 ## Usage Globals
 
@@ -310,4 +310,4 @@ rgctl -r "$REPO" -f json <command> …
 rgctl install --skill --tools cursor,claude,codex,antigravity,agents
 ```
 
-Installs the single skill `rgctl` (with `references/`) for each selected adapter. Omitting `--tools` installs **cursor, claude, codex, agents, antigravity**; use `--tools all` for the full registry. See https://rgctl.io/docs/guides/agent-skill/ (product docs; not bundled in this skill pack). Scenario prose lives in `references/workflows.md`.
+Installs the single skill `rgctl` (with `references/`) for each selected adapter. Omitting `--tools` installs **cursor, claude, codex, agents, antigravity**; use `--tools all` for the full registry. See <https://rgctl.io/docs/guides/agent-skill/> (product docs; not bundled in this skill pack). Scenario prose lives in `references/workflows.md`.

@@ -8,29 +8,29 @@ Samples below are truncated where noted. Field names match live CLI / `docs/json
 
 Prefer the **Canonical** column in examples and agent workflows. Aliases/façades remain supported.
 
-| Intent | Canonical | Aliases / façades |
-|--------|-----------|-------------------|
-| Index / cold start | `discover` (`--scip`, `--with-git`) | — |
-| Multi-repo merge | `merge … --output-dir` | — |
-| Session freshness | `status` → `update` | `serve --watch` / `watch` (+ queue) |
-| Symbol lookup | `find` | `query find` |
-| Callers / callees | `callers` / `callees` | `query …`, `cpg calls` |
-| Typed edges | `relations` (`overrides`, `cochangeswith`, …) | `query relations` |
-| Counts | `inventory` | `query inventory` |
-| Line slice / flow | `slice` (lazy CFG; optional `--function`, `--with-alias`) | `cpg slice`, `cpg flows` |
-| Raw CFG / PDG | `inspect` | `cpg pdg` |
-| Impact | `blast-radius` | — |
-| Hotspots / churn | `metrics` (`--pagerank`, `--churn`, …) | — |
-| Exact / bloom / fragment clones | `clones` (`--mode fragment --seed`) | — (not `semantic query`) |
-| OSV → OpenVEX | `vuln analyze` | `security vuln analyze` |
-| Dep match | `deps check` | `security deps check` |
-| Sink taint CLI | `taint` | `security taint` |
-| CI policy | `check` | — |
-| PR call-path review | `review paths` | — |
-| PR policy gate | `review check` | `pr-check` (alias) |
-| Composed review artifact | `review export` | — |
-| Kantra rules | `rules run` | — |
-| Experimental GQL | `gql` | prefer Query verbs above |
+| Intent                          | Canonical                                                 | Aliases / façades                   |
+|---------------------------------|-----------------------------------------------------------|-------------------------------------|
+| Index / cold start              | `discover` (`--scip`, `--with-git`)                       | —                                   |
+| Multi-repo merge                | `merge … --output-dir`                                    | —                                   |
+| Session freshness               | `status` → `update`                                       | `serve --watch` / `watch` (+ queue) |
+| Symbol lookup                   | `find`                                                    | `query find`                        |
+| Callers / callees               | `callers` / `callees`                                     | `query …`, `cpg calls`              |
+| Typed edges                     | `relations` (`overrides`, `cochangeswith`, …)             | `query relations`                   |
+| Counts                          | `inventory`                                               | `query inventory`                   |
+| Line slice / flow               | `slice` (lazy CFG; optional `--function`, `--with-alias`) | `cpg slice`, `cpg flows`            |
+| Raw CFG / PDG                   | `inspect`                                                 | `cpg pdg`                           |
+| Impact                          | `blast-radius`                                            | —                                   |
+| Hotspots / churn                | `metrics` (`--pagerank`, `--churn`, …)                    | —                                   |
+| Exact / bloom / fragment clones | `clones` (`--mode fragment --seed`)                       | — (not `semantic query`)            |
+| OSV → OpenVEX                   | `vuln analyze`                                            | `security vuln analyze`             |
+| Dep match                       | `deps check`                                              | `security deps check`               |
+| Sink taint CLI                  | `taint`                                                   | `security taint`                    |
+| CI policy                       | `check`                                                   | —                                   |
+| PR call-path review             | `review paths`                                            | —                                   |
+| PR policy gate                  | `review check`                                            | `pr-check` (alias)                  |
+| Composed review artifact        | `review export`                                           | —                                   |
+| Kantra rules                    | `rules run`                                               | —                                   |
+| Experimental GQL                | `gql`                                                     | prefer Query verbs above            |
 
 `rgctl --help` lists commands under visual groups: Lifecycle · Query · Analysis · Security · Policy · Meta (flat verbs unchanged: `rgctl discover`, not nested).
 

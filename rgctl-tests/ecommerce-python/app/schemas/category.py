@@ -1,8 +1,7 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
-
 from app.schemas.common import ORMModel
+from pydantic import BaseModel, Field
 
 
 class CreateCategoryRequest(BaseModel):

@@ -1,8 +1,7 @@
-from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
-
 from app.models.product import Product
 from app.repositories.base import BaseRepository
+from sqlalchemy import select
+from sqlalchemy.orm import Session, joinedload
 
 
 class ProductRepository(BaseRepository[Product]):
@@ -18,7 +17,11 @@ class ProductRepository(BaseRepository[Product]):
         return list(self.db.scalars(stmt).all())
 
     def get_with_category(self, product_id: str) -> Product | None:
-        stmt = select(Product).options(joinedload(Product.category)).where(Product.id == product_id)
+        stmt = (
+            select(Product)
+            .options(joinedload(Product.category))
+            .where(Product.id == product_id)
+        )
         return self.db.scalars(stmt).first()
 
     def decrement_stock(self, product: Product, quantity: int) -> Product:

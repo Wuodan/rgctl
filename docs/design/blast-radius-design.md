@@ -10,12 +10,12 @@ Pre-computed **call-graph reachability** for change-impact analysis: upstream ca
 
 ## 1. Goals
 
-| Goal | How |
-|------|-----|
-| Answer “what breaks if I change this?” | Reverse call-graph traversal with SCC-aware macro impact |
-| Stay fast at scale | T0 lookup cache → T1 mmap engine → full hydrate when needed |
-| Agent-ready output | JSON schema v2 (`target`, `metrics`, `topology`, `gatekeeping`) |
-| Governance | Optional `--policy-file` centrality / cascade checks |
+| Goal                                   | How                                                             |
+|----------------------------------------|-----------------------------------------------------------------|
+| Answer “what breaks if I change this?” | Reverse call-graph traversal with SCC-aware macro impact        |
+| Stay fast at scale                     | T0 lookup cache → T1 mmap engine → full hydrate when needed     |
+| Agent-ready output                     | JSON schema v2 (`target`, `metrics`, `topology`, `gatekeeping`) |
+| Governance                             | Optional `--policy-file` centrality / cascade checks            |
 
 ---
 
@@ -69,24 +69,24 @@ CLI JSON: [json-api.md](../json-api.md) (blast-radius + field catalogs).
 
 ## 4. Rust implementation map
 
-| Component | Path |
-|-----------|------|
-| Engine + reachability | `crates/rgctl-analysis/src/blast_radius_scc.rs` |
-| Engine snapshot | `crates/rgctl-analysis/src/blast_engine_snapshot.rs` |
-| T0 lookup cache | `crates/rgctl-analysis/src/macro_call_lookup.rs` |
-| CLI orchestration | `src/cli/blast_radius.rs` |
-| Policy integration | `src/cli/policy_file.rs`, `engine.analyze_with_policy` |
+| Component             | Path                                                   |
+|-----------------------|--------------------------------------------------------|
+| Engine + reachability | `crates/rgctl-analysis/src/blast_radius_scc.rs`        |
+| Engine snapshot       | `crates/rgctl-analysis/src/blast_engine_snapshot.rs`   |
+| T0 lookup cache       | `crates/rgctl-analysis/src/macro_call_lookup.rs`       |
+| CLI orchestration     | `src/cli/blast_radius.rs`                              |
+| Policy integration    | `src/cli/policy_file.rs`, `engine.analyze_with_policy` |
 
 ---
 
 ## 5. Dashboard implementation
 
-| Piece | Path |
-|-------|------|
-| Tab | `dashboard/src/BlastView.tsx` |
-| WASM API | `blastRadius(nodeIndex, maxDepth)` in worker |
+| Piece              | Path                                          |
+|--------------------|-----------------------------------------------|
+| Tab                | `dashboard/src/BlastView.tsx`                 |
+| WASM API           | `blastRadius(nodeIndex, maxDepth)` in worker  |
 | Precomputed scores | `blast_index.json` (optional sort in sidebar) |
-| Depth slider | Debounced re-query against WASM BFS |
+| Depth slider       | Debounced re-query against WASM BFS           |
 
 ---
 
@@ -105,12 +105,12 @@ rgctl -f json blast-radius Foo --with-slices               # hand-off to PDG sli
 
 ## 7. Testing
 
-| Layer | Location |
-|-------|----------|
-| Release perf gates | `tests/blast_radius_perf.rs` |
-| Subprocess golden path | `tests/cli_output/subprocess_golden_path.rs` |
-| JSON contract | `tests/cli_output/all_commands_sanity.rs` |
-| Dashboard harness | `tests/dashboard_harness.rs` (`blast_index.json`) |
+| Layer                  | Location                                          |
+|------------------------|---------------------------------------------------|
+| Release perf gates     | `tests/blast_radius_perf.rs`                      |
+| Subprocess golden path | `tests/cli_output/subprocess_golden_path.rs`      |
+| JSON contract          | `tests/cli_output/all_commands_sanity.rs`         |
+| Dashboard harness      | `tests/dashboard_harness.rs` (`blast_index.json`) |
 
 Regenerate screenshots:
 

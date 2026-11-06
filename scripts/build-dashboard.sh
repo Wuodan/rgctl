@@ -105,7 +105,7 @@ check_budget() {
   fi
   actual="$(size_kib "$dir")"
   printf '  %-4s %4s KiB gzipped (budget %s)\n' "$label" "$actual" "$budget"
-  if (( actual > budget )); then
+  if ((actual > budget)); then
     cat >&2 <<MSG
 error: $label bundle is ${actual} KiB gzipped, over the recorded budget of ${budget} KiB.
 

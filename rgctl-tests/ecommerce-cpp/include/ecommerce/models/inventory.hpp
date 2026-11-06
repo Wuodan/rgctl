@@ -3,7 +3,7 @@
 namespace ecommerce::models {
 class InventoryHelper {
 public:
-    static void init(Inventory* obj);
-    static bool validate(const Inventory* obj);
+  static void init(Inventory *obj);
+  static bool validate(const Inventory *obj);
 };
-}  // namespace ecommerce::models
+} // namespace ecommerce::models

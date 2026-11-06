@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Fixtures;
 
 #[Route('/api/v1')]

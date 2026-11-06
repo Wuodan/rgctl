@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Fixtures;
 
 use App\Traits\Timestampable;
@@ -11,7 +12,8 @@ trait Loggable
 
 class SampleService
 {
-    use Timestampable, Loggable;
+    use Timestampable;
+    use Loggable;
 
     public function run(AuthService $auth): void
     {

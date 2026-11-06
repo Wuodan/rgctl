@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-
 from app.database import get_db
 from app.middleware.auth import require_auth
 from app.schemas.product import CreateProductRequest, ProductResponse
 from app.services.product import ProductService
 from app.utils.dependencies import AuthUser
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/api/products", tags=["products"])
 
