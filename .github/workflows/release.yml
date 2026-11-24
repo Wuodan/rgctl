@@ -340,6 +340,12 @@ jobs:
           path: dist
           merge-multiple: true
 
+      - name: Stage installer script
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp scripts/install.sh dist/
+
       - name: Write checksums
         shell: bash
         run: |
