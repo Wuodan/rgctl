@@ -367,8 +367,7 @@ jobs:
               mv -f "$f" "./$base"
             fi
           done
-          : > SHA256SUMS.txt
-          for f in rgctl-*.tar.gz rgctl-*.zip; do
+          for f in *; do
             [[ -f "$f" ]] || continue
             shasum -a 256 "$f" >> SHA256SUMS.txt
           done
